@@ -1,0 +1,9 @@
+[submodule "Dev/Effekseer"]
+	path = Dev/Effekseer
+	url = https://github.com/effekseer/Effekseer.git
+[submodule "Dev/godot-cpp"]
+	path = Dev/godot-cpp
+	url = https://github.com/godotengine/godot-cpp.git
+[submodule "Dev/Cpp/godot-cpp"]
+	path = Dev/Cpp/godot-cpp
+	url = https://github.com/godotengine/godot-cpp.git

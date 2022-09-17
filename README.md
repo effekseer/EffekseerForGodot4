@@ -1,1 +1,1 @@
-"# EffekseerForGodot4" 
+# EffekseerForGodot4
