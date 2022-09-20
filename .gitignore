@@ -1,0 +1,49 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+*.os
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Cache directories
+.vs/
+.import/
+.godot/
+
+# Ignore files
+*.user
+.sconsign.dblite
+.DS_Store
+
+# Build directories
+Dev/Cpp/x64/
+Dev/Cpp/Win32/
+Dev/Cpp/bin
+Dev/logs
+Dev/build*
+Dev/Godot/addons/effekseer/bin
+Docs/build
+Docs/build
+Release/

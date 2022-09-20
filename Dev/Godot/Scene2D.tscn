@@ -1,0 +1,111 @@
+[gd_scene load_steps=12 format=2]
+
+[ext_resource path="res://addons/effekseer/src/EffekseerEmitter2D.gdns" type="Script" id=1]
+[ext_resource path="res://icon.png" type="Texture2D" id=2]
+[ext_resource path="res://effect/samples/GPUParticles3D.efkefc" type="Resource" id=3]
+[ext_resource path="res://GUI.tscn" type="PackedScene" id=4]
+[ext_resource path="res://effect/tests/Textures/Particle02.png" type="Texture2D" id=5]
+[ext_resource path="res://effect/sample-material2/Parts/Gradient__3.png" type="Texture2D" id=6]
+[ext_resource path="res://grid.png" type="Texture2D" id=7]
+[ext_resource path="res://scripts/Scene2D.gd" type="Script" id=8]
+[ext_resource path="res://effect/sample-material2/Parts/Gradient__1.png" type="Texture2D" id=9]
+[ext_resource path="res://effect/sample-material2/Parts/Gradient_2.png" type="Texture2D" id=10]
+
+[sub_resource type="QuadMesh" id=1]
+
+[node name="Scene2D" type="Node2D"]
+script = ExtResource( 8 )
+
+[node name="Background" type="TextureRect" parent="."]
+offset_right = 1024.0
+offset_bottom = 600.0
+texture = ExtResource( 7 )
+expand = true
+
+[node name="ColorRect" type="ColorRect" parent="."]
+modulate = Color( 1, 1, 1, 0.384314 )
+offset_left = 161.0
+offset_top = 264.0
+offset_right = 339.0
+offset_bottom = 390.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2( 171.514, 105.967 )
+texture = ExtResource( 2 )
+
+[node name="Effect" type="Node2D" parent="."]
+position = Vector2( 229.379, 184.932 )
+scale = Vector2( 10, 10 )
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
+effect = ExtResource( 3 )
+orientation = Vector3( 30, 0, 0 )
+
+[node name="MeshInstance2D" type="MeshInstance2D" parent="Effect"]
+mesh = SubResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Sprite2" type="Sprite2D" parent="."]
+position = Vector2( 275.172, 107.026 )
+texture = ExtResource( 2 )
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+position = Vector2( 579.538, 223.844 )
+scale = Vector2( 2.51584, 2.59459 )
+texture = ExtResource( 5 )
+
+[node name="Camera2D" type="Camera2D" parent="."]
+offset = Vector2( 512, 300 )
+
+[node name="Header" type="HBoxContainer" parent="."]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 1020.0
+offset_bottom = 35.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Title" type="Label" parent="Header"]
+offset_top = 8.0
+offset_right = 200.0
+offset_bottom = 22.0
+minimum_size = Vector2( 200, 0 )
+text = "Effekseer 2D Effect Example"
+valign = 1
+
+[node name="Description" type="Label" parent="Header"]
+offset_left = 204.0
+offset_top = 8.0
+offset_right = 1016.0
+offset_bottom = 22.0
+size_flags_horizontal = 3
+text = "W/A/S/D: Move the Emitter.  Q/E: Rotate the Emitter."
+valign = 1
+
+[node name="GUI" parent="." instance=ExtResource( 4 )]
+offset_top = 548.0
+offset_right = 1024.0
+offset_bottom = 600.0
+
+[node name="Gradient1" type="Sprite2D" parent="."]
+position = Vector2( 396.926, 394.053 )
+scale = Vector2( 18.5408, 1 )
+texture = ExtResource( 9 )
+
+[node name="Gradient3" type="Sprite2D" parent="."]
+position = Vector2( 360.446, 394.752 )
+scale = Vector2( 20.3246, 1 )
+texture = ExtResource( 6 )
+
+[node name="Gradient2" type="Sprite2D" parent="."]
+position = Vector2( 431.707, 393.772 )
+scale = Vector2( 24.7841, 1 )
+texture = ExtResource( 10 )

@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://cd62yyu8sctn"
+path="res://.godot/imported/Simple_Ribbon_Parent.efkefc-cb68cae0189a85121d1f8bc7b93a1e8a.res"
+
+[deps]
+
+source_file="res://effect/samples/Simple_Ribbon_Parent.efkefc"
+dest_files=["res://.godot/imported/Simple_Ribbon_Parent.efkefc-cb68cae0189a85121d1f8bc7b93a1e8a.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

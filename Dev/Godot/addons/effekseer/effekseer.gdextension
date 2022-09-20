@@ -1,0 +1,6 @@
+[configuration]
+entry_symbol = "effekseer_library_init"
+
+[libraries]
+windows.debug.x86_64 = "res://addons/effekseer/bin/windows/libeffekseer.win64.dll"
+windows.release.x86_64 = "res://addons/effekseer/bin/windows/libeffekseer.win64.dll"

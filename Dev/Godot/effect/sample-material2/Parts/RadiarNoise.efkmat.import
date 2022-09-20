@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://2vd5ax7agmbv"
+path="res://.godot/imported/RadiarNoise.efkmat-86400587a0b05aee3cbd149c3817987d.res"
+
+[deps]
+
+source_file="res://effect/sample-material2/Parts/RadiarNoise.efkmat"
+dest_files=["res://.godot/imported/RadiarNoise.efkmat-86400587a0b05aee3cbd149c3817987d.res"]
+
+[params]
+
+compress=true

@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://dht1jncpanwmx"
+path="res://.godot/imported/Plane.efkefc-5a27513fccf65345dc9c6dd821b7cfb0.res"
+
+[deps]
+
+source_file="res://effect/samples/Plane.efkefc"
+dest_files=["res://.godot/imported/Plane.efkefc-5a27513fccf65345dc9c6dd821b7cfb0.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

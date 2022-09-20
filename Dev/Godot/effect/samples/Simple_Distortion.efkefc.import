@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://bkbmaq2e1kq0e"
+path="res://.godot/imported/Simple_Distortion.efkefc-ba063639f8e0a7f4970a7dd6527bd2d1.res"
+
+[deps]
+
+source_file="res://effect/samples/Simple_Distortion.efkefc"
+dest_files=["res://.godot/imported/Simple_Distortion.efkefc-ba063639f8e0a7f4970a7dd6527bd2d1.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

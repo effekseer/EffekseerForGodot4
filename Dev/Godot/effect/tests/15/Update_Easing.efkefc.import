@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://btxe07mgoh0io"
+path="res://.godot/imported/Update_Easing.efkefc-c0f410a9cb28e80bb113768f30e72031.res"
+
+[deps]
+
+source_file="res://effect/tests/15/Update_Easing.efkefc"
+dest_files=["res://.godot/imported/Update_Easing.efkefc-c0f410a9cb28e80bb113768f30e72031.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

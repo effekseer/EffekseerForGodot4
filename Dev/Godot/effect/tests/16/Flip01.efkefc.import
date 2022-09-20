@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://dehu4msax3svs"
+path="res://.godot/imported/Flip01.efkefc-7ed86509ed1b46c97604ce740a86e64a.res"
+
+[deps]
+
+source_file="res://effect/tests/16/Flip01.efkefc"
+dest_files=["res://.godot/imported/Flip01.efkefc-7ed86509ed1b46c97604ce740a86e64a.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

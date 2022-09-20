@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://f3xn5s6dt4s6"
+path="res://.godot/imported/AuraTubeModel.efkmodel-565407529bc029b1b38a19a9ae71a881.res"
+
+[deps]
+
+source_file="res://effect/sample-material2/Parts/AuraTubeModel.efkmodel"
+dest_files=["res://.godot/imported/AuraTubeModel.efkmodel-565407529bc029b1b38a19a9ae71a881.res"]
+
+[params]
+
+compress=true

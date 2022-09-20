@@ -1,0 +1,125 @@
+[gd_scene load_steps=3 format=3 uid="uid://ca3wnb18nmnhn"]
+
+[ext_resource type="Script" path="res://scripts/SceneMenu.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/EffectMenu.gd" id="2"]
+
+[node name="GUI" type="HBoxContainer"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -56.0
+
+[node name="SceneMenu" type="MenuButton" parent="."]
+layout_mode = 2
+offset_right = 62.0
+offset_bottom = 69.0
+focus_mode = 2
+text = "Scenes"
+flat = false
+switch_on_hover = true
+script = ExtResource("1")
+
+[node name="EffectMenu" type="MenuButton" parent="."]
+layout_mode = 2
+offset_left = 66.0
+offset_right = 126.0
+offset_bottom = 69.0
+focus_mode = 2
+text = "Effects"
+flat = false
+switch_on_hover = true
+script = ExtResource("2")
+
+[node name="VSeparator1" type="VSeparator" parent="."]
+layout_mode = 2
+offset_left = 130.0
+offset_right = 134.0
+offset_bottom = 69.0
+
+[node name="PlayButton" type="Button" parent="."]
+layout_mode = 2
+offset_left = 138.0
+offset_right = 179.0
+offset_bottom = 69.0
+text = "Play"
+
+[node name="StopButton" type="Button" parent="."]
+layout_mode = 2
+offset_left = 183.0
+offset_right = 226.0
+offset_bottom = 69.0
+text = "Stop"
+
+[node name="PauseButton" type="Button" parent="."]
+layout_mode = 2
+offset_left = 230.0
+offset_right = 285.0
+offset_bottom = 69.0
+text = "Pause"
+
+[node name="VSeparator2" type="VSeparator" parent="."]
+layout_mode = 2
+offset_left = 289.0
+offset_right = 293.0
+offset_bottom = 69.0
+
+[node name="Triggers" type="VSplitContainer" parent="."]
+layout_mode = 2
+offset_left = 297.0
+offset_right = 381.0
+offset_bottom = 69.0
+
+[node name="Label" type="Label" parent="Triggers"]
+layout_mode = 2
+offset_right = 84.0
+offset_bottom = 26.0
+text = "Triggers"
+
+[node name="Buttons" type="HBoxContainer" parent="Triggers"]
+layout_mode = 2
+offset_top = 38.0
+offset_right = 84.0
+offset_bottom = 69.0
+
+[node name="Trigger0" type="Button" parent="Triggers/Buttons"]
+layout_mode = 2
+offset_right = 18.0
+offset_bottom = 31.0
+text = "0"
+
+[node name="Trigger1" type="Button" parent="Triggers/Buttons"]
+layout_mode = 2
+offset_left = 22.0
+offset_right = 40.0
+offset_bottom = 31.0
+text = "1"
+
+[node name="Trigger2" type="Button" parent="Triggers/Buttons"]
+layout_mode = 2
+offset_left = 44.0
+offset_right = 62.0
+offset_bottom = 31.0
+text = "2"
+
+[node name="Trigger3" type="Button" parent="Triggers/Buttons"]
+layout_mode = 2
+offset_left = 66.0
+offset_right = 84.0
+offset_bottom = 31.0
+text = "3"
+
+[node name="VSeparator3" type="VSeparator" parent="."]
+layout_mode = 2
+offset_left = 385.0
+offset_right = 389.0
+offset_bottom = 69.0
+
+[node name="ResourceName" type="Label" parent="."]
+layout_mode = 2
+offset_left = 393.0
+offset_top = 21.0
+offset_right = 1152.0
+offset_bottom = 47.0
+size_flags_horizontal = 3
+text = "res://effect/samples/Laser01.efkefc"

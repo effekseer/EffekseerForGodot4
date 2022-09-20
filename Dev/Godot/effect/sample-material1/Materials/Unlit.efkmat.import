@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://cdkkk1nm006r3"
+path="res://.godot/imported/Unlit.efkmat-6de18f29c130ecf8dc63678b4151c0f5.res"
+
+[deps]
+
+source_file="res://effect/sample-material1/Materials/Unlit.efkmat"
+dest_files=["res://.godot/imported/Unlit.efkmat-6de18f29c130ecf8dc63678b4151c0f5.res"]
+
+[params]
+
+compress=true
