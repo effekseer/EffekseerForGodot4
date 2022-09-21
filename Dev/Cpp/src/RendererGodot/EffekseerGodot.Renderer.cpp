@@ -2,6 +2,7 @@
 //----------------------------------------------------------------------------------
 // Include
 //----------------------------------------------------------------------------------
+#include <algorithm>
 #include <godot_cpp/godot.hpp>
 #include <godot_cpp/classes/rendering_server.hpp>
 #include <godot_cpp/classes/world3d.hpp>
@@ -212,9 +213,65 @@ inline EffekseerRenderer::VertexFloat3 Normalize(const EffekseerRenderer::Vertex
 	return result;
 }
 
-inline godot::Plane ConvertTangent(const EffekseerRenderer::VertexFloat3& t)
+inline uint32_t ConvertNormal(const EffekseerRenderer::VertexColor& v)
 {
-	return godot::Plane(t.X, t.Y, t.Z, 1.0f);
+#if 0
+	// To RGB10
+	uint32_t x = (uint32_t)((float)v.R / 255.0f * 1023.0f);
+	uint32_t y = (uint32_t)((float)v.G / 255.0f * 1023.0f);
+	uint32_t z = (uint32_t)((float)v.B / 255.0f * 1023.0f);
+	return (x) | (y << 10) | (z << 20);
+#else
+	// Octahedral Normal Compression (godot::Vector3::octahedron_encode)
+	auto n = Normalize(EffekseerRenderer::UnpackVector3DF(v));
+
+	float x, y;
+	if (n.Z >= 0.0f) {
+		x = n.X;
+		y = n.Y;
+	} else {
+		x = (1.0f - fabsf(n.Y)) * (n.X >= 0.0f ? 1.0f : -1.0f);
+		y = (1.0f - fabsf(n.X)) * (n.Y >= 0.0f ? 1.0f : -1.0f);
+	}
+	x = x * 0.5f + 0.5f;
+	y = y * 0.5f + 0.5f;
+
+	uint32_t ux = (uint32_t)std::clamp((int32_t)(x * 65535.0f), 0, 65535);
+	uint32_t uy = (uint32_t)std::clamp((int32_t)(y * 65535.0f), 0, 65535);
+
+	return (ux) | (uy << 16);
+#endif
+}
+
+inline uint32_t ConvertTangent(const EffekseerRenderer::VertexColor& v)
+{
+#if 0
+	// To RGB10_A2
+	uint32_t x = (uint32_t)((float)v.R / 255.0f * 1023.0f);
+	uint32_t y = (uint32_t)((float)v.G / 255.0f * 1023.0f);
+	uint32_t z = (uint32_t)((float)v.B / 255.0f * 1023.0f);
+	return (x) | (y << 10) | (z << 20) | (3U << 30);
+#else
+	// Octahedral Tangent Compression (godot::Vector3::octahedron_tangent_encode)
+	auto n = Normalize(EffekseerRenderer::UnpackVector3DF(v));
+
+	float x, y;
+	if (n.Z >= 0.0f) {
+		x = n.X;
+		y = n.Y;
+	} else {
+		x = (1.0f - fabsf(n.Y)) * (n.X >= 0.0f ? 1.0f : -1.0f);
+		y = (1.0f - fabsf(n.X)) * (n.Y >= 0.0f ? 1.0f : -1.0f);
+	}
+	x = x * 0.5f + 0.5f;
+	y = y * 0.5f + 0.5f;
+	y = y * 0.5f + 0.5f;  // binormal sign
+
+	uint32_t ux = (uint32_t)std::clamp((int32_t)(x * 65535.0f), 0, 65535);
+	uint32_t uy = (uint32_t)std::clamp((int32_t)(y * 65535.0f), 0, 65535);
+
+	return (ux) | (uy << 16);
+#endif
 }
 
 inline void CopyVertexTexture(float*& dst, float x, float y, float z, float w)
@@ -240,6 +297,21 @@ inline void CopyCustomData(float*& dst, const uint8_t*& src, int32_t count)
 	dst += 4;
 	src += count * sizeof(float);
 }
+
+struct GDSimpleVertex {
+	Effekseer::Vector3D pos;
+};
+
+struct GDLitVertex {
+	Effekseer::Vector3D pos;
+	uint32_t normal;
+	uint32_t tangent;
+};
+
+struct GDSimpleAttribute {
+	Effekseer::Color color;
+	Effekseer::Vector2D uv;
+};
 
 RenderCommand::RenderCommand()
 {
@@ -815,60 +887,55 @@ void RendererImplemented::TransferVertexToMesh(godot::RID mesh,
 
 	if (shaderType == RendererShaderType::Unlit)
 	{
-		format = RenderingServer::ARRAY_FORMAT_VERTEX | 
-			RenderingServer::ARRAY_FORMAT_COLOR | 
+		format = RenderingServer::ARRAY_FORMAT_VERTEX |
+			RenderingServer::ARRAY_FORMAT_COLOR |
 			RenderingServer::ARRAY_FORMAT_TEX_UV;
-		struct GDVertex { Effekseer::Vector3D pos; };
-		struct GDAttribute { Effekseer::Color color; Effekseer::Vector2D uv; };
 
-		m_vertexData.resize(vertexCount * sizeof(GDVertex));
-		m_attributeData.resize(vertexCount * sizeof(GDAttribute));
+		m_vertexData.resize(vertexCount * sizeof(GDSimpleVertex));
+		m_attributeData.resize(vertexCount * sizeof(GDSimpleAttribute));
 
-		GDVertex* dstVertex = (GDVertex*)m_vertexData.ptrw();
-		GDAttribute* dstAttribute = (GDAttribute*)m_attributeData.ptrw();
+		GDSimpleVertex* dstVertex = (GDSimpleVertex*)m_vertexData.ptrw();
+		GDSimpleAttribute* dstAttribute = (GDSimpleAttribute*)m_attributeData.ptrw();
 
 		const SimpleVertex* srcVertex = (const SimpleVertex*)vertexData;
 		aabbMin = aabbMax = srcVertex[0].Pos;
 		for (int32_t i = 0; i < vertexCount; i++)
 		{
 			auto& v = *srcVertex++;
-			*dstVertex++ = GDVertex{ v.Pos };
-			*dstAttribute++ = GDAttribute{ v.Col, {v.UV[0], v.UV[1]} };
+			*dstVertex++ = GDSimpleVertex{ v.Pos };
+			*dstAttribute++ = GDSimpleAttribute{ v.Col, {v.UV[0], v.UV[1]} };
 
 			aabbMin = Vec3f::Min(aabbMin, v.Pos);
 			aabbMax = Vec3f::Max(aabbMax, v.Pos);
 		}
 	}
-	/*else if (shaderType == RendererShaderType::BackDistortion || shaderType == RendererShaderType::Lit)
+	else if (shaderType == RendererShaderType::BackDistortion || shaderType == RendererShaderType::Lit)
 	{
-		const LightingVertex* vertices = (const LightingVertex*)vertexData;
-		for (int32_t i = 0; i < spriteCount; i++)
+		format = RenderingServer::ARRAY_FORMAT_VERTEX |
+			RenderingServer::ARRAY_FORMAT_NORMAL |
+			RenderingServer::ARRAY_FORMAT_TANGENT |
+			RenderingServer::ARRAY_FORMAT_COLOR |
+			RenderingServer::ARRAY_FORMAT_TEX_UV;
+
+		m_vertexData.resize(vertexCount * sizeof(GDLitVertex));
+		m_attributeData.resize(vertexCount * sizeof(GDSimpleAttribute));
+
+		GDLitVertex* dstVertex = (GDLitVertex*)m_vertexData.ptrw();
+		GDSimpleAttribute* dstAttribute = (GDSimpleAttribute*)m_attributeData.ptrw();
+
+		const LightingVertex* srcVertex = (const LightingVertex*)vertexData;
+		aabbMin = aabbMax = srcVertex[0].Pos;
+		for (int32_t i = 0; i < vertexCount; i++)
 		{
-			// Generate degenerate triangles
-			rs->immediate_color(immediate, Color());
-			rs->immediate_uv(immediate, Vector2());
-			rs->immediate_normal(immediate, Vector3());
-			rs->immediate_tangent(immediate, Plane());
-			rs->immediate_vertex(immediate, ConvertVector3(vertices[i * 4 + 0].Pos));
+			auto& v = *srcVertex++;
+			*dstVertex++ = GDLitVertex{ v.Pos, ConvertNormal(v.Normal), ConvertTangent(v.Tangent) };
+			*dstAttribute++ = GDSimpleAttribute{ v.Col, {v.UV[0], v.UV[1]} };
 
-			for (int32_t j = 0; j < 4; j++)
-			{
-				auto& v = vertices[i * 4 + j];
-				rs->immediate_color(immediate, ConvertColor(v.Col));
-				rs->immediate_uv(immediate, ConvertUV(v.UV));
-				rs->immediate_normal(immediate, ConvertVector3(Normalize(UnpackVector3DF(v.Normal))));
-				rs->immediate_tangent(immediate, ConvertTangent(Normalize(UnpackVector3DF(v.Tangent))));
-				rs->immediate_vertex(immediate, ConvertVector3(v.Pos));
-			}
-
-			rs->immediate_color(immediate, Color());
-			rs->immediate_uv(immediate, Vector2());
-			rs->immediate_normal(immediate, Vector3());
-			rs->immediate_tangent(immediate, Plane());
-			rs->immediate_vertex(immediate, ConvertVector3(vertices[i * 4 + 3].Pos));
+			aabbMin = Vec3f::Min(aabbMin, v.Pos);
+			aabbMax = Vec3f::Max(aabbMax, v.Pos);
 		}
 	}
-	else if (shaderType == RendererShaderType::Material)
+	/*else if (shaderType == RendererShaderType::Material)
 	{
 		const int32_t customData1Count = m_currentShader->GetCustomData1Count();
 		const int32_t customData2Count = m_currentShader->GetCustomData2Count();
