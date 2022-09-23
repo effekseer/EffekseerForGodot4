@@ -166,7 +166,7 @@ void EffekseerSystem::update_draw()
 		if (layer.layer_type == LayerType::_3D) {
 			auto camera = layer.viewport->get_camera_3d();
 			Transform3D camera_transform = camera->get_camera_transform();
-			Effekseer:: Matrix44 matrix = EffekseerGodot::ToEfkMatrix44(camera_transform);
+			Effekseer:: Matrix44 matrix = EffekseerGodot::ToEfkMatrix44(camera_transform.inverse());
 			m_renderer->SetCameraMatrix(matrix);
 		} else if (layer.layer_type == LayerType::_2D) {
 			Transform2D camera_transform = layer.viewport->get_canvas_transform();

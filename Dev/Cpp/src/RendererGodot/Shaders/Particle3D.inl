@@ -39,7 +39,7 @@ uniform vec4 SoftParticleReco;
 
 R"(
 void vertex() {
-	//MODELVIEW_MATRIX = ModelViewMatrix;
+	MODELVIEW_MATRIX = ModelViewMatrix;
 }
 )"
 

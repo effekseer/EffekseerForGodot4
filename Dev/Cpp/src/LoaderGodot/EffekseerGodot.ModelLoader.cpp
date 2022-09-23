@@ -19,6 +19,10 @@ Effekseer::ModelRef ModelLoader::Load(const char16_t* path)
 
 	auto efkres = godot::Ref<godot::EffekseerResource>(resource);
 	auto& data = efkres->get_data_ref();
+	if (data.size() == 0)
+	{
+		return nullptr;
+	}
 
 	return Load(data.ptr(), data.size());
 }

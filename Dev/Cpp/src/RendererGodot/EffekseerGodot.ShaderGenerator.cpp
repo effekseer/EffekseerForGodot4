@@ -444,14 +444,6 @@ std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& m
 
 		if (isSprite)
 		{
-			if (materialFile.GetCustomData1Count() > 0)
-			{
-				maincode << "uniform sampler2D CustomData1;\n";
-			}
-			if (materialFile.GetCustomData2Count() > 0)
-			{
-				maincode << "uniform sampler2D CustomData2;\n";
-			}
 			maincode << g_material_uniforms_sprite;
 		}
 		else
@@ -492,7 +484,7 @@ std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& m
 	for (int32_t i = 0; i < actualTextureCount; i++)
 	{
 		auto textureName = materialFile.GetTextureName(i);
-		auto textureHint = ": hint_black";
+		auto textureHint = ": hint_default_black";
 		maincode << "uniform sampler2D " << textureName << textureHint << ";" << std::endl;
 	}
 
@@ -584,8 +576,8 @@ std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& m
 
 		if (isSprite)
 		{
-			if (customData1Count > 0) maincode << "\t" << GetType(customData1Count) << " customData1 = texture(CustomData1, UV2)" << GetElement(customData1Count) << ";\n";
-			if (customData2Count > 0) maincode << "\t" << GetType(customData2Count) << " customData2 = texture(CustomData2, UV2)" << GetElement(customData2Count) << ";\n";
+			if (customData1Count > 0) maincode << "\t" << GetType(customData1Count) << " customData1 = CUSTOM0" << GetElement(customData1Count) << ";\n";
+			if (customData2Count > 0) maincode << "\t" << GetType(customData2Count) << " customData2 = CUSTOM1" << GetElement(customData2Count) << ";\n";
 		}
 		else
 		{
@@ -627,8 +619,8 @@ std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& m
 
 		if (isSprite)
 		{
-			if (customData1Count > 0) maincode << "\t" << GetType(customData1Count) << " customData1 = texture(CustomData1, UV)" << GetElement(customData1Count) << ";\n";
-			if (customData2Count > 0) maincode << "\t" << GetType(customData2Count) << " customData2 = texture(CustomData2, UV)" << GetElement(customData2Count) << ";\n";
+			if (customData1Count > 0) maincode << "\t" << GetType(customData1Count) << " customData1 = CUSTOM0" << GetElement(customData1Count) << ";\n";
+			if (customData2Count > 0) maincode << "\t" << GetType(customData2Count) << " customData2 = CUSTOM1" << GetElement(customData2Count) << ";\n";
 		}
 		else
 		{

@@ -116,60 +116,6 @@ namespace CanvasItem
 static constexpr int32_t CUSTOM_DATA_TEXTURE_WIDTH = 256;
 static constexpr int32_t CUSTOM_DATA_TEXTURE_HEIGHT = 256;
 
-//DynamicTexture::DynamicTexture()
-//{
-//}
-//
-//DynamicTexture::~DynamicTexture()
-//{
-//	auto rs = godot::RenderingServer::get_singleton();
-//	rs->free_rid(m_imageTexture);
-//}
-//
-//void DynamicTexture::Init(int32_t width, int32_t height)
-//{
-//	auto rs = godot::RenderingServer::get_singleton();
-//	godot::Ref<godot::Image> image;
-//	image.instantiate();
-//	image->create(width, height, false, godot::Image::FORMAT_RGBAF);
-//	m_imageTexture = rs->texture_2d_create(image);
-//}
-//
-//const DynamicTexture::LockedRect* DynamicTexture::Lock(int32_t x, int32_t y, int32_t width, int32_t height)
-//{
-//	assert(m_lockedRect.ptr == nullptr);
-//	assert(m_lockedRect.width == 0 && m_lockedRect.height == 0);
-//
-//	m_rectData.resize(width * height * sizeof(godot::Color));
-//	m_lockedRect.ptr = (float*)m_rectData.ptrw();
-//	m_lockedRect.pitch = width * sizeof(godot::Color);
-//	m_lockedRect.x = x;
-//	m_lockedRect.y = y;
-//	m_lockedRect.width = width;
-//	m_lockedRect.height = height;
-//	return &m_lockedRect;
-//}
-//
-//void DynamicTexture::Unlock()
-//{
-//	assert(m_lockedRect.ptr != nullptr);
-//	assert(m_lockedRect.width > 0 && m_lockedRect.height > 0);
-//
-//	godot::Ref<godot::Image> image;
-//	image.instantiate();
-//	image->create_from_data(m_lockedRect.width, m_lockedRect.height, 
-//		false, godot::Image::FORMAT_RGBAF, m_rectData);
-//
-//	auto rs = godot::RenderingServer::get_singleton();
-//	rs->texture_set_data_partial(m_imageTexture, image, 
-//		0, 0, m_lockedRect.width, m_lockedRect.height, 
-//		m_lockedRect.x, m_lockedRect.y, 0, 0);
-//	rs->texture_2d_get
-//
-//	m_rectData.resize(0);
-//	m_lockedRect = {};
-//}
-
 inline godot::Color ConvertColor(const EffekseerRenderer::VertexColor& color)
 {
 	return godot::Color(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f, color.A / 255.0f).srgb_to_linear();
@@ -308,7 +254,18 @@ struct GDLitVertex {
 	uint32_t tangent;
 };
 
+struct GDDynamicVertex {
+	Effekseer::Vector3D pos;
+	uint32_t normal;
+	uint32_t tangent;
+};
+
 struct GDSimpleAttribute {
+	Effekseer::Color color;
+	Effekseer::Vector2D uv;
+};
+
+struct GDDynamicAttribute {
 	Effekseer::Color color;
 	Effekseer::Vector2D uv;
 };
@@ -472,10 +429,6 @@ bool RendererImplemented::Initialize(int32_t drawMaxCount)
 	m_renderCommand2Ds.resize((size_t)drawMaxCount);
 
 	m_standardRenderer.reset(new StandardRenderer(this));
-
-	//m_customData1Texture.Init(CUSTOM_DATA_TEXTURE_WIDTH, CUSTOM_DATA_TEXTURE_HEIGHT);
-	//m_customData2Texture.Init(CUSTOM_DATA_TEXTURE_WIDTH, CUSTOM_DATA_TEXTURE_HEIGHT);
-	//m_uvTangentTexture.Init(CUSTOM_DATA_TEXTURE_WIDTH, CUSTOM_DATA_TEXTURE_HEIGHT);
 
 	impl->SetBackground(m_background);
 	impl->SetDepth(m_depth, EffekseerRenderer::DepthReconstructionParameter());
@@ -668,15 +621,6 @@ void RendererImplemented::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 		// Setup material
 		m_currentShader->ApplyToMaterial(renderType, command.GetMaterial(), m_renderState->GetActiveState());
 
-		//if (state.CustomData1Count > 0)
-		//{
-		//	rs->material_set_param(command.GetMaterial(), "CustomData1", m_customData1Texture.GetRID());
-		//}
-		//if (state.CustomData2Count > 0)
-		//{
-		//	rs->material_set_param(command.GetMaterial(), "CustomData2", m_customData2Texture.GetRID());
-		//}
-
 		command.DrawSprites(emitter->get_world_3d().ptr(), (int32_t)m_renderCount);
 		m_renderCount++;
 
@@ -693,21 +637,6 @@ void RendererImplemented::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 
 		// Setup material
 		m_currentShader->ApplyToMaterial(Shader::RenderType::CanvasItem, command.GetMaterial(), m_renderState->GetActiveState());
-
-		//if (m_currentShader->GetShaderType() == EffekseerRenderer::RendererShaderType::Lit || 
-		//	m_currentShader->GetShaderType() == EffekseerRenderer::RendererShaderType::BackDistortion ||
-		//	m_currentShader->GetShaderType() == EffekseerRenderer::RendererShaderType::Material)
-		//{
-		//	rs->material_set_param(command.GetMaterial(), "UVTangentTexture", m_uvTangentTexture.GetRID());
-		//}
-		//if (state.CustomData1Count > 0)
-		//{
-		//	rs->material_set_param(command.GetMaterial(), "CustomData1", m_customData1Texture.GetRID());
-		//}
-		//if (state.CustomData2Count > 0)
-		//{
-		//	rs->material_set_param(command.GetMaterial(), "CustomData2", m_customData2Texture.GetRID());
-		//}
 
 		command.DrawSprites(emitter);
 		m_renderCount2D++;
@@ -877,7 +806,6 @@ void RendererImplemented::TransferVertexToMesh(godot::RID mesh,
 	auto rs = RenderingServer::get_singleton();
 
 	rs->mesh_clear(mesh);
-	//rs->immediate_begin(immediate, Mesh::PRIMITIVE_TRIANGLE_STRIP);
 
 	RendererShaderType shaderType = m_currentShader->GetShaderType();
 	
@@ -935,88 +863,58 @@ void RendererImplemented::TransferVertexToMesh(godot::RID mesh,
 			aabbMax = Vec3f::Max(aabbMax, v.Pos);
 		}
 	}
-	/*else if (shaderType == RendererShaderType::Material)
+	else if (shaderType == RendererShaderType::Material)
 	{
-		const int32_t customData1Count = m_currentShader->GetCustomData1Count();
-		const int32_t customData2Count = m_currentShader->GetCustomData2Count();
-		const int32_t stride = sizeof(DynamicVertex) + (customData1Count + customData2Count) * sizeof(float);
+		const size_t customData1Count = (size_t)m_currentShader->GetCustomData1Count();
+		const size_t customData2Count = (size_t)m_currentShader->GetCustomData2Count();
+		const size_t srcStride = sizeof(DynamicVertex) + (customData1Count + customData2Count) * sizeof(float);
+		const size_t dstVertexStride = sizeof(GDDynamicVertex);
+		const size_t dstAttributeStride = sizeof(GDDynamicAttribute) + (customData1Count + customData2Count) * sizeof(float);
 
-		if (customData1Count > 0 || customData2Count > 0)
+		format = RenderingServer::ARRAY_FORMAT_VERTEX |
+			RenderingServer::ARRAY_FORMAT_NORMAL |
+			RenderingServer::ARRAY_FORMAT_TANGENT |
+			RenderingServer::ARRAY_FORMAT_COLOR |
+			RenderingServer::ARRAY_FORMAT_TEX_UV;
+
+		if (customData1Count > 0)
 		{
-			const int32_t width = CUSTOM_DATA_TEXTURE_WIDTH;
-			const int32_t height = (spriteCount * 4 + width - 1) / width;
-			const uint8_t* vertexPtr = (const uint8_t*)vertexData;
-			//float* customData1TexPtr = (customData1Count > 0) ? m_customData1Texture.Lock(0, m_vertexTextureOffset / width, width, height)->ptr : nullptr;
-			//float* customData2TexPtr = (customData2Count > 0) ? m_customData2Texture.Lock(0, m_vertexTextureOffset / width, width, height)->ptr : nullptr;
+			format |= RenderingServer::ARRAY_FORMAT_CUSTOM0 | ((RenderingServer::ARRAY_CUSTOM_R_FLOAT + customData1Count - 1) << RenderingServer::ARRAY_FORMAT_CUSTOM0_SHIFT);
+		}
+		if (customData2Count > 0)
+		{
+			format |= RenderingServer::ARRAY_FORMAT_CUSTOM1 | ((RenderingServer::ARRAY_CUSTOM_R_FLOAT + customData2Count - 1) << RenderingServer::ARRAY_FORMAT_CUSTOM1_SHIFT);
+		}
+
+		m_vertexData.resize(vertexCount * sizeof(GDDynamicVertex));
+		m_attributeData.resize(vertexCount * dstAttributeStride);
+
+		uint8_t* dstVertexPtr = (uint8_t*)m_vertexData.ptrw();
+		uint8_t* dstAttributePtr = (uint8_t*)m_attributeData.ptrw();
+
+		const uint8_t* srcVertexPtr = (const uint8_t*)vertexData;
+		aabbMin = aabbMax = ((const DynamicVertex*)srcVertexPtr)->Pos;
+		for (int32_t i = 0; i < vertexCount; i++)
+		{
+			auto& v = *(const DynamicVertex*)srcVertexPtr;
+			auto& dstVertex = *(GDDynamicVertex*)dstVertexPtr;
+			auto& dstAttribute = *(GDDynamicAttribute*)dstAttributePtr;
+
+			dstVertex = GDDynamicVertex{ v.Pos, ConvertNormal(v.Normal), ConvertTangent(v.Tangent) };
+			dstAttribute = GDDynamicAttribute{ v.Col, {v.UV[0], v.UV[1]} };
 			
-			for (int32_t i = 0; i < spriteCount; i++)
-			{
-				// Generate degenerate triangles
-				rs->immediate_color(immediate, Color());
-				rs->immediate_uv(immediate, Vector2());
-				rs->immediate_uv2(immediate, Vector2());
-				rs->immediate_normal(immediate, Vector3());
-				rs->immediate_tangent(immediate, Plane());
-				rs->immediate_vertex(immediate, ConvertVector3((*(const DynamicVertex*)(vertexPtr)).Pos));
+			memcpy(dstAttributePtr + sizeof(GDDynamicAttribute),
+				srcVertexPtr + sizeof(DynamicVertex),
+				(customData1Count + customData2Count) * sizeof(float));
 
-				for (int32_t j = 0; j < 4; j++)
-				{
-					auto& v = *(const DynamicVertex*)vertexPtr;
-					rs->immediate_color(immediate, ConvertColor(v.Col));
-					rs->immediate_uv(immediate, ConvertUV(v.UV));
-					rs->immediate_uv2(immediate, ConvertVertexTextureUV(m_vertexTextureOffset++, width));
-					rs->immediate_normal(immediate, ConvertVector3(Normalize(UnpackVector3DF(v.Normal))));
-					rs->immediate_tangent(immediate, ConvertTangent(Normalize(UnpackVector3DF(v.Tangent))));
-					rs->immediate_vertex(immediate, ConvertVector3(v.Pos));
-					vertexPtr += sizeof(DynamicVertex);
+			aabbMin = Vec3f::Min(aabbMin, v.Pos);
+			aabbMax = Vec3f::Max(aabbMax, v.Pos);
 
-					//if (customData1TexPtr) CopyCustomData(customData1TexPtr, vertexPtr, customData1Count);
-					//if (customData2TexPtr) CopyCustomData(customData2TexPtr, vertexPtr, customData2Count);
-				}
-
-				rs->immediate_color(immediate, Color());
-				rs->immediate_uv(immediate, Vector2());
-				rs->immediate_uv2(immediate, Vector2());
-				rs->immediate_normal(immediate, Vector3());
-				rs->immediate_tangent(immediate, Plane());
-				rs->immediate_vertex(immediate, ConvertVector3((*(const DynamicVertex*)(vertexPtr - stride)).Pos));
-			}
-
-			//if (customData1TexPtr) m_customData1Texture.Unlock();
-			//if (customData2TexPtr) m_customData2Texture.Unlock();
-			m_vertexTextureOffset = (m_vertexTextureOffset + width - 1) / width * width;
+			srcVertexPtr += srcStride;
+			dstVertexPtr += dstVertexStride;
+			dstAttributePtr += dstAttributeStride;
 		}
-		else
-		{
-			const uint8_t* vertexPtr = (const uint8_t*)vertexData;
-			for (int32_t i = 0; i < spriteCount; i++)
-			{
-				// Generate degenerate triangles
-				rs->immediate_color(immediate, Color());
-				rs->immediate_uv(immediate, Vector2());
-				rs->immediate_normal(immediate, Vector3());
-				rs->immediate_tangent(immediate, Plane());
-				rs->immediate_vertex(immediate, ConvertVector3((*(const DynamicVertex*)(vertexPtr)).Pos));
-
-				for (int32_t j = 0; j < 4; j++)
-				{
-					auto& v = *(const DynamicVertex*)vertexPtr;
-					rs->immediate_color(immediate, ConvertColor(v.Col));
-					rs->immediate_uv(immediate, ConvertUV(v.UV));
-					rs->immediate_normal(immediate, ConvertVector3(Normalize(UnpackVector3DF(v.Normal))));
-					rs->immediate_tangent(immediate, ConvertTangent(Normalize(UnpackVector3DF(v.Tangent))));
-					rs->immediate_vertex(immediate, ConvertVector3(v.Pos));
-					vertexPtr += sizeof(DynamicVertex);
-				}
-
-				rs->immediate_color(immediate, Color());
-				rs->immediate_uv(immediate, Vector2());
-				rs->immediate_normal(immediate, Vector3());
-				rs->immediate_tangent(immediate, Plane());
-				rs->immediate_vertex(immediate, ConvertVector3((*(const DynamicVertex*)(vertexPtr - stride)).Pos));
-			}
-		}
-	}*/
+	}
 
 	// Generate degenerate triangles
 	const size_t indexCount = (size_t)spriteCount * 6;
@@ -1037,7 +935,6 @@ void RendererImplemented::TransferVertexToMesh(godot::RID mesh,
 	Vec3f::Store(&aabb.position, aabbMin);
 	Vec3f::Store(&aabb.size, aabbMax - aabbMin);
 
-	//rs->immediate_end(immediate);
 	Dictionary surface;
 	surface["primitive"] = RenderingServer::PRIMITIVE_TRIANGLE_STRIP;
 	surface["format"] = format;
