@@ -1,62 +1,44 @@
-[gd_scene load_steps=11 format=3 uid="uid://b0gh240cix7ek"]
+[gd_scene load_steps=9 format=3 uid="uid://cwiv2c2tyqyw"]
 
 [ext_resource type="Texture2D" uid="uid://cq0rnvcuc6xwp" path="res://grid.png" id="1"]
+[ext_resource type="EffekseerEffect" uid="uid://budrc8d5j48re" path="res://effect/samples/Laser01_SoftParticle.efkefc" id="3"]
 [ext_resource type="Script" path="res://scripts/Scene3D.gd" id="4"]
-[ext_resource type="EffekseerEffect" uid="uid://dht1jncpanwmx" path="res://effect/samples/Plane.efkefc" id="4_b07y5"]
 [ext_resource type="Script" path="res://scripts/CameraController3D.gd" id="5"]
-[ext_resource type="PackedScene" uid="uid://ca3wnb18nmnhn" path="res://GUI.tscn" id="6"]
+[ext_resource type="PackedScene" uid="uid://3yy8se2knnd6" path="res://GUI.tscn" id="6"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i8pcl"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_12xne"]
 albedo_texture = ExtResource("1")
 
 [sub_resource type="PlaneMesh" id="1"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k2ml1"]
-albedo_color = Color(1, 0, 0, 1)
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_xc517"]
-top_radius = 0.05
-bottom_radius = 0.05
-height = 20.0
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1vp8c"]
-albedo_color = Color(0, 0, 1, 1)
+[sub_resource type="Environment" id="3"]
+ambient_light_color = Color(0.25098, 0.25098, 0.25098, 1)
+glow_enabled = true
 
 [node name="Scene3D" type="Node3D"]
 script = ExtResource("4")
 
 [node name="Ground" type="MeshInstance3D" parent="."]
 transform = Transform3D(10, 0, 0, 0, 1, 0, 0, 0, 10, 0.00415611, -0.00846815, 0.0139425)
-material_override = SubResource("StandardMaterial3D_i8pcl")
+material_override = SubResource("StandardMaterial3D_12xne")
 mesh = SubResource("1")
 
-[node name="AxisX" type="MeshInstance3D" parent="."]
-transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_k2ml1")
-mesh = SubResource("CylinderMesh_xc517")
-
-[node name="AxisZ" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_1vp8c")
-mesh = SubResource("CylinderMesh_xc517")
-
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="Camera" type="Camera3D" parent="."]
 transform = Transform3D(0.707107, -0.241845, 0.664463, 0, 0.939693, 0.34202, -0.707107, -0.241845, 0.664463, 8.09255, 9.01818, 8.09256)
 fov = 45.0
 script = ExtResource("5")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+[node name="DirectionalLight" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.200531, 0.979687, 0, -0.979687, 0.200531, 0, 6.95046, -4.86754e-07)
 
 [node name="Effect" type="EffekseerEmitter3D" parent="."]
-effect = ExtResource("4_b07y5")
+effect = ExtResource("3")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("3")
+
 [node name="Header" type="HBoxContainer" parent="."]
-offset_left = 4.0
-offset_top = 4.0
-offset_right = 1020.0
-offset_bottom = 35.0
 
 [node name="Title" type="Label" parent="Header"]
 layout_mode = 2
@@ -68,13 +50,12 @@ text = "Effekseer 3D Effect Example"
 [node name="Description" type="Label" parent="Header"]
 layout_mode = 2
 offset_left = 220.0
-offset_right = 1016.0
+offset_right = 798.0
 offset_bottom = 52.0
 size_flags_horizontal = 3
 text = "W/A/S/D: Move the Emitter.  Q/E: Rotate the Emitter.
-MouseRightDrag: Rotate the Camera3D, MouseMiddleDrag: Move the Camera3D"
+MouseRightDrag: Rotate the Camera, MouseMiddleDrag: Move the Camera"
 
 [node name="GUI" parent="." instance=ExtResource("6")]
-offset_top = -23.0
 grow_horizontal = 2
-grow_vertical = 0
+grow_vertical = 2

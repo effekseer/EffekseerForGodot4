@@ -1,16 +1,58 @@
-[gd_scene load_steps=3 format=3 uid="uid://ca3wnb18nmnhn"]
+[gd_scene load_steps=4 format=3 uid="uid://3yy8se2knnd6"]
 
 [ext_resource type="Script" path="res://scripts/SceneMenu.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/EffectMenu.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/Stats.gd" id="3"]
 
-[node name="GUI" type="HBoxContainer"]
-anchors_preset = 12
-anchor_top = 1.0
+[node name="GUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -56.0
 
-[node name="SceneMenu" type="MenuButton" parent="."]
+[node name="Stats" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.8
+anchor_right = 1.0
+anchor_bottom = 0.2
+script = ExtResource("3")
+
+[node name="FPS" type="Label" parent="Stats"]
+layout_mode = 2
+offset_right = 230.0
+offset_bottom = 26.0
+text = "FPS: "
+
+[node name="DrawCalls" type="Label" parent="Stats"]
+layout_mode = 2
+offset_top = 30.0
+offset_right = 230.0
+offset_bottom = 56.0
+text = "DrawCalls: "
+
+[node name="Objects" type="Label" parent="Stats"]
+layout_mode = 2
+offset_top = 60.0
+offset_right = 230.0
+offset_bottom = 86.0
+text = "Objects: "
+
+[node name="Primitives" type="Label" parent="Stats"]
+layout_mode = 2
+offset_top = 90.0
+offset_right = 230.0
+offset_bottom = 116.0
+text = "Primitives: "
+
+[node name="Controller" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.9
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="SceneMenu" type="MenuButton" parent="Controller"]
 layout_mode = 2
 offset_right = 62.0
 offset_bottom = 69.0
@@ -20,7 +62,7 @@ flat = false
 switch_on_hover = true
 script = ExtResource("1")
 
-[node name="EffectMenu" type="MenuButton" parent="."]
+[node name="EffectMenu" type="MenuButton" parent="Controller"]
 layout_mode = 2
 offset_left = 66.0
 offset_right = 126.0
@@ -31,91 +73,91 @@ flat = false
 switch_on_hover = true
 script = ExtResource("2")
 
-[node name="VSeparator1" type="VSeparator" parent="."]
+[node name="VSeparator1" type="VSeparator" parent="Controller"]
 layout_mode = 2
 offset_left = 130.0
 offset_right = 134.0
 offset_bottom = 69.0
 
-[node name="PlayButton" type="Button" parent="."]
+[node name="PlayButton" type="Button" parent="Controller"]
 layout_mode = 2
 offset_left = 138.0
 offset_right = 179.0
 offset_bottom = 69.0
 text = "Play"
 
-[node name="StopButton" type="Button" parent="."]
+[node name="StopButton" type="Button" parent="Controller"]
 layout_mode = 2
 offset_left = 183.0
 offset_right = 226.0
 offset_bottom = 69.0
 text = "Stop"
 
-[node name="PauseButton" type="Button" parent="."]
+[node name="PauseButton" type="Button" parent="Controller"]
 layout_mode = 2
 offset_left = 230.0
 offset_right = 285.0
 offset_bottom = 69.0
 text = "Pause"
 
-[node name="VSeparator2" type="VSeparator" parent="."]
+[node name="VSeparator2" type="VSeparator" parent="Controller"]
 layout_mode = 2
 offset_left = 289.0
 offset_right = 293.0
 offset_bottom = 69.0
 
-[node name="Triggers" type="VSplitContainer" parent="."]
+[node name="Triggers" type="VSplitContainer" parent="Controller"]
 layout_mode = 2
 offset_left = 297.0
 offset_right = 381.0
 offset_bottom = 69.0
 
-[node name="Label" type="Label" parent="Triggers"]
+[node name="Label" type="Label" parent="Controller/Triggers"]
 layout_mode = 2
 offset_right = 84.0
 offset_bottom = 26.0
 text = "Triggers"
 
-[node name="Buttons" type="HBoxContainer" parent="Triggers"]
+[node name="Buttons" type="HBoxContainer" parent="Controller/Triggers"]
 layout_mode = 2
 offset_top = 38.0
 offset_right = 84.0
 offset_bottom = 69.0
 
-[node name="Trigger0" type="Button" parent="Triggers/Buttons"]
+[node name="Trigger0" type="Button" parent="Controller/Triggers/Buttons"]
 layout_mode = 2
 offset_right = 18.0
 offset_bottom = 31.0
 text = "0"
 
-[node name="Trigger1" type="Button" parent="Triggers/Buttons"]
+[node name="Trigger1" type="Button" parent="Controller/Triggers/Buttons"]
 layout_mode = 2
 offset_left = 22.0
 offset_right = 40.0
 offset_bottom = 31.0
 text = "1"
 
-[node name="Trigger2" type="Button" parent="Triggers/Buttons"]
+[node name="Trigger2" type="Button" parent="Controller/Triggers/Buttons"]
 layout_mode = 2
 offset_left = 44.0
 offset_right = 62.0
 offset_bottom = 31.0
 text = "2"
 
-[node name="Trigger3" type="Button" parent="Triggers/Buttons"]
+[node name="Trigger3" type="Button" parent="Controller/Triggers/Buttons"]
 layout_mode = 2
 offset_left = 66.0
 offset_right = 84.0
 offset_bottom = 31.0
 text = "3"
 
-[node name="VSeparator3" type="VSeparator" parent="."]
+[node name="VSeparator3" type="VSeparator" parent="Controller"]
 layout_mode = 2
 offset_left = 385.0
 offset_right = 389.0
 offset_bottom = 69.0
 
-[node name="ResourceName" type="Label" parent="."]
+[node name="ResourceName" type="Label" parent="Controller"]
 layout_mode = 2
 offset_left = 393.0
 offset_top = 21.0
