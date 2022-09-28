@@ -15,19 +15,19 @@ func setup_menu(path: String, menu: PopupMenu):
 	var dir := Directory.new()
 	if dir.open(path) == OK:
 		dir.list_dir_begin() # TODOGODOT4 fill missing arguments https://github.com/godotengine/godot/pull/40547
-		var name = dir.get_next()
-		while name != "":
+		var asset_name = dir.get_next()
+		while asset_name != "":
 			if dir.current_is_dir():
 				var submenu := PopupMenu.new()
-				if setup_menu(path + "/" + name, submenu) > 0:
-					menu.add_submenu_item(name, submenu.name)
+				if setup_menu(path + "/" + asset_name, submenu) > 0:
+					menu.add_submenu_item(asset_name, submenu.name)
 					menu.add_child(submenu)
-			elif name.ends_with("efkefc.import"):
-				name = name.substr(0, name.rfind(".import"))
+			elif asset_name.ends_with("efkefc.import"):
+				asset_name = asset_name.substr(0, asset_name.rfind(".import"))
 				file_count += 1
-				menu.add_item(name, len(effect_list))
-				effect_list.append(path + "/" + name)
-			name = dir.get_next()
+				menu.add_item(asset_name, len(effect_list))
+				effect_list.append(path + "/" + asset_name)
+			asset_name = dir.get_next()
 		dir.list_dir_end()
 	return file_count
 
