@@ -597,6 +597,8 @@ void RendererImplemented::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 {
 	assert(m_currentShader != nullptr);
 
+	auto vertexDataPtr = GetVertexBuffer()->Refer() + vertexOffset * m_vertexStride;
+
 	auto rs = godot::RenderingServer::get_singleton();
 
 	const auto& state = m_standardRenderer->GetState();
@@ -615,8 +617,7 @@ void RendererImplemented::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 		auto& command = m_renderCommands[m_renderCount];
 
 		// Transfer vertex data
-		TransferVertexToMesh(command.GetMesh(), 
-			GetVertexBuffer()->Refer() + vertexOffset * m_vertexStride, spriteCount);
+		TransferVertexToMesh(command.GetMesh(), vertexDataPtr, spriteCount);
 
 		// Setup material
 		m_currentShader->ApplyToMaterial(renderType, command.GetMaterial(), m_renderState->GetActiveState());
@@ -632,8 +633,7 @@ void RendererImplemented::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 		// Transfer vertex data
 		auto srt = EffekseerGodot::ToSRT(emitter->get_global_transform());
 		TransferVertexToCanvasItem2D(command.GetCanvasItem(), 
-			GetVertexBuffer()->Refer() + vertexOffset * m_vertexStride, 
-			spriteCount, srt.scale.abs());
+			vertexDataPtr, spriteCount, srt.scale.abs());
 
 		// Setup material
 		m_currentShader->ApplyToMaterial(Shader::RenderType::CanvasItem, command.GetMaterial(), m_renderState->GetActiveState());

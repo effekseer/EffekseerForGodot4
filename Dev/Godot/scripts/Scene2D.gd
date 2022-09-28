@@ -37,6 +37,6 @@ func _process(delta: float):
 	if Input.is_action_pressed("act_move_down"):
 		$Effect.position += Vector2(0, 100) * delta
 	if Input.is_action_pressed("act_rot_left"):
-		$Effect.rotation_degrees -= 60 * delta
+		$Effect.rotation -= deg_to_rad(60 * delta)
 	if Input.is_action_pressed("act_rot_right"):
-		$Effect.rotation_degrees += 60 * delta
+		$Effect.rotation += deg_to_rad(60 * delta)
