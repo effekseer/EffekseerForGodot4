@@ -34,6 +34,8 @@ public:
 
 	static EffekseerSystem* get_singleton() { return s_singleton; }
 
+	static Effekseer::ManagerRef get_singleton_manager() { return s_singleton ? s_singleton->get_manager() : nullptr; }
+
 	static void initialize();
 
 	static void finalize();

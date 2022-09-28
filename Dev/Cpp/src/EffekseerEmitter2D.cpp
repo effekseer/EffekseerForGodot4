@@ -82,9 +82,7 @@ void EffekseerEmitter2D::_notification(int what)
 
 void EffekseerEmitter2D::_update_transform()
 {
-	auto system = EffekseerSystem::get_singleton();
-	if (system == nullptr) return;
-	auto manager = system->get_manager();
+	auto manager = EffekseerSystem::get_singleton_manager();
 	if (manager == nullptr) return;
 
 	auto matrix = EffekseerGodot::ToEfkMatrix43(get_global_transform(), 
@@ -96,9 +94,7 @@ void EffekseerEmitter2D::_update_transform()
 
 void EffekseerEmitter2D::_update_visibility()
 {
-	auto system = EffekseerSystem::get_singleton();
-	if (system == nullptr) return;
-	auto manager = system->get_manager();
+	auto manager = EffekseerSystem::get_singleton_manager();
 	if (manager == nullptr) return;
 
 	for (int i = 0; i < m_handles.size(); i++) {
@@ -108,9 +104,7 @@ void EffekseerEmitter2D::_update_visibility()
 
 void EffekseerEmitter2D::_update_paused()
 {
-	auto system = EffekseerSystem::get_singleton();
-	if (system == nullptr) return;
-	auto manager = system->get_manager();
+	auto manager = EffekseerSystem::get_singleton_manager();
 	if (manager == nullptr) return;
 
 	const bool node_paused = m_paused || !can_process();
@@ -126,9 +120,7 @@ void EffekseerEmitter2D::remove_handle(Effekseer::Handle handle)
 
 void EffekseerEmitter2D::play()
 {
-	auto system = EffekseerSystem::get_singleton();
-	if (system == nullptr) return;
-	auto manager = system->get_manager();
+	auto manager = EffekseerSystem::get_singleton_manager();
 	if (manager == nullptr) return;
 
 	if (m_effect.is_valid() && m_layer >= 0) {
@@ -171,9 +163,7 @@ void EffekseerEmitter2D::play()
 
 void EffekseerEmitter2D::stop()
 {
-	auto system = EffekseerSystem::get_singleton();
-	if (system == nullptr) return;
-	auto manager = system->get_manager();
+	auto manager = EffekseerSystem::get_singleton_manager();
 	if (manager == nullptr) return;
 
 	for (int i = 0; i < m_handles.size(); i++) {
@@ -186,9 +176,7 @@ void EffekseerEmitter2D::stop()
 
 void EffekseerEmitter2D::stop_root()
 {
-	auto system = EffekseerSystem::get_singleton();
-	if (system == nullptr) return;
-	auto manager = system->get_manager();
+	auto manager = EffekseerSystem::get_singleton_manager();
 	if (manager == nullptr) return;
 
 	for (int i = 0; i < m_handles.size(); i++) {
@@ -216,9 +204,7 @@ void EffekseerEmitter2D::set_speed(float speed)
 {
 	m_speed = speed;
 
-	auto system = EffekseerSystem::get_singleton();
-	if (system == nullptr) return;
-	auto manager = system->get_manager();
+	auto manager = EffekseerSystem::get_singleton_manager();
 	if (manager == nullptr) return;
 
 	for (int i = 0; i < m_handles.size(); i++) {
@@ -235,9 +221,7 @@ void EffekseerEmitter2D::set_color(Color color)
 {
 	m_color = EffekseerGodot::ToEfkColor(color);
 
-	auto system = EffekseerSystem::get_singleton();
-	if (system == nullptr) return;
-	auto manager = system->get_manager();
+	auto manager = EffekseerSystem::get_singleton_manager();
 	if (manager == nullptr) return;
 
 	for (int i = 0; i < m_handles.size(); i++) {
@@ -254,9 +238,7 @@ void EffekseerEmitter2D::set_target_position(Vector2 position)
 {
 	m_target_position = position;
 
-	auto system = EffekseerSystem::get_singleton();
-	if (system == nullptr) return;
-	auto manager = system->get_manager();
+	auto manager = EffekseerSystem::get_singleton_manager();
 	if (manager == nullptr) return;
 
 	Vector2 scaled_position = position / get_scale();
@@ -286,9 +268,7 @@ void EffekseerEmitter2D::set_dynamic_input(int index, float value)
 		return;
 	}
 
-	auto system = EffekseerSystem::get_singleton();
-	if (system == nullptr) return;
-	auto manager = system->get_manager();
+	auto manager = EffekseerSystem::get_singleton_manager();
 	if (manager == nullptr) return;
 
 	for (int i = 0; i < m_handles.size(); i++) {
@@ -303,9 +283,7 @@ void EffekseerEmitter2D::send_trigger(int index)
 		return;
 	}
 
-	auto system = EffekseerSystem::get_singleton();
-	if (system == nullptr) return;
-	auto manager = system->get_manager();
+	auto manager = EffekseerSystem::get_singleton_manager();
 	if (manager == nullptr) return;
 
 	for (int i = 0; i < m_handles.size(); i++) {
