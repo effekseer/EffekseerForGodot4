@@ -3,15 +3,15 @@ extends EditorNode3DGizmoPlugin
 
 var is_first_draw = true
 
-func get_name() -> String:
-	return "EffekseerEmitter"
+func _get_gizmo_name() -> String:
+	return "EffekseerEmitter3D"
 
 
-func has_gizmo(spatial) -> bool:
-	return spatial is EffekseerEmitter3D
+func _has_gizmo(node3d: Node3D) -> bool:
+	return node3d is EffekseerEmitter3D
 
 
-func redraw(gizmo: EditorNode3DGizmo):
+func _redraw(gizmo: EditorNode3DGizmo):
 	if is_first_draw:
 		create_material("lines", Color(0.60, 0.93, 0.95), false, false, true);
 		create_icon_material("icon", load("res://addons/effekseer/icon64.png"));

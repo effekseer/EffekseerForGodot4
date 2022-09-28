@@ -4,7 +4,7 @@ extends EditorPlugin
 var effect_import_plugin
 var effect_inspector_plugin
 var resource_import_plugin
-var emitter_gizmo_plugin
+var emitter3d_gizmo_plugin
 const plugin_path = "res://addons/effekseer"
 const plugin_source_path = "res://addons/effekseer/src"
 
@@ -18,29 +18,27 @@ func _enter_tree():
 	
 	add_autoload_singleton("EffekseerServer", plugin_source_path + "/EffekseerServer.gd")
 	var icon = load(plugin_path + "/icon16.png") as Texture2D
-	#add_custom_type("EffekseerEffect", "Resource", load(plugin_source_path + "/EffekseerEffect.gdns"), icon)
-	#add_custom_type("EffekseerEmitter3D", "Node3D", load(plugin_source_path + "/EffekseerEmitter.gdns"), icon)
-	#add_custom_type("EffekseerEmitter2D", "Node2D", load(plugin_source_path + "/EffekseerEmitter2D.gdns"), icon)
-	
+	var theme = get_editor_interface().get_base_control().get_theme()
+	theme.set_icon("EffekseerEmitter3D", "EditorIcons", icon)
+	theme.set_icon("EffekseerEmitter2D", "EditorIcons", icon)
+	theme.set_icon("EffekseerEffect", "EditorIcons", icon)
+
 	effect_import_plugin = load(plugin_source_path + "/EffekseerEffectImportPlugin.gd").new()
-	#effect_inspector_plugin = load(plugin_source_path + "/EffekseerEffectInspectorPlugin.gd").new(get_editor_interface())
+	effect_inspector_plugin = load(plugin_source_path + "/EffekseerEffectInspectorPlugin.gd").new(get_editor_interface())
 	resource_import_plugin = load(plugin_source_path + "/EffekseerResourceImportPlugin.gd").new()
-	#emitter_gizmo_plugin = load(plugin_source_path + "/EffekseerEmitterGizmoPlugin.gd").new()
+	emitter3d_gizmo_plugin = load(plugin_source_path + "/EffekseerEmitter3DGizmoPlugin.gd").new()
 	add_import_plugin(effect_import_plugin)
-	#add_inspector_plugin(effect_inspector_plugin)
+	add_inspector_plugin(effect_inspector_plugin)
 	add_import_plugin(resource_import_plugin)
-	#add_spatial_gizmo_plugin(emitter_gizmo_plugin)
+	add_spatial_gizmo_plugin(emitter3d_gizmo_plugin)
 	
 
 func _exit_tree():
-	#remove_spatial_gizmo_plugin(emitter_gizmo_plugin)
+	remove_spatial_gizmo_plugin(emitter3d_gizmo_plugin)
 	remove_import_plugin(resource_import_plugin)
-	#remove_inspector_plugin(effect_inspector_plugin)
+	remove_inspector_plugin(effect_inspector_plugin)
 	remove_import_plugin(effect_import_plugin)
 	
-	#remove_custom_type("EffekseerEmitter2D")
-	#remove_custom_type("EffekseerEmitter3D")
-	#remove_custom_type("EffekseerEffect")
 	remove_autoload_singleton("EffekseerServer")
 	
 	remove_editor_setting("effekseer/editor_path")

@@ -6,7 +6,7 @@ var effect
 @onready var viewport_container: SubViewportContainer = $Previewer
 @onready var viewport: SubViewport = $Previewer/SubViewport
 @onready var preview3d := $Previewer/SubViewport/Preview3D
-@onready var emitter3d := $Previewer/SubViewport/Preview3D/EffekseerEmitter
+@onready var emitter3d := $Previewer/SubViewport/Preview3D/EffekseerEmitter3D
 @onready var camera3d := $Previewer/SubViewport/Preview3D/Camera3D
 @onready var preview2d := $Previewer/SubViewport/Preview2D
 @onready var emitter2d := $Previewer/SubViewport/Preview2D/EffekseerEmitter2D
@@ -18,7 +18,7 @@ var view_mode: int = 0
 
 func _enter_tree():
 	if editor:
-		view_mode = editor.get_editor_settings().get_setting("effekseer/preview_mode") as int
+		view_mode = editor.get_editor_settings().get_setting("effekseer/preview_mode")
 	
 	$Previewer.connect("gui_input",Callable(self,"_previewer_gui_input"))
 	$OpenEditorButton.connect("pressed",Callable(self,"_open_button_pressed"))
