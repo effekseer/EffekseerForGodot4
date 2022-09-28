@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EffekseerGodot", "EffekseerGodot.vcxproj", "{4EAFD5E8-4DE5-46C1-8659-E5C6403920FE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EffekseerGodot4", "EffekseerGodot4.vcxproj", "{4EAFD5E8-4DE5-46C1-8659-E5C6403920FE}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Effekseer", "..\Effekseer\build\Dev\Cpp\Effekseer\Effekseer.vcxproj", "{6AAF8056-6EE5-3CF2-AA95-84F49CCE8C64}"
 EndProject
