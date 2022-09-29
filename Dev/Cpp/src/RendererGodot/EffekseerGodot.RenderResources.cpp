@@ -37,50 +37,76 @@ Model::~Model()
 
 void Model::UploadToEngine()
 {
+	using namespace Effekseer;
+	using namespace Effekseer::SIMD;
+	using namespace EffekseerGodot;
 	using namespace godot;
 
-	int32_t vertexCount = GetVertexCount();
-	const Vertex* vertexData = GetVertexes();
-	int32_t faceCount = GetFaceCount();
-	const Face* faceData = GetFaces();
+	const int32_t vertexCount = GetVertexCount();
+	const int32_t faceCount = GetFaceCount();
+	const int32_t indexCount = faceCount * 3;
 
-	PackedVector3Array positions; positions.resize(vertexCount);
-	PackedVector3Array normals; normals.resize(vertexCount);
-	PackedFloat32Array tangents; tangents.resize(vertexCount * 4);
-	PackedColorArray colors; colors.resize(vertexCount);
-	PackedVector2Array texUVs; texUVs.resize(vertexCount);
-	PackedInt32Array indeces; indeces.resize(faceCount * 3);
+	Vec3f aabbMin{}, aabbMax{};
 
+	uint32_t format = RenderingServer::ARRAY_FORMAT_VERTEX |
+		RenderingServer::ARRAY_FORMAT_NORMAL |
+		RenderingServer::ARRAY_FORMAT_TANGENT |
+		RenderingServer::ARRAY_FORMAT_COLOR |
+		RenderingServer::ARRAY_FORMAT_TEX_UV;
+
+	PackedByteArray vertexData;
+	PackedByteArray attributeData;
+
+	vertexData.resize(vertexCount * sizeof(GdLitVertex));
+	attributeData.resize(vertexCount * sizeof(GdAttribute));
+
+	GdLitVertex* dstVertex = (GdLitVertex*)vertexData.ptrw();
+	GdAttribute* dstAttribute = (GdAttribute*)attributeData.ptrw();
+
+	const Vertex* srcVertex = GetVertexes();
+
+	aabbMin = aabbMax = srcVertex[0].Position;
 	for (int32_t i = 0; i < vertexCount; i++)
 	{
-		positions.set(i, ToGdVector3(vertexData[i].Position));
-		normals.set(i, ToGdVector3(vertexData[i].Normal));
-		tangents.set(i * 4 + 0, vertexData[i].Tangent.X);
-		tangents.set(i * 4 + 1, vertexData[i].Tangent.Y);
-		tangents.set(i * 4 + 2, vertexData[i].Tangent.Z);
-		tangents.set(i * 4 + 3, 1.0f);
-		colors.set(i, ToGdColor(vertexData[i].VColor));
-		texUVs.set(i, ToGdVector2(vertexData[i].UV));
+		auto& v = *srcVertex++;
+		*dstVertex++ = GdLitVertex{ v.Position, ToGdNormal(v.Normal), ToGdTangent(v.Tangent) };
+		*dstAttribute++ = GdAttribute{ v.VColor, v.UV };
+
+		aabbMin = Vec3f::Min(aabbMin, v.Position);
+		aabbMax = Vec3f::Max(aabbMax, v.Position);
 	}
-	for (int32_t i = 0; i < faceCount; i++)
+
+	PackedByteArray indexData;
+	indexData.resize(indexCount * sizeof(uint16_t));
+	uint16_t* dstIndex = (uint16_t*)indexData.ptrw();
+
+	const Face* srcFaces = GetFaces();
+	for (size_t i = 0; i < faceCount; i++)
 	{
-		indeces.set(i * 3 + 0, faceData[i].Indexes[0]);
-		indeces.set(i * 3 + 1, faceData[i].Indexes[1]);
-		indeces.set(i * 3 + 2, faceData[i].Indexes[2]);
+		auto& f = srcFaces[i];
+		dstIndex[0] = (uint16_t)(f.Indexes[0]);
+		dstIndex[1] = (uint16_t)(f.Indexes[1]);
+		dstIndex[2] = (uint16_t)(f.Indexes[2]);
+		dstIndex += 3;
 	}
 
-	Array arrays;
-	arrays.resize(RenderingServer::ARRAY_MAX);
-	arrays[RenderingServer::ARRAY_VERTEX] = positions;
-	arrays[RenderingServer::ARRAY_NORMAL] = normals;
-	arrays[RenderingServer::ARRAY_TANGENT] = tangents;
-	arrays[RenderingServer::ARRAY_COLOR] = colors;
-	arrays[RenderingServer::ARRAY_TEX_UV] = texUVs;
-	arrays[RenderingServer::ARRAY_INDEX] = indeces;
+	AABB aabb;
+	Vec3f::Store(&aabb.position, aabbMin);
+	Vec3f::Store(&aabb.size, aabbMax - aabbMin);
 
-	auto vs = RenderingServer::get_singleton();
-	meshRid_ = vs->mesh_create();
-	vs->mesh_add_surface_from_arrays(meshRid_, RenderingServer::PRIMITIVE_TRIANGLES, arrays);
+	Dictionary surface;
+	surface["primitive"] = RenderingServer::PRIMITIVE_TRIANGLES;
+	surface["format"] = format;
+	surface["vertex_data"] = vertexData;
+	surface["attribute_data"] = attributeData;
+	surface["vertex_count"] = (int)vertexCount;
+	surface["index_data"] = indexData;
+	surface["index_count"] = (int)indexCount;
+	surface["aabb"] = aabb;
+
+	auto rs = RenderingServer::get_singleton();
+	meshRid_ = rs->mesh_create();
+	rs->mesh_add_surface(meshRid_, surface);
 }
 
 } // namespace EffekseerGodot

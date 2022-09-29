@@ -200,4 +200,32 @@ godot::String ToGdString(const char16_t* from);
 
 godot::Variant ScriptNew(godot::Ref<godot::Script> script);
 
+
+//----------------------------
+// for RenderingServer
+//----------------------------
+
+struct GdSimpleVertex {
+	Effekseer::Vector3D pos;
+};
+
+struct GdLitVertex {
+	Effekseer::Vector3D pos;
+	uint32_t normal;
+	uint32_t tangent;
+};
+
+struct GdAttribute {
+	Effekseer::Color color;
+	Effekseer::Vector2D uv;
+};
+
+uint32_t ToGdNormal(const Effekseer::Vector3D& v);
+
+uint32_t ToGdTangent(const Effekseer::Vector3D& v);
+
+uint32_t ToGdNormal(const Effekseer::Color& v);
+
+uint32_t ToGdTangent(const Effekseer::Color& v);
+
 }

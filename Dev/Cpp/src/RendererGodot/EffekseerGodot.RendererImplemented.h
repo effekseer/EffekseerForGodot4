@@ -25,10 +25,10 @@ namespace EffekseerGodot
 /**
 	@brief	描画コマンド
 */
-class RenderCommand {
+class RenderCommand3D {
 public:
-	RenderCommand();
-	~RenderCommand();
+	RenderCommand3D();
+	~RenderCommand3D();
 	void Reset();
 	void DrawSprites(godot::World3D* world, int32_t priority);
 	void DrawModel(godot::World3D* world, godot::RID mesh, int32_t priority);
@@ -120,7 +120,7 @@ private:
 	Shader* m_currentShader = nullptr;
 	godot::World3D* m_world = nullptr;
 
-	std::vector<RenderCommand> m_renderCommands;
+	std::vector<RenderCommand3D> m_renderCommands3D;
 	size_t m_renderCount = 0;
 	std::vector<RenderCommand2D> m_renderCommand2Ds;
 	size_t m_renderCount2D = 0;

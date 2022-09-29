@@ -149,77 +149,6 @@ inline godot::Vector2 ConvertVector2(const EffekseerRenderer::VertexFloat3& v,
 	return godot::Vector2(v.X * baseScale.x, v.Y * baseScale.y);
 }
 
-inline EffekseerRenderer::VertexFloat3 Normalize(const EffekseerRenderer::VertexFloat3& v)
-{
-	float length = sqrtf(v.X * v.X + v.Y * v.Y + v.Z * v.Z);
-	EffekseerRenderer::VertexFloat3 result;
-	result.X = v.X / length;
-	result.Y = v.Y / length;
-	result.Z = v.Z / length;
-	return result;
-}
-
-inline uint32_t ConvertNormal(const EffekseerRenderer::VertexColor& v)
-{
-#if 0
-	// To RGB10
-	uint32_t x = (uint32_t)((float)v.R / 255.0f * 1023.0f);
-	uint32_t y = (uint32_t)((float)v.G / 255.0f * 1023.0f);
-	uint32_t z = (uint32_t)((float)v.B / 255.0f * 1023.0f);
-	return (x) | (y << 10) | (z << 20);
-#else
-	// Octahedral Normal Compression (godot::Vector3::octahedron_encode)
-	auto n = Normalize(EffekseerRenderer::UnpackVector3DF(v));
-
-	float x, y;
-	if (n.Z >= 0.0f) {
-		x = n.X;
-		y = n.Y;
-	} else {
-		x = (1.0f - fabsf(n.Y)) * (n.X >= 0.0f ? 1.0f : -1.0f);
-		y = (1.0f - fabsf(n.X)) * (n.Y >= 0.0f ? 1.0f : -1.0f);
-	}
-	x = x * 0.5f + 0.5f;
-	y = y * 0.5f + 0.5f;
-
-	uint32_t ux = (uint32_t)std::clamp((int32_t)(x * 65535.0f), 0, 65535);
-	uint32_t uy = (uint32_t)std::clamp((int32_t)(y * 65535.0f), 0, 65535);
-
-	return (ux) | (uy << 16);
-#endif
-}
-
-inline uint32_t ConvertTangent(const EffekseerRenderer::VertexColor& v)
-{
-#if 0
-	// To RGB10_A2
-	uint32_t x = (uint32_t)((float)v.R / 255.0f * 1023.0f);
-	uint32_t y = (uint32_t)((float)v.G / 255.0f * 1023.0f);
-	uint32_t z = (uint32_t)((float)v.B / 255.0f * 1023.0f);
-	return (x) | (y << 10) | (z << 20) | (3U << 30);
-#else
-	// Octahedral Tangent Compression (godot::Vector3::octahedron_tangent_encode)
-	auto n = Normalize(EffekseerRenderer::UnpackVector3DF(v));
-
-	float x, y;
-	if (n.Z >= 0.0f) {
-		x = n.X;
-		y = n.Y;
-	} else {
-		x = (1.0f - fabsf(n.Y)) * (n.X >= 0.0f ? 1.0f : -1.0f);
-		y = (1.0f - fabsf(n.X)) * (n.Y >= 0.0f ? 1.0f : -1.0f);
-	}
-	x = x * 0.5f + 0.5f;
-	y = y * 0.5f + 0.5f;
-	y = y * 0.5f + 0.5f;  // binormal sign
-
-	uint32_t ux = (uint32_t)std::clamp((int32_t)(x * 65535.0f), 0, 65535);
-	uint32_t uy = (uint32_t)std::clamp((int32_t)(y * 65535.0f), 0, 65535);
-
-	return (ux) | (uy << 16);
-#endif
-}
-
 inline void CopyVertexTexture(float*& dst, float x, float y, float z, float w)
 {
 	dst[0] = x;
@@ -244,33 +173,7 @@ inline void CopyCustomData(float*& dst, const uint8_t*& src, int32_t count)
 	src += count * sizeof(float);
 }
 
-struct GDSimpleVertex {
-	Effekseer::Vector3D pos;
-};
-
-struct GDLitVertex {
-	Effekseer::Vector3D pos;
-	uint32_t normal;
-	uint32_t tangent;
-};
-
-struct GDDynamicVertex {
-	Effekseer::Vector3D pos;
-	uint32_t normal;
-	uint32_t tangent;
-};
-
-struct GDSimpleAttribute {
-	Effekseer::Color color;
-	Effekseer::Vector2D uv;
-};
-
-struct GDDynamicAttribute {
-	Effekseer::Color color;
-	Effekseer::Vector2D uv;
-};
-
-RenderCommand::RenderCommand()
+RenderCommand3D::RenderCommand3D()
 {
 	auto rs = godot::RenderingServer::get_singleton();
 	m_mesh = rs->mesh_create();
@@ -279,7 +182,7 @@ RenderCommand::RenderCommand()
 	rs->instance_geometry_set_material_override(m_instance, m_material);
 }
 
-RenderCommand::~RenderCommand()
+RenderCommand3D::~RenderCommand3D()
 {
 	auto rs = godot::RenderingServer::get_singleton();
 	rs->free_rid(m_instance);
@@ -287,14 +190,14 @@ RenderCommand::~RenderCommand()
 	rs->free_rid(m_mesh);
 }
 
-void RenderCommand::Reset()
+void RenderCommand3D::Reset()
 {
 	auto rs = godot::RenderingServer::get_singleton();
 	rs->mesh_clear(m_mesh);
 	rs->instance_set_base(m_instance, godot::RID());
 }
 
-void RenderCommand::DrawSprites(godot::World3D* world, int32_t priority)
+void RenderCommand3D::DrawSprites(godot::World3D* world, int32_t priority)
 {
 	auto rs = godot::RenderingServer::get_singleton();
 
@@ -303,13 +206,14 @@ void RenderCommand::DrawSprites(godot::World3D* world, int32_t priority)
 	rs->material_set_render_priority(m_material, priority);
 }
 
-void RenderCommand::DrawModel(godot::World3D* world, godot::RID mesh, int32_t priority)
+void RenderCommand3D::DrawModel(godot::World3D* world, godot::RID mesh, int32_t priority)
 {
 	auto rs = godot::RenderingServer::get_singleton();
 
 	rs->instance_set_base(m_instance, mesh);
 	rs->instance_set_scenario(m_instance, world->get_scenario());
 	rs->material_set_render_priority(m_material, priority);
+	rs->instance_geometry_set_cast_shadows_setting(m_instance, godot::RenderingServer::SHADOW_CASTING_SETTING_ON);
 }
 
 EffekseerGodot::RenderCommand2D::RenderCommand2D()
@@ -425,7 +329,7 @@ bool RendererImplemented::Initialize(int32_t drawMaxCount)
 		m_shaders[(size_t)RendererShaderType::BackDistortion]->Compile(Shader::RenderType::CanvasItem, Distortion::CanvasItem::code, Distortion::CanvasItem::decl);
 	}
 
-	m_renderCommands.resize((size_t)drawMaxCount);
+	m_renderCommands3D.resize((size_t)drawMaxCount);
 	m_renderCommand2Ds.resize((size_t)drawMaxCount);
 
 	m_standardRenderer.reset(new StandardRenderer(this));
@@ -441,7 +345,7 @@ bool RendererImplemented::Initialize(int32_t drawMaxCount)
 //----------------------------------------------------------------------------------
 void RendererImplemented::Destroy()
 {
-	m_renderCommands.clear();
+	m_renderCommands3D.clear();
 	m_renderCommand2Ds.clear();
 }
 
@@ -449,7 +353,7 @@ void RendererImplemented::ResetState()
 {
 	for (size_t i = 0; i < m_renderCount; i++)
 	{
-		m_renderCommands[i].Reset();
+		m_renderCommands3D[i].Reset();
 	}
 	m_renderCount = 0;
 
@@ -605,7 +509,7 @@ void RendererImplemented::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 	godot::Object* godotObj = reinterpret_cast<godot::Object*>(GetImpl()->CurrentHandleUserData);
 	
 	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter3D>(godotObj)) {
-		if (m_renderCount >= m_renderCommands.size()) return;
+		if (m_renderCount >= m_renderCommands3D.size()) return;
 
 		const bool softparticleEnabled = !(
 			state.SoftParticleDistanceFar == 0.0f &&
@@ -614,7 +518,7 @@ void RendererImplemented::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 		const Shader::RenderType renderType = (softparticleEnabled) ? 
 			Shader::RenderType::SpatialDepthFade : Shader::RenderType::SpatialLightweight;
 
-		auto& command = m_renderCommands[m_renderCount];
+		auto& command = m_renderCommands3D[m_renderCount];
 
 		// Transfer vertex data
 		TransferVertexToMesh(command.GetMesh(), vertexDataPtr, spriteCount);
@@ -661,12 +565,12 @@ void RendererImplemented::DrawPolygon(int32_t vertexCount, int32_t indexCount)
 	godot::Object* godotObj = reinterpret_cast<godot::Object*>(GetImpl()->CurrentHandleUserData);
 
 	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter3D>(godotObj)) {
-		if (m_renderCount >= m_renderCommands.size()) return;
+		if (m_renderCount >= m_renderCommands3D.size()) return;
 
 		const Shader::RenderType renderType = (m_modelRenderState.softparticleEnabled) ? 
 			Shader::RenderType::SpatialDepthFade : Shader::RenderType::SpatialLightweight;
 
-		auto& command = m_renderCommands[m_renderCount];
+		auto& command = m_renderCommands3D[m_renderCount];
 
 		// Setup material
 		m_currentShader->ApplyToMaterial(renderType, command.GetMaterial(), renderState);
@@ -801,6 +705,7 @@ void RendererImplemented::TransferVertexToMesh(godot::RID mesh,
 {
 	using namespace Effekseer::SIMD;
 	using namespace EffekseerRenderer;
+	using namespace EffekseerGodot;
 	using namespace godot;
 
 	auto rs = RenderingServer::get_singleton();
@@ -819,19 +724,19 @@ void RendererImplemented::TransferVertexToMesh(godot::RID mesh,
 			RenderingServer::ARRAY_FORMAT_COLOR |
 			RenderingServer::ARRAY_FORMAT_TEX_UV;
 
-		m_vertexData.resize(vertexCount * sizeof(GDSimpleVertex));
-		m_attributeData.resize(vertexCount * sizeof(GDSimpleAttribute));
+		m_vertexData.resize(vertexCount * sizeof(GdSimpleVertex));
+		m_attributeData.resize(vertexCount * sizeof(GdAttribute));
 
-		GDSimpleVertex* dstVertex = (GDSimpleVertex*)m_vertexData.ptrw();
-		GDSimpleAttribute* dstAttribute = (GDSimpleAttribute*)m_attributeData.ptrw();
+		GdSimpleVertex* dstVertex = (GdSimpleVertex*)m_vertexData.ptrw();
+		GdAttribute* dstAttribute = (GdAttribute*)m_attributeData.ptrw();
 
 		const SimpleVertex* srcVertex = (const SimpleVertex*)vertexData;
 		aabbMin = aabbMax = srcVertex[0].Pos;
 		for (int32_t i = 0; i < vertexCount; i++)
 		{
 			auto& v = *srcVertex++;
-			*dstVertex++ = GDSimpleVertex{ v.Pos };
-			*dstAttribute++ = GDSimpleAttribute{ v.Col, {v.UV[0], v.UV[1]} };
+			*dstVertex++ = GdSimpleVertex{ v.Pos };
+			*dstAttribute++ = GdAttribute{ v.Col, {v.UV[0], v.UV[1]} };
 
 			aabbMin = Vec3f::Min(aabbMin, v.Pos);
 			aabbMax = Vec3f::Max(aabbMax, v.Pos);
@@ -845,19 +750,19 @@ void RendererImplemented::TransferVertexToMesh(godot::RID mesh,
 			RenderingServer::ARRAY_FORMAT_COLOR |
 			RenderingServer::ARRAY_FORMAT_TEX_UV;
 
-		m_vertexData.resize(vertexCount * sizeof(GDLitVertex));
-		m_attributeData.resize(vertexCount * sizeof(GDSimpleAttribute));
+		m_vertexData.resize(vertexCount * sizeof(GdLitVertex));
+		m_attributeData.resize(vertexCount * sizeof(GdAttribute));
 
-		GDLitVertex* dstVertex = (GDLitVertex*)m_vertexData.ptrw();
-		GDSimpleAttribute* dstAttribute = (GDSimpleAttribute*)m_attributeData.ptrw();
+		GdLitVertex* dstVertex = (GdLitVertex*)m_vertexData.ptrw();
+		GdAttribute* dstAttribute = (GdAttribute*)m_attributeData.ptrw();
 
 		const LightingVertex* srcVertex = (const LightingVertex*)vertexData;
 		aabbMin = aabbMax = srcVertex[0].Pos;
 		for (int32_t i = 0; i < vertexCount; i++)
 		{
 			auto& v = *srcVertex++;
-			*dstVertex++ = GDLitVertex{ v.Pos, ConvertNormal(v.Normal), ConvertTangent(v.Tangent) };
-			*dstAttribute++ = GDSimpleAttribute{ v.Col, {v.UV[0], v.UV[1]} };
+			*dstVertex++ = GdLitVertex{ v.Pos, ToGdNormal(v.Normal), ToGdTangent(v.Tangent) };
+			*dstAttribute++ = GdAttribute{ v.Col, {v.UV[0], v.UV[1]} };
 
 			aabbMin = Vec3f::Min(aabbMin, v.Pos);
 			aabbMax = Vec3f::Max(aabbMax, v.Pos);
@@ -868,8 +773,8 @@ void RendererImplemented::TransferVertexToMesh(godot::RID mesh,
 		const size_t customData1Count = (size_t)m_currentShader->GetCustomData1Count();
 		const size_t customData2Count = (size_t)m_currentShader->GetCustomData2Count();
 		const size_t srcStride = sizeof(DynamicVertex) + (customData1Count + customData2Count) * sizeof(float);
-		const size_t dstVertexStride = sizeof(GDDynamicVertex);
-		const size_t dstAttributeStride = sizeof(GDDynamicAttribute) + (customData1Count + customData2Count) * sizeof(float);
+		const size_t dstVertexStride = sizeof(GdLitVertex);
+		const size_t dstAttributeStride = sizeof(GdAttribute) + (customData1Count + customData2Count) * sizeof(float);
 
 		format = RenderingServer::ARRAY_FORMAT_VERTEX |
 			RenderingServer::ARRAY_FORMAT_NORMAL |
@@ -886,7 +791,7 @@ void RendererImplemented::TransferVertexToMesh(godot::RID mesh,
 			format |= RenderingServer::ARRAY_FORMAT_CUSTOM1 | ((RenderingServer::ARRAY_CUSTOM_R_FLOAT + customData2Count - 1) << RenderingServer::ARRAY_FORMAT_CUSTOM1_SHIFT);
 		}
 
-		m_vertexData.resize(vertexCount * sizeof(GDDynamicVertex));
+		m_vertexData.resize(vertexCount * sizeof(GdLitVertex));
 		m_attributeData.resize(vertexCount * dstAttributeStride);
 
 		uint8_t* dstVertexPtr = (uint8_t*)m_vertexData.ptrw();
@@ -897,13 +802,13 @@ void RendererImplemented::TransferVertexToMesh(godot::RID mesh,
 		for (int32_t i = 0; i < vertexCount; i++)
 		{
 			auto& v = *(const DynamicVertex*)srcVertexPtr;
-			auto& dstVertex = *(GDDynamicVertex*)dstVertexPtr;
-			auto& dstAttribute = *(GDDynamicAttribute*)dstAttributePtr;
+			auto& dstVertex = *(GdLitVertex*)dstVertexPtr;
+			auto& dstAttribute = *(GdAttribute*)dstAttributePtr;
 
-			dstVertex = GDDynamicVertex{ v.Pos, ConvertNormal(v.Normal), ConvertTangent(v.Tangent) };
-			dstAttribute = GDDynamicAttribute{ v.Col, {v.UV[0], v.UV[1]} };
+			dstVertex = GdLitVertex{ v.Pos, ToGdNormal(v.Normal), ToGdTangent(v.Tangent) };
+			dstAttribute = GdAttribute{ v.Col, {v.UV[0], v.UV[1]} };
 			
-			memcpy(dstAttributePtr + sizeof(GDDynamicAttribute),
+			memcpy(dstAttributePtr + sizeof(GdAttribute),
 				srcVertexPtr + sizeof(DynamicVertex),
 				(customData1Count + customData2Count) * sizeof(float));
 
