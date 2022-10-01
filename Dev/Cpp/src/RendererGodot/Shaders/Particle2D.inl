@@ -71,15 +71,15 @@ R"(
 
 const Shader::ParamDecl decl[] = {
 #if DISTORTION
-	{ "DistortionIntensity", Shader::ParamType::Float, 1, 48 },
-	{ "DistortionTexture", Shader::ParamType::Texture, 0, 0 },
-	{ "UVTangentTexture", Shader::ParamType::Texture, 1, 0 },
+	{ "DistortionIntensity", Shader::ParamType::Float, 0, 1, 48 },
+	{ "DistortionTexture", Shader::ParamType::Texture, 0, 0, 0 },
+	{ "UVTangentTexture", Shader::ParamType::Texture, 0, 1, 0 },
 #elif LIGHTING
-	{ "EmissiveScale", Shader::ParamType::Float, 1, offsetof(EffekseerRenderer::PixelConstantBuffer, EmmisiveParam) },
-	{ "ColorTexture",  Shader::ParamType::Texture, 0, 0 },
-	{ "NormalTexture", Shader::ParamType::Texture, 1, 0 },
+	{ "EmissiveScale", Shader::ParamType::Float, 0, 1, offsetof(EffekseerRenderer::PixelConstantBuffer, EmmisiveParam) },
+	{ "ColorTexture",  Shader::ParamType::Texture, 0, 0, 0 },
+	{ "NormalTexture", Shader::ParamType::Texture, 0, 1, 0 },
 #else
-	{ "EmissiveScale", Shader::ParamType::Float, 1, offsetof(EffekseerRenderer::PixelConstantBuffer, EmmisiveParam) },
-	{ "ColorTexture",  Shader::ParamType::Texture, 0, 0 },
+	{ "EmissiveScale", Shader::ParamType::Float, 0, 1, offsetof(EffekseerRenderer::PixelConstantBuffer, EmmisiveParam) },
+	{ "ColorTexture",  Shader::ParamType::Texture, 0, 0, 0 },
 #endif
 };

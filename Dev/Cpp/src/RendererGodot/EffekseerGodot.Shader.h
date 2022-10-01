@@ -35,13 +35,16 @@ public:
 		Matrix44,
 		Color,
 		Texture,
+		FloatArray,
+		Vector4Array,
 	};
 
 	struct ParamDecl
 	{
 		char name[24];
 		ParamType type;
-		uint16_t slot;
+		uint8_t length;
+		uint8_t slot;
 		uint16_t offset;
 	};
 

@@ -66,20 +66,20 @@ R"(
 )";
 
 const Shader::ParamDecl decl[] = {
-	//{ "ViewMatrix",  Shader::ParamType::Matrix44, 0,   0 },
-	//{ "ModelMatrix", Shader::ParamType::Matrix44, 0,  64 },
-	{ "ModelUV",     Shader::ParamType::Vector4,  0, 128 },
-	{ "ModelColor",  Shader::ParamType::Vector4,  0, 144 },
+	//{ "ViewMatrix",  Shader::ParamType::Matrix44, 0, 0,   0 },
+	//{ "ModelMatrix", Shader::ParamType::Matrix44, 0, 0,  64 },
+	{ "ModelUV",     Shader::ParamType::Vector4,  0, 0, 128 },
+	{ "ModelColor",  Shader::ParamType::Vector4,  0, 0, 144 },
 
 #if DISTORTION
-	{ "DistortionIntensity", Shader::ParamType::Float, 1, 48 },
-	{ "DistortionTexture", Shader::ParamType::Texture, 0, 0 },
+	{ "DistortionIntensity", Shader::ParamType::Float, 0, 1, 48 },
+	{ "DistortionTexture", Shader::ParamType::Texture, 0, 0, 0 },
 #elif LIGHTING
-	{ "EmissiveScale", Shader::ParamType::Float, 1, offsetof(EffekseerRenderer::PixelConstantBuffer, EmmisiveParam) },
-	{ "ColorTexture",  Shader::ParamType::Texture, 0, 0 },
-	{ "NormalTexture", Shader::ParamType::Texture, 1, 0 },
+	{ "EmissiveScale", Shader::ParamType::Float, 0, 1, offsetof(EffekseerRenderer::PixelConstantBuffer, EmmisiveParam) },
+	{ "ColorTexture",  Shader::ParamType::Texture, 0, 0, 0 },
+	{ "NormalTexture", Shader::ParamType::Texture, 0, 1, 0 },
 #else
-	{ "EmissiveScale", Shader::ParamType::Float, 1, offsetof(EffekseerRenderer::PixelConstantBuffer, EmmisiveParam) },
-	{ "ColorTexture",  Shader::ParamType::Texture, 0, 0 },
+	{ "EmissiveScale", Shader::ParamType::Float, 0, 1, offsetof(EffekseerRenderer::PixelConstantBuffer, EmmisiveParam) },
+	{ "ColorTexture",  Shader::ParamType::Texture, 0, 0, 0 },
 #endif
 };

@@ -176,7 +176,6 @@ inline void CopyCustomData(float*& dst, const uint8_t*& src, int32_t count)
 RenderCommand3D::RenderCommand3D()
 {
 	auto rs = godot::RenderingServer::get_singleton();
-	m_mesh = rs->mesh_create();
 	m_material = rs->material_create();
 	m_instance = rs->instance_create();
 	rs->instance_geometry_set_material_override(m_instance, m_material);
@@ -184,36 +183,42 @@ RenderCommand3D::RenderCommand3D()
 
 RenderCommand3D::~RenderCommand3D()
 {
+	Reset();
 	auto rs = godot::RenderingServer::get_singleton();
 	rs->free_rid(m_instance);
 	rs->free_rid(m_material);
-	rs->free_rid(m_mesh);
 }
 
 void RenderCommand3D::Reset()
 {
 	auto rs = godot::RenderingServer::get_singleton();
-	rs->mesh_clear(m_mesh);
 	rs->instance_set_base(m_instance, godot::RID());
+	if (m_base.is_valid())
+	{
+		rs->free_rid(m_base);
+	}
 }
 
-void RenderCommand3D::DrawSprites(godot::World3D* world, int32_t priority)
+void RenderCommand3D::SetupSprites(godot::World3D* world, int32_t priority)
 {
 	auto rs = godot::RenderingServer::get_singleton();
 
-	rs->instance_set_base(m_instance, m_mesh);
+	m_base = rs->mesh_create();
+	rs->instance_set_base(m_instance, m_base);
 	rs->instance_set_scenario(m_instance, world->get_scenario());
 	rs->material_set_render_priority(m_material, priority);
 }
 
-void RenderCommand3D::DrawModel(godot::World3D* world, godot::RID mesh, int32_t priority)
+void RenderCommand3D::SetupModels(godot::World3D* world, int32_t priority, godot::RID mesh, int32_t instanceCount)
 {
 	auto rs = godot::RenderingServer::get_singleton();
 
-	rs->instance_set_base(m_instance, mesh);
+	m_base = rs->multimesh_create();
+	rs->multimesh_set_mesh(m_base, mesh);
+	rs->multimesh_allocate_data(m_base, instanceCount, godot::RenderingServer::MultimeshTransformFormat::MULTIMESH_TRANSFORM_3D, true, true);
+	rs->instance_set_base(m_instance, m_base);
 	rs->instance_set_scenario(m_instance, world->get_scenario());
 	rs->material_set_render_priority(m_material, priority);
-	rs->instance_geometry_set_cast_shadows_setting(m_instance, godot::RenderingServer::SHADOW_CASTING_SETTING_ON);
 }
 
 EffekseerGodot::RenderCommand2D::RenderCommand2D()
@@ -225,6 +230,7 @@ EffekseerGodot::RenderCommand2D::RenderCommand2D()
 
 EffekseerGodot::RenderCommand2D::~RenderCommand2D()
 {
+	Reset();
 	auto rs = godot::RenderingServer::get_singleton();
 	rs->free_rid(m_canvasItem);
 	rs->free_rid(m_material);
@@ -237,7 +243,7 @@ void EffekseerGodot::RenderCommand2D::Reset()
 	rs->canvas_item_set_parent(m_canvasItem, godot::RID());
 }
 
-void EffekseerGodot::RenderCommand2D::DrawSprites(godot::Node2D* parent)
+void RenderCommand2D::SetupSprites(godot::Node2D* parent)
 {
 	auto rs = godot::RenderingServer::get_singleton();
 
@@ -246,7 +252,7 @@ void EffekseerGodot::RenderCommand2D::DrawSprites(godot::Node2D* parent)
 	rs->canvas_item_set_material(m_canvasItem, m_material);
 }
 
-void RenderCommand2D::DrawModel(godot::Node2D* parent, godot::RID mesh)
+void RenderCommand2D::SetupModels(godot::Node2D* parent, godot::RID mesh, int32_t instanceCount)
 {
 	auto rs = godot::RenderingServer::get_singleton();
 
@@ -351,11 +357,11 @@ void RendererImplemented::Destroy()
 
 void RendererImplemented::ResetState()
 {
-	for (size_t i = 0; i < m_renderCount; i++)
+	for (size_t i = 0; i < m_renderCount3D; i++)
 	{
 		m_renderCommands3D[i].Reset();
 	}
-	m_renderCount = 0;
+	m_renderCount3D = 0;
 
 	for (size_t i = 0; i < m_renderCount2D; i++)
 	{
@@ -509,7 +515,7 @@ void RendererImplemented::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 	godot::Object* godotObj = reinterpret_cast<godot::Object*>(GetImpl()->CurrentHandleUserData);
 	
 	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter3D>(godotObj)) {
-		if (m_renderCount >= m_renderCommands3D.size()) return;
+		if (m_renderCount3D >= m_renderCommands3D.size()) return;
 
 		const bool softparticleEnabled = !(
 			state.SoftParticleDistanceFar == 0.0f &&
@@ -518,21 +524,22 @@ void RendererImplemented::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 		const Shader::RenderType renderType = (softparticleEnabled) ? 
 			Shader::RenderType::SpatialDepthFade : Shader::RenderType::SpatialLightweight;
 
-		auto& command = m_renderCommands3D[m_renderCount];
+		auto& command = m_renderCommands3D[m_renderCount3D];
+		command.SetupSprites(emitter->get_world_3d().ptr(), (int32_t)m_renderCount3D);
 
 		// Transfer vertex data
-		TransferVertexToMesh(command.GetMesh(), vertexDataPtr, spriteCount);
+		TransferVertexToMesh(command.GetBase(), vertexDataPtr, spriteCount);
 
 		// Setup material
 		m_currentShader->ApplyToMaterial(renderType, command.GetMaterial(), m_renderState->GetActiveState());
 
-		command.DrawSprites(emitter->get_world_3d().ptr(), (int32_t)m_renderCount);
-		m_renderCount++;
+		m_renderCount3D++;
 
 	} else if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter2D>(godotObj)) {
 		if (m_renderCount2D >= m_renderCommand2Ds.size()) return;
 
 		auto& command = m_renderCommand2Ds[m_renderCount2D];
+		command.SetupSprites(emitter);
 
 		// Transfer vertex data
 		auto srt = EffekseerGodot::ToSRT(emitter->get_global_transform());
@@ -542,7 +549,6 @@ void RendererImplemented::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 		// Setup material
 		m_currentShader->ApplyToMaterial(Shader::RenderType::CanvasItem, command.GetMaterial(), m_renderState->GetActiveState());
 
-		command.DrawSprites(emitter);
 		m_renderCount2D++;
 	}
 
@@ -558,49 +564,6 @@ void RendererImplemented::DrawPolygon(int32_t vertexCount, int32_t indexCount)
 	assert(m_currentShader != nullptr);
 	assert(m_modelRenderState.model != nullptr);
 
-	auto rs = godot::RenderingServer::get_singleton();
-
-	auto& renderState = m_renderState->GetActiveState();
-
-	godot::Object* godotObj = reinterpret_cast<godot::Object*>(GetImpl()->CurrentHandleUserData);
-
-	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter3D>(godotObj)) {
-		if (m_renderCount >= m_renderCommands3D.size()) return;
-
-		const Shader::RenderType renderType = (m_modelRenderState.softparticleEnabled) ? 
-			Shader::RenderType::SpatialDepthFade : Shader::RenderType::SpatialLightweight;
-
-		auto& command = m_renderCommands3D[m_renderCount];
-
-		// Setup material
-		m_currentShader->ApplyToMaterial(renderType, command.GetMaterial(), renderState);
-
-		auto meshRID = m_modelRenderState.model.DownCast<Model>()->GetRID();
-		command.DrawModel(emitter->get_world_3d().ptr(), meshRID, (int32_t)m_renderCount);
-		m_renderCount++;
-
-	} else if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter2D>(godotObj)) {
-		if (m_renderCount2D >= m_renderCommand2Ds.size()) return;
-
-		auto& command = m_renderCommand2Ds[m_renderCount2D];
-
-		// Transfer vertex data
-		auto srt = EffekseerGodot::ToSRT(emitter->get_global_transform());
-		bool flip = (srt.scale.x < 0.0f) ^ (srt.scale.y < 0.0f) ^ emitter->get_flip_h() ^ emitter->get_flip_v();
-
-		TransferModelToCanvasItem2D(command.GetCanvasItem(), m_modelRenderState.model.Get(), srt.scale.abs(), flip, renderState.CullingType);
-		
-		// Setup material
-		m_currentShader->ApplyToMaterial(Shader::RenderType::CanvasItem, command.GetMaterial(), renderState);
-
-		//auto meshRID = m_modelRenderState.model.DownCast<Model>()->GetRID();
-		//command.DrawModel(node2d, meshRID);
-		command.DrawSprites(emitter);
-		m_renderCount2D++;
-	}
-
-	impl->drawcallCount++;
-	impl->drawvertexCount += vertexCount;
 }
 
 void RendererImplemented::DrawPolygonInstanced(int32_t vertexCount, int32_t indexCount, int32_t instanceCount)
@@ -608,10 +571,59 @@ void RendererImplemented::DrawPolygonInstanced(int32_t vertexCount, int32_t inde
 	assert(m_currentShader != nullptr);
 	assert(m_modelRenderState.model != nullptr);
 
-	// Not implemented (maybe unused)
+	auto rs = godot::RenderingServer::get_singleton();
 
-	//impl->drawcallCount++;
-	//impl->drawvertexCount += vertexCount * instanceCount;
+	auto& renderState = m_renderState->GetActiveState();
+
+	godot::Object* godotObj = reinterpret_cast<godot::Object*>(GetImpl()->CurrentHandleUserData);
+
+	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter3D>(godotObj)) {
+		if (m_renderCount3D >= m_renderCommands3D.size()) return;
+
+		const Shader::RenderType renderType = (m_modelRenderState.softparticleEnabled) ? 
+			Shader::RenderType::SpatialDepthFade : Shader::RenderType::SpatialLightweight;
+
+		auto& command = m_renderCommands3D[m_renderCount3D];
+		auto meshRID = m_modelRenderState.model.DownCast<Model>()->GetRID();
+		command.SetupModels(emitter->get_world_3d().ptr(), (int32_t)m_renderCount3D, meshRID, instanceCount);
+		
+		auto multimeshRID = command.GetBase();
+		auto constantBuffer = (const EffekseerRenderer::ModelRendererVertexConstantBuffer<ModelRenderer::InstanceCount>*)m_currentShader->GetVertexConstantBuffer();
+
+		for (int32_t i = 0; i < instanceCount; i++)
+		{
+			rs->multimesh_instance_set_transform(multimeshRID, i, EffekseerGodot::ToGdMatrix(constantBuffer->ModelMatrix[i]));
+			rs->multimesh_instance_set_color(multimeshRID, i, EffekseerGodot::ToGdColor(constantBuffer->ModelColor[i]));
+			rs->multimesh_instance_set_custom_data(multimeshRID, i, EffekseerGodot::ToGdColor(constantBuffer->ModelUV[i]));
+		}
+		
+		// Setup material
+		m_currentShader->ApplyToMaterial(renderType, command.GetMaterial(), renderState);
+
+		m_renderCount3D++;
+
+	} else if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter2D>(godotObj)) {
+		if (m_renderCount2D >= m_renderCommand2Ds.size()) return;
+
+		auto& command = m_renderCommand2Ds[m_renderCount2D];
+		//auto meshRID = m_modelRenderState.model.DownCast<Model>()->GetRID();
+		//command.SetupSprites(node2d, meshRID, instanceCount);
+		command.SetupSprites(emitter);
+
+		// Transfer vertex data
+		auto srt = EffekseerGodot::ToSRT(emitter->get_global_transform());
+		bool flip = (srt.scale.x < 0.0f) ^ (srt.scale.y < 0.0f) ^ emitter->get_flip_h() ^ emitter->get_flip_v();
+
+		TransferModelToCanvasItem2D(command.GetCanvasItem(), m_modelRenderState.model.Get(), srt.scale.abs(), flip, renderState.CullingType);
+
+		// Setup material
+		m_currentShader->ApplyToMaterial(Shader::RenderType::CanvasItem, command.GetMaterial(), renderState);
+
+		m_renderCount2D++;
+	}
+
+	impl->drawcallCount++;
+	impl->drawvertexCount += vertexCount;
 }
 
 void RendererImplemented::BeginModelRendering(Effekseer::ModelRef model, bool softparticleEnabled)

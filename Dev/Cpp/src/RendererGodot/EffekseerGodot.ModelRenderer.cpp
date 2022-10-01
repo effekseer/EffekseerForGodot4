@@ -116,6 +116,8 @@ ModelRenderer::ModelRenderer(RendererImplemented* renderer)
 	m_shaders[(size_t)RendererShaderType::BackDistortion]->Compile(Shader::RenderType::SpatialLightweight, Distortion::Lightweight::code, Distortion::Lightweight::decl);
 	m_shaders[(size_t)RendererShaderType::BackDistortion]->Compile(Shader::RenderType::SpatialDepthFade, Distortion::SoftParticle::code, Distortion::SoftParticle::decl);
 	m_shaders[(size_t)RendererShaderType::BackDistortion]->Compile(Shader::RenderType::CanvasItem, Distortion::CanvasItem::code, Distortion::CanvasItem::decl);
+
+	VertexType = ModelRendererVertexType::Instancing;
 }
 
 //----------------------------------------------------------------------------------
@@ -182,8 +184,8 @@ void ModelRenderer::EndRendering(const efkModelNodeParam& parameter, void* userD
 		RendererImplemented,
 		Shader,
 		Effekseer::Model,
-		false,
-		1>(
+		true,
+		InstanceCount>(
 		m_renderer,
 		nullptr, nullptr, nullptr, 
 		m_shaders[(size_t)RendererShaderType::Lit].get(),

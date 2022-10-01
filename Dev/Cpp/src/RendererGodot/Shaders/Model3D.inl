@@ -43,9 +43,9 @@ uniform vec4 SoftParticleReco;
 
 R"(
 void vertex() {
-	MODELVIEW_MATRIX = ViewMatrix * ModelMatrix;
-    UV = (UV.xy * ModelUV.zw) + ModelUV.xy;
-	COLOR = COLOR * ModelColor;
+	MODELVIEW_MATRIX = ViewMatrix * MODEL_MATRIX;
+    UV = (UV.xy * INSTANCE_CUSTOM.zw) + INSTANCE_CUSTOM.xy;
+	//COLOR = COLOR * ModelColor;
 }
 )"
 
@@ -83,31 +83,31 @@ R"(
 )";
 
 const Shader::ParamDecl decl[] = {
-	{ "ViewMatrix",  Shader::ParamType::Matrix44, 0,   0 },
-	{ "ModelMatrix", Shader::ParamType::Matrix44, 0,  64 },
-	{ "ModelUV",     Shader::ParamType::Vector4,  0, 128 },
-	{ "ModelColor",  Shader::ParamType::Vector4,  0, 144 },
+	{ "ViewMatrix",  Shader::ParamType::Matrix44, 0, 0,   0 },
+	//{ "ModelMatrix", Shader::ParamType::Matrix44, 0, 0,  64 },
+	//{ "ModelUV",     Shader::ParamType::Vector4,  0, 0, 128 },
+	//{ "ModelColor",  Shader::ParamType::Vector4,  0, 0, 144 },
 
 #if DISTORTION
-	{ "DistortionIntensity", Shader::ParamType::Float, 1, 48 },
-	{ "DistortionTexture", Shader::ParamType::Texture, 0, 0 },
+	{ "DistortionIntensity", Shader::ParamType::Float, 0, 1, 48 },
+	{ "DistortionTexture", Shader::ParamType::Texture, 0, 0, 0 },
 #elif LIGHTING
-	{ "ColorTexture",  Shader::ParamType::Texture, 0, 0 },
-	{ "NormalTexture", Shader::ParamType::Texture, 1, 0 },
+	{ "ColorTexture",  Shader::ParamType::Texture, 0, 0, 0 },
+	{ "NormalTexture", Shader::ParamType::Texture, 0, 1, 0 },
 #else
-	{ "ColorTexture",  Shader::ParamType::Texture, 0, 0 },
+	{ "ColorTexture",  Shader::ParamType::Texture, 0, 0, 0 },
 #endif
 
 #if DISTORTION
 	#if SOFT_PARTICLE
-		{ "SoftParticleParams", Shader::ParamType::Vector4, 1, offsetof(EffekseerRenderer::PixelConstantBufferDistortion, SoftParticleParam) + 0 },
-		{ "SoftParticleReco",   Shader::ParamType::Vector4, 1, offsetof(EffekseerRenderer::PixelConstantBufferDistortion, SoftParticleParam) + 16 },
+		{ "SoftParticleParams", Shader::ParamType::Vector4, 0, 1, offsetof(EffekseerRenderer::PixelConstantBufferDistortion, SoftParticleParam) + 0 },
+		{ "SoftParticleReco",   Shader::ParamType::Vector4, 0, 1, offsetof(EffekseerRenderer::PixelConstantBufferDistortion, SoftParticleParam) + 16 },
 	#endif
 #else
-	{ "EmissiveScale", Shader::ParamType::Float, 1, offsetof(EffekseerRenderer::PixelConstantBuffer, EmmisiveParam) },
+	{ "EmissiveScale", Shader::ParamType::Float, 0, 1, offsetof(EffekseerRenderer::PixelConstantBuffer, EmmisiveParam) },
 	#if SOFT_PARTICLE
-		{ "SoftParticleParams", Shader::ParamType::Vector4, 1, offsetof(EffekseerRenderer::PixelConstantBuffer, SoftParticleParam) + 0 },
-		{ "SoftParticleReco",   Shader::ParamType::Vector4, 1, offsetof(EffekseerRenderer::PixelConstantBuffer, SoftParticleParam) + 16 },
+		{ "SoftParticleParams", Shader::ParamType::Vector4, 0, 1, offsetof(EffekseerRenderer::PixelConstantBuffer, SoftParticleParam) + 0 },
+		{ "SoftParticleReco",   Shader::ParamType::Vector4, 0, 1, offsetof(EffekseerRenderer::PixelConstantBuffer, SoftParticleParam) + 16 },
 	#endif
 #endif
 };

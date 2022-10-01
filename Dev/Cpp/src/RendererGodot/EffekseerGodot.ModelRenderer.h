@@ -23,6 +23,9 @@ using ModelRendererRef = Effekseer::RefPtr<ModelRenderer>;
 
 class ModelRenderer : public ::EffekseerRenderer::ModelRendererBase
 {
+public:
+	static constexpr int InstanceCount = 16;
+
 private:
 	RendererImplemented* m_renderer = nullptr;
 	std::array<std::unique_ptr<Shader>, 6> m_shaders;

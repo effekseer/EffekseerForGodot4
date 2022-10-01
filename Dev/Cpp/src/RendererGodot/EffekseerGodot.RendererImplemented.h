@@ -30,15 +30,15 @@ public:
 	RenderCommand3D();
 	~RenderCommand3D();
 	void Reset();
-	void DrawSprites(godot::World3D* world, int32_t priority);
-	void DrawModel(godot::World3D* world, godot::RID mesh, int32_t priority);
+	void SetupSprites(godot::World3D* world, int32_t priority);
+	void SetupModels(godot::World3D* world, int32_t priority, godot::RID mesh, int32_t instanceCount);
 
-	godot::RID GetMesh() { return m_mesh; }
+	godot::RID GetBase() { return m_base; }
 	godot::RID GetInstance() { return m_instance; }
 	godot::RID GetMaterial() { return m_material; }
 
 private:
-	godot::RID m_mesh;
+	godot::RID m_base;
 	godot::RID m_instance;
 	godot::RID m_material;
 };
@@ -52,8 +52,8 @@ public:
 	~RenderCommand2D();
 
 	void Reset();
-	void DrawSprites(godot::Node2D* parent);
-	void DrawModel(godot::Node2D* parent, godot::RID mesh);
+	void SetupSprites(godot::Node2D* parent);
+	void SetupModels(godot::Node2D* parent, godot::RID mesh, int32_t instanceCount);
 
 	godot::RID GetCanvasItem() { return m_canvasItem; }
 	godot::RID GetMaterial() { return m_material; }
@@ -118,10 +118,9 @@ private:
 	std::array<std::unique_ptr<Shader>, 6> m_shaders;
 
 	Shader* m_currentShader = nullptr;
-	godot::World3D* m_world = nullptr;
-
+	
 	std::vector<RenderCommand3D> m_renderCommands3D;
-	size_t m_renderCount = 0;
+	size_t m_renderCount3D = 0;
 	std::vector<RenderCommand2D> m_renderCommand2Ds;
 	size_t m_renderCount2D = 0;
 
