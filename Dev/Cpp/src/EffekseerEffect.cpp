@@ -1,5 +1,5 @@
 #include <godot_cpp/classes/engine.hpp>
-#include <godot_cpp/classes/file.hpp>
+#include <godot_cpp/classes/file_access.hpp>
 #include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 #include "GDLibrary.h"
@@ -32,15 +32,14 @@ EffekseerEffect::~EffekseerEffect()
 
 void EffekseerEffect::import(String path, bool shrink_binary)
 {
-	File file;
-	if (file.open(path, File::READ) != Error::OK) {
+	auto file = FileAccess::open(path, FileAccess::READ);
+	if (!file.is_valid()) {
 		UtilityFunctions::printerr("Failed open file: ", path);
 		return;
 	}
 
-	int64_t size = file.get_length();
-	PackedByteArray bytes = file.get_buffer(size);
-	file.close();
+	int64_t size = file->get_length();
+	PackedByteArray bytes = file->get_buffer(size);
 
 	if (shrink_binary) {
 		Effekseer::EfkEfcFile efkefc(bytes.ptr(), (int32_t)bytes.size());

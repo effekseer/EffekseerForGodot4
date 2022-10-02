@@ -13,7 +13,7 @@ var drag_elevation := 20.0
 func _ready():
 	pass
 
-func _process(delta):
+func _process(_delta):
 	transform.origin = origin_pos + Vector3(
 		cos(deg_to_rad(azimuth)) * cos(deg_to_rad(elevation)),
 		sin(deg_to_rad(elevation)),

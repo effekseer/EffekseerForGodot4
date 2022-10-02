@@ -1,4 +1,4 @@
-#include <godot_cpp/classes/file.hpp>
+#include <godot_cpp/classes/file_access.hpp>
 #include "GDLibrary.h"
 #include "EffekseerSystem.h"
 #include "EffekseerResource.h"
@@ -21,14 +21,13 @@ EffekseerResource::~EffekseerResource()
 
 void EffekseerResource::load(String path)
 {
-	File file;
-	if (file.open(path, godot::File::READ) != godot::Error::OK) {
+	auto file = FileAccess::open(path, FileAccess::READ);
+	if (!file.is_valid()) {
 		return;
 	}
 
-	int64_t size = file.get_length();
-	m_data_bytes = file.get_buffer(size);
-	file.close();
+	int64_t size = file->get_length();
+	m_data_bytes = file->get_buffer(size);
 }
 
 }

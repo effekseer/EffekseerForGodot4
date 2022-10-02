@@ -61,15 +61,15 @@ inline SRT2D ToSRT(const godot::Transform2D& transform)
 {
 	SRT2D srt;
 
-	srt.rotation = atan2(transform.elements[0].y, transform.elements[0].x);
+	srt.rotation = atan2(transform.columns[0].y, transform.columns[0].x);
 
 	real_t cr = cos(-srt.rotation);
 	real_t sr = sin(-srt.rotation);
-	srt.scale.x = cr * transform.elements[0].x - sr * transform.elements[0].y;
-	srt.scale.y = sr * transform.elements[1].x + cr * transform.elements[1].y;
+	srt.scale.x = cr * transform.columns[0].x - sr * transform.columns[0].y;
+	srt.scale.y = sr * transform.columns[1].x + cr * transform.columns[1].y;
 
-	srt.translation.x = transform.elements[2].x;
-	srt.translation.y = transform.elements[2].y;
+	srt.translation.x = transform.columns[2].x;
+	srt.translation.y = transform.columns[2].y;
 
 	return srt;
 }
@@ -99,20 +99,20 @@ inline Effekseer::Matrix44 ToEfkMatrix44(const godot::Transform3D& transform)
 inline Effekseer::Matrix44 ToEfkMatrix44(const godot::Transform2D& transform)
 {
 	Effekseer::Matrix44 matrix;
-	matrix.Values[0][0] = transform.elements[0].x;
-	matrix.Values[0][1] = transform.elements[0].y;
+	matrix.Values[0][0] = transform.columns[0].x;
+	matrix.Values[0][1] = transform.columns[0].y;
 	matrix.Values[0][2] = 0.0f;
 	matrix.Values[0][3] = 0.0f;
-	matrix.Values[1][0] = transform.elements[1].x;
-	matrix.Values[1][1] = transform.elements[1].y;
+	matrix.Values[1][0] = transform.columns[1].x;
+	matrix.Values[1][1] = transform.columns[1].y;
 	matrix.Values[1][2] = 0.0f;
 	matrix.Values[1][3] = 0.0f;
 	matrix.Values[2][0] = 0.0f;
 	matrix.Values[2][1] = 0.0f;
 	matrix.Values[2][2] = 1.0f;
 	matrix.Values[2][3] = 0.0f;
-	matrix.Values[3][0] = transform.elements[2].x;
-	matrix.Values[3][1] = transform.elements[2].y;
+	matrix.Values[3][0] = transform.columns[2].x;
+	matrix.Values[3][1] = transform.columns[2].y;
 	matrix.Values[3][2] = 0.0f;
 	matrix.Values[3][3] = 1.0f;
 	return matrix;

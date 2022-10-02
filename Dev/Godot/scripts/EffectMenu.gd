@@ -12,9 +12,9 @@ func setup_menu(path: String, menu: PopupMenu):
 	menu.name = path
 	menu.connect("id_pressed",Callable(self,"_on_item_pressed"))
 	var file_count := 0
-	var dir := Directory.new()
-	if dir.open(path) == OK:
-		dir.list_dir_begin() # TODOGODOT4 fill missing arguments https://github.com/godotengine/godot/pull/40547
+	var dir := DirAccess.open(path)
+	if dir:
+		dir.list_dir_begin()
 		var asset_name = dir.get_next()
 		while asset_name != "":
 			if dir.current_is_dir():
