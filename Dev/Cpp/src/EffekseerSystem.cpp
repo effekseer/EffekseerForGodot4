@@ -40,6 +40,8 @@ void EffekseerSystem::_bind_methods()
 	GDBIND_METHOD(EffekseerSystem, stop_all_effects);
 	GDBIND_METHOD(EffekseerSystem, set_paused_to_all_effects, "paused");
 	GDBIND_METHOD(EffekseerSystem, get_total_instance_count);
+	GDBIND_METHOD(EffekseerSystem, get_total_draw_call_count);
+	GDBIND_METHOD(EffekseerSystem, get_total_draw_vertex_count);
 }
 
 void EffekseerSystem::initialize()
@@ -153,6 +155,8 @@ void EffekseerSystem::process(float delta)
 void EffekseerSystem::update_draw()
 {
 	m_renderer->ResetState();
+	m_renderer->ResetDrawCallCount();
+	m_renderer->ResetDrawVertexCount();
 
 	for (size_t i = 0; i < m_render_layers.size(); i++) {
 		auto& layer = m_render_layers[i];
@@ -233,6 +237,16 @@ void EffekseerSystem::set_paused_to_all_effects(bool paused)
 int EffekseerSystem::get_total_instance_count() const
 {
 	return m_manager->GetTotalInstanceCount();
+}
+
+int EffekseerSystem::get_total_draw_call_count() const
+{
+	return m_renderer->GetDrawCallCount();
+}
+
+int EffekseerSystem::get_total_draw_vertex_count() const
+{
+	return m_renderer->GetDrawVertexCount();
 }
 
 void EffekseerSystem::push_load_list(EffekseerEffect* effect)

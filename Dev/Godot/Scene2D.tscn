@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://7qnlb6vc3vxh" path="res://icon.png" id="2"]
 [ext_resource type="PackedScene" uid="uid://3yy8se2knnd6" path="res://GUI.tscn" id="4"]
-[ext_resource type="EffekseerEffect" uid="uid://dfsyswa63i5xn" path="res://effect/samples/Laser01.efkefc" id="4_mmdnm"]
+[ext_resource type="EffekseerEffect" uid="uid://ix8w283s7cb0" path="res://effect/tests/model_instanced.efkefc" id="4_xsuav"]
 [ext_resource type="Texture2D" uid="uid://dod84ervtfcm1" path="res://effect/tests/Textures/Particle02.png" id="5"]
 [ext_resource type="Texture2D" uid="uid://cq0rnvcuc6xwp" path="res://grid.png" id="7"]
 [ext_resource type="Script" path="res://scripts/Scene2D.gd" id="8"]
@@ -31,7 +31,7 @@ position = Vector2(171.514, 105.967)
 texture = ExtResource("2")
 
 [node name="Effect" type="EffekseerEmitter2D" parent="."]
-effect = ExtResource("4_mmdnm")
+effect = ExtResource("4_xsuav")
 orientation = Vector3(0, 90, 0)
 position = Vector2(229.379, 184.932)
 scale = Vector2(10, 10)
@@ -56,13 +56,11 @@ offset = Vector2(640, 360)
 [node name="Header" type="HBoxContainer" parent="."]
 
 [node name="Title" type="Label" parent="Header"]
-layout_mode = 2
 offset_right = 216.0
 offset_bottom = 26.0
 text = "Effekseer 2D Effect Example"
 
 [node name="Description" type="Label" parent="Header"]
-layout_mode = 2
 offset_left = 220.0
 offset_right = 624.0
 offset_bottom = 26.0
@@ -72,5 +70,3 @@ text = "W/A/S/D: Move the Emitter.  Q/E: Rotate the Emitter."
 [node name="GUI" parent="." instance=ExtResource("4")]
 offset_right = 1280.0
 offset_bottom = 720.0
-grow_horizontal = 2
-grow_vertical = 2

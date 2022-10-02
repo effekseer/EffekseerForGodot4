@@ -62,6 +62,10 @@ public:
 
 	int get_total_instance_count() const;
 
+	int get_total_draw_call_count() const;
+
+	int get_total_draw_vertex_count() const;
+
 	const Effekseer::ManagerRef& get_manager() { return m_manager; }
 
 	void push_load_list(EffekseerEffect* effect);
