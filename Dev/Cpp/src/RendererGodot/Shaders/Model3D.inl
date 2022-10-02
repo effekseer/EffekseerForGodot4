@@ -8,9 +8,6 @@ render_mode unshaded;
 
 R"(
 uniform mat4 ViewMatrix;
-uniform mat4 ModelMatrix;
-uniform vec4 ModelUV;
-uniform vec4 ModelColor : source_color;
 )"
 
 #if DISTORTION
@@ -45,7 +42,6 @@ R"(
 void vertex() {
 	MODELVIEW_MATRIX = ViewMatrix * MODEL_MATRIX;
     UV = (UV.xy * INSTANCE_CUSTOM.zw) + INSTANCE_CUSTOM.xy;
-	//COLOR = COLOR * ModelColor;
 }
 )"
 

@@ -514,7 +514,8 @@ void RendererImplemented::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 	const auto& state = m_standardRenderer->GetState();
 	godot::Object* godotObj = reinterpret_cast<godot::Object*>(GetImpl()->CurrentHandleUserData);
 	
-	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter3D>(godotObj)) {
+	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter3D>(godotObj))
+	{
 		if (m_renderCount3D >= m_renderCommands3D.size()) return;
 
 		const bool softparticleEnabled = !(
@@ -534,8 +535,12 @@ void RendererImplemented::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 		m_currentShader->ApplyToMaterial(renderType, command.GetMaterial(), m_renderState->GetActiveState());
 
 		m_renderCount3D++;
+		impl->drawcallCount++;
+		impl->drawvertexCount += spriteCount * 4;
 
-	} else if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter2D>(godotObj)) {
+	}
+	else if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter2D>(godotObj))
+	{
 		if (m_renderCount2D >= m_renderCommand2Ds.size()) return;
 
 		auto& command = m_renderCommand2Ds[m_renderCount2D];
@@ -550,10 +555,9 @@ void RendererImplemented::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 		m_currentShader->ApplyToMaterial(Shader::RenderType::CanvasItem, command.GetMaterial(), m_renderState->GetActiveState());
 
 		m_renderCount2D++;
+		impl->drawcallCount++;
+		impl->drawvertexCount += spriteCount * 4;
 	}
-
-	impl->drawcallCount++;
-	impl->drawvertexCount += spriteCount * 4;
 }
 
 //----------------------------------------------------------------------------------
@@ -564,6 +568,38 @@ void RendererImplemented::DrawPolygon(int32_t vertexCount, int32_t indexCount)
 	assert(m_currentShader != nullptr);
 	assert(m_modelRenderState.model != nullptr);
 
+	auto rs = godot::RenderingServer::get_singleton();
+
+	auto& renderState = m_renderState->GetActiveState();
+
+	godot::Object* godotObj = reinterpret_cast<godot::Object*>(GetImpl()->CurrentHandleUserData);
+
+	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter2D>(godotObj))
+	{
+		if (m_renderCount2D >= m_renderCommand2Ds.size()) return;
+
+		auto& command = m_renderCommand2Ds[m_renderCount2D];
+		//auto meshRID = m_modelRenderState.model.DownCast<Model>()->GetRID();
+		//command.SetupSprites(node2d, meshRID, instanceCount);
+		command.SetupSprites(emitter);
+
+		// Transfer vertex data
+		auto srt = EffekseerGodot::ToSRT(emitter->get_global_transform());
+		bool flip = (srt.scale.x < 0.0f) ^ (srt.scale.y < 0.0f) ^ emitter->get_flip_h() ^ emitter->get_flip_v();
+
+		TransferModelToCanvasItem2D(command.GetCanvasItem(), m_modelRenderState.model.Get(), srt.scale.abs(), flip, renderState.CullingType);
+
+		// Setup material
+		m_currentShader->ApplyToMaterial(Shader::RenderType::CanvasItem, command.GetMaterial(), renderState);
+
+		m_renderCount2D++;
+		impl->drawcallCount++;
+		impl->drawvertexCount += vertexCount;
+	}
+	else
+	{
+		assert(false);
+	}
 }
 
 void RendererImplemented::DrawPolygonInstanced(int32_t vertexCount, int32_t indexCount, int32_t instanceCount)
@@ -577,7 +613,8 @@ void RendererImplemented::DrawPolygonInstanced(int32_t vertexCount, int32_t inde
 
 	godot::Object* godotObj = reinterpret_cast<godot::Object*>(GetImpl()->CurrentHandleUserData);
 
-	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter3D>(godotObj)) {
+	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter3D>(godotObj))
+	{
 		if (m_renderCount3D >= m_renderCommands3D.size()) return;
 
 		const Shader::RenderType renderType = (m_modelRenderState.softparticleEnabled) ? 
@@ -601,29 +638,13 @@ void RendererImplemented::DrawPolygonInstanced(int32_t vertexCount, int32_t inde
 		m_currentShader->ApplyToMaterial(renderType, command.GetMaterial(), renderState);
 
 		m_renderCount3D++;
-
-	} else if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter2D>(godotObj)) {
-		if (m_renderCount2D >= m_renderCommand2Ds.size()) return;
-
-		auto& command = m_renderCommand2Ds[m_renderCount2D];
-		//auto meshRID = m_modelRenderState.model.DownCast<Model>()->GetRID();
-		//command.SetupSprites(node2d, meshRID, instanceCount);
-		command.SetupSprites(emitter);
-
-		// Transfer vertex data
-		auto srt = EffekseerGodot::ToSRT(emitter->get_global_transform());
-		bool flip = (srt.scale.x < 0.0f) ^ (srt.scale.y < 0.0f) ^ emitter->get_flip_h() ^ emitter->get_flip_v();
-
-		TransferModelToCanvasItem2D(command.GetCanvasItem(), m_modelRenderState.model.Get(), srt.scale.abs(), flip, renderState.CullingType);
-
-		// Setup material
-		m_currentShader->ApplyToMaterial(Shader::RenderType::CanvasItem, command.GetMaterial(), renderState);
-
-		m_renderCount2D++;
+		impl->drawcallCount++;
+		impl->drawvertexCount += vertexCount * instanceCount;
 	}
-
-	impl->drawcallCount++;
-	impl->drawvertexCount += vertexCount;
+	else
+	{
+		assert(false);
+	}
 }
 
 void RendererImplemented::BeginModelRendering(Effekseer::ModelRef model, bool softparticleEnabled)

@@ -28,6 +28,7 @@ Project("{911E67C6-3D85-4FCE-B560-20A9C3E3FF48}") = "Godot_v4.0-beta2_win64", ".
 		Executable = C:\home\work\Effekseer\EffekseerForGodot4\Dev\Godot_v4.0-beta2_win64.exe
 		RemoteMachine = SURFACEPRO7
 		StartingDirectory = C:\home\work\Effekseer\EffekseerForGodot4\Dev
+		Arguments = -d --path ./Godot
 		Environment = 既定
 		LaunchingEngine = 00000000-0000-0000-0000-000000000000
 		UseLegacyDebugEngines = No

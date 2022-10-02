@@ -10,6 +10,9 @@
 #include "EffekseerGodot.Shader.h"
 #include "EffekseerGodot.VertexBuffer.h"
 
+#include "../EffekseerEmitter3D.h"
+#include "../EffekseerEmitter2D.h"
+
 namespace EffekseerGodot
 {
 	
@@ -116,8 +119,6 @@ ModelRenderer::ModelRenderer(RendererImplemented* renderer)
 	m_shaders[(size_t)RendererShaderType::BackDistortion]->Compile(Shader::RenderType::SpatialLightweight, Distortion::Lightweight::code, Distortion::Lightweight::decl);
 	m_shaders[(size_t)RendererShaderType::BackDistortion]->Compile(Shader::RenderType::SpatialDepthFade, Distortion::SoftParticle::code, Distortion::SoftParticle::decl);
 	m_shaders[(size_t)RendererShaderType::BackDistortion]->Compile(Shader::RenderType::CanvasItem, Distortion::CanvasItem::code, Distortion::CanvasItem::decl);
-
-	VertexType = ModelRendererVertexType::Instancing;
 }
 
 //----------------------------------------------------------------------------------
@@ -139,6 +140,21 @@ ModelRendererRef ModelRenderer::Create(RendererImplemented* renderer)
 
 void ModelRenderer::BeginRendering(const efkModelNodeParam& parameter, int32_t count, void* userData)
 {
+	using namespace EffekseerRenderer;
+
+	godot::Object* godotObj = reinterpret_cast<godot::Object*>(userData);
+
+	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter3D>(godotObj))
+	{
+		// 3D instancing is supported
+		VertexType = ModelRendererVertexType::Instancing;
+	}
+	else if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter2D>(godotObj))
+	{
+		// 2D instancing is not supported
+		VertexType = ModelRendererVertexType::Single;
+	}
+
 	BeginRendering_(m_renderer, parameter, count, userData);
 }
 
@@ -180,18 +196,26 @@ void ModelRenderer::EndRendering(const efkModelNodeParam& parameter, void* userD
 
 	using namespace EffekseerRenderer;
 
-	EndRendering_<
-		RendererImplemented,
-		Shader,
-		Effekseer::Model,
-		true,
-		InstanceCount>(
-		m_renderer,
-		nullptr, nullptr, nullptr, 
-		m_shaders[(size_t)RendererShaderType::Lit].get(),
-		m_shaders[(size_t)RendererShaderType::Unlit].get(),
-		m_shaders[(size_t)RendererShaderType::BackDistortion].get(),
-		parameter, userData);
+	if (VertexType == ModelRendererVertexType::Instancing)
+	{
+		EndRendering_<RendererImplemented, Shader, Effekseer::Model, true, InstanceCount>(
+			m_renderer,
+			nullptr, nullptr, nullptr, 
+			m_shaders[(size_t)RendererShaderType::Lit].get(),
+			m_shaders[(size_t)RendererShaderType::Unlit].get(),
+			m_shaders[(size_t)RendererShaderType::BackDistortion].get(),
+			parameter, userData);
+	}
+	else
+	{
+		EndRendering_<RendererImplemented, Shader, Effekseer::Model, false, 1>(
+			m_renderer,
+			nullptr, nullptr, nullptr, 
+			m_shaders[(size_t)RendererShaderType::Lit].get(),
+			m_shaders[(size_t)RendererShaderType::Unlit].get(),
+			m_shaders[(size_t)RendererShaderType::BackDistortion].get(),
+			parameter, userData);
+	}
 
 	m_renderer->EndModelRendering();
 }
