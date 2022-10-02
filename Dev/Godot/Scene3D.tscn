@@ -1,8 +1,8 @@
-[gd_scene load_steps=9 format=3 uid="uid://cwiv2c2tyqyw"]
+[gd_scene load_steps=10 format=3 uid="uid://cwiv2c2tyqyw"]
 
 [ext_resource type="Texture2D" uid="uid://cq0rnvcuc6xwp" path="res://grid.png" id="1"]
-[ext_resource type="EffekseerEffect" uid="uid://budrc8d5j48re" path="res://effect/samples/Laser01_SoftParticle.efkefc" id="3"]
 [ext_resource type="Script" path="res://scripts/Scene3D.gd" id="4"]
+[ext_resource type="EffekseerEffect" uid="uid://ix8w283s7cb0" path="res://effect/tests/model_instanced.efkefc" id="4_18bpy"]
 [ext_resource type="Script" path="res://scripts/CameraController3D.gd" id="5"]
 [ext_resource type="PackedScene" uid="uid://3yy8se2knnd6" path="res://GUI.tscn" id="6"]
 
@@ -14,6 +14,8 @@ albedo_texture = ExtResource("1")
 [sub_resource type="Environment" id="3"]
 ambient_light_color = Color(0.25098, 0.25098, 0.25098, 1)
 glow_enabled = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_4buj6"]
 
 [node name="Scene3D" type="Node3D"]
 script = ExtResource("4")
@@ -30,10 +32,10 @@ script = ExtResource("5")
 
 [node name="DirectionalLight" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.200531, 0.979687, 0, -0.979687, 0.200531, 0, 6.95046, -4.86754e-07)
+shadow_enabled = true
 
 [node name="Effect" type="EffekseerEmitter3D" parent="."]
-effect = ExtResource("3")
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+effect = ExtResource("4_18bpy")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("3")
@@ -57,5 +59,7 @@ text = "W/A/S/D: Move the Emitter.  Q/E: Rotate the Emitter.
 MouseRightDrag: Rotate the Camera, MouseMiddleDrag: Move the Camera"
 
 [node name="GUI" parent="." instance=ExtResource("6")]
-grow_horizontal = 2
-grow_vertical = 2
+
+[node name="MeshInstance3d" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.93182, 0)
+mesh = SubResource("BoxMesh_4buj6")

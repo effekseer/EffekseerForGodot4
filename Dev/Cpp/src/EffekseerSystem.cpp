@@ -170,7 +170,7 @@ void EffekseerSystem::update_draw()
 			m_renderer->SetCameraMatrix(matrix);
 			m_renderer->SetCameraParameter(
 				EffekseerGodot::ToEfkVector3(camera_transform.origin),
-				EffekseerGodot::ToEfkVector3(camera_transform.basis.elements[2]));
+				EffekseerGodot::ToEfkVector3(camera_transform.basis.rows[2]));
 		} else if (layer.layer_type == LayerType::_2D) {
 			Transform2D camera_transform = layer.viewport->get_canvas_transform();
 			Effekseer:: Matrix44 matrix = EffekseerGodot::ToEfkMatrix44(camera_transform.inverse());

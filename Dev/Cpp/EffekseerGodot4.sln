@@ -22,6 +22,20 @@ Project("{911E67C6-3D85-4FCE-B560-20A9C3E3FF48}") = "Godot_v4.0-beta1_win64", ".
 		IORedirection = Auto
 	EndProjectSection
 EndProject
+Project("{911E67C6-3D85-4FCE-B560-20A9C3E3FF48}") = "Godot_v4.0-beta2_win64", "..\Godot_v4.0-beta2_win64.exe", "{E8DDBC57-F018-45F8-A503-11C49236A5D6}"
+	ProjectSection(DebuggerProjectSystem) = preProject
+		PortSupplier = 00000000-0000-0000-0000-000000000000
+		Executable = C:\home\work\Effekseer\EffekseerForGodot4\Dev\Godot_v4.0-beta2_win64.exe
+		RemoteMachine = SURFACEPRO7
+		StartingDirectory = C:\home\work\Effekseer\EffekseerForGodot4\Dev
+		Environment = 既定
+		LaunchingEngine = 00000000-0000-0000-0000-000000000000
+		UseLegacyDebugEngines = No
+		LaunchSQLEngine = No
+		AttachLaunchAction = No
+		IORedirection = Auto
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -70,6 +84,14 @@ Global
 		{1CBA30FB-920F-4E3D-8B97-7DEA9082B7A1}.Release|x86.ActiveCfg = Release|x64
 		{1CBA30FB-920F-4E3D-8B97-7DEA9082B7A1}.RelWithDebInfo|x64.ActiveCfg = Release|x64
 		{1CBA30FB-920F-4E3D-8B97-7DEA9082B7A1}.RelWithDebInfo|x86.ActiveCfg = Release|x64
+		{E8DDBC57-F018-45F8-A503-11C49236A5D6}.Debug|x64.ActiveCfg = Release|x64
+		{E8DDBC57-F018-45F8-A503-11C49236A5D6}.Debug|x86.ActiveCfg = Release|x64
+		{E8DDBC57-F018-45F8-A503-11C49236A5D6}.MinSizeRel|x64.ActiveCfg = Release|x64
+		{E8DDBC57-F018-45F8-A503-11C49236A5D6}.MinSizeRel|x86.ActiveCfg = Release|x64
+		{E8DDBC57-F018-45F8-A503-11C49236A5D6}.Release|x64.ActiveCfg = Release|x64
+		{E8DDBC57-F018-45F8-A503-11C49236A5D6}.Release|x86.ActiveCfg = Release|x64
+		{E8DDBC57-F018-45F8-A503-11C49236A5D6}.RelWithDebInfo|x64.ActiveCfg = Release|x64
+		{E8DDBC57-F018-45F8-A503-11C49236A5D6}.RelWithDebInfo|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

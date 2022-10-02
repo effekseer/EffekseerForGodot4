@@ -212,7 +212,7 @@
     <ClCompile Include="godot-cpp\gen\src\classes\decal.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\directional_light2d.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\directional_light3d.cpp" />
-    <ClCompile Include="godot-cpp\gen\src\classes\directory.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\dir_access.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\display_server.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\dtls_server.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\editor_command_palette.cpp" />
@@ -262,7 +262,7 @@
     <ClCompile Include="godot-cpp\gen\src\classes\e_net_multiplayer_peer.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\e_net_packet_peer.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\fast_noise_lite.cpp" />
-    <ClCompile Include="godot-cpp\gen\src\classes\file.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\file_access.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\file_dialog.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\file_system_dock.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\flow_container.cpp" />
@@ -271,6 +271,7 @@
     <ClCompile Include="godot-cpp\gen\src\classes\font.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\font_file.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\font_variation.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\framebuffer_cache_rd.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\gd_script.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\gd_script_editor_translation_parser_plugin.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\gd_script_native_class.cpp" />
@@ -327,6 +328,8 @@
     <ClCompile Include="godot-cpp\gen\src\classes\h_slider.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\h_split_container.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\image.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\image_format_loader.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\image_format_loader_extension.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\image_texture.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\image_texture3d.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\image_texture_layered.cpp" />
@@ -423,6 +426,10 @@
     <ClCompile Include="godot-cpp\gen\src\classes\navigation_mesh_generator.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\navigation_obstacle2d.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\navigation_obstacle3d.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\navigation_path_query_parameters2d.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\navigation_path_query_parameters3d.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\navigation_path_query_result2d.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\navigation_path_query_result3d.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\navigation_polygon.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\navigation_region2d.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\navigation_region3d.cpp" />
@@ -435,7 +442,7 @@
     <ClCompile Include="godot-cpp\gen\src\classes\node3d_gizmo.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\noise.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\noise_texture2d.cpp" />
-    <ClCompile Include="godot-cpp\gen\src\classes\object_gen.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\object.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\occluder3d.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\occluder_instance3d.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\occluder_polygon2d.cpp" />
@@ -446,6 +453,7 @@
     <ClCompile Include="godot-cpp\gen\src\classes\open_xr_action.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\open_xr_action_map.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\open_xr_action_set.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\open_xr_hand.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\open_xr_interaction_profile.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\open_xr_interface.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\optimized_translation.cpp" />
@@ -529,6 +537,7 @@
     <ClCompile Include="godot-cpp\gen\src\classes\progress_bar.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\project_settings.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\property_tweener.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\quad_mesh.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\quad_occluder3d.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\random_number_generator.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\range.cpp" />
@@ -647,6 +656,7 @@
     <ClCompile Include="godot-cpp\gen\src\classes\stream_peer.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\stream_peer_buffer.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\stream_peer_extension.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\stream_peer_gzip.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\stream_peer_tcp.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\stream_peer_tls.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\style_box.cpp" />
@@ -703,6 +713,7 @@
     <ClCompile Include="godot-cpp\gen\src\classes\tweener.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\udp_server.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\undo_redo.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\uniform_set_cache_rd.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\upnp.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\upnp_device.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\vehicle_body3d.cpp" />
@@ -1074,6 +1085,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>-Wno-unused-function -Wno-unused-variable %(AdditionalOptions)</AdditionalOptions>
+      <ObjectFileName>$(IntDir)Int\%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -1103,6 +1115,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>-Wno-unused-function -Wno-unused-variable %(AdditionalOptions)</AdditionalOptions>
+      <ObjectFileName>$(IntDir)Int\%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -1134,6 +1147,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>-Wno-unused-function -Wno-unused-variable %(AdditionalOptions)</AdditionalOptions>
+      <ObjectFileName>$(IntDir)Int\%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -1167,6 +1181,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>-Wno-unused-function -Wno-unused-variable %(AdditionalOptions)</AdditionalOptions>
+      <ObjectFileName>$(IntDir)Int\%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
