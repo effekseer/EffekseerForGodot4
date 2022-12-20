@@ -217,6 +217,7 @@
     <ClCompile Include="godot-cpp\gen\src\classes\dtls_server.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\editor_command_palette.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\editor_debugger_plugin.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\editor_debugger_session.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\editor_export_platform.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\editor_export_plugin.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\editor_feature_profile.cpp" />
@@ -271,7 +272,8 @@
     <ClCompile Include="godot-cpp\gen\src\classes\font.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\font_file.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\font_variation.cpp" />
-    <ClCompile Include="godot-cpp\gen\src\classes\framebuffer_cache_rd.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\gd_extension.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\gd_extension_manager.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\gd_script.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\gd_script_editor_translation_parser_plugin.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\gd_script_native_class.cpp" />
@@ -294,6 +296,7 @@
     <ClCompile Include="godot-cpp\gen\src\classes\gltf_spec_gloss.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\gltf_state.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\gltf_texture.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\gltf_texture_sampler.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\godot_physics_server2d.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\godot_physics_server3d.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\gpu_particles2d.cpp" />
@@ -416,8 +419,6 @@
     <ClCompile Include="godot-cpp\gen\src\classes\multi_mesh_instance2d.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\multi_mesh_instance3d.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\mutex.cpp" />
-    <ClCompile Include="godot-cpp\gen\src\classes\native_extension.cpp" />
-    <ClCompile Include="godot-cpp\gen\src\classes\native_extension_manager.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\navigation_agent2d.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\navigation_agent3d.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\navigation_link2d.cpp" />
@@ -446,6 +447,7 @@
     <ClCompile Include="godot-cpp\gen\src\classes\occluder3d.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\occluder_instance3d.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\occluder_polygon2d.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\offline_multiplayer_peer.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\ogg_packet_sequence.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\ogg_packet_sequence_playback.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\omni_light3d.cpp" />
@@ -713,7 +715,6 @@
     <ClCompile Include="godot-cpp\gen\src\classes\tweener.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\udp_server.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\undo_redo.cpp" />
-    <ClCompile Include="godot-cpp\gen\src\classes\uniform_set_cache_rd.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\upnp.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\upnp_device.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\vehicle_body3d.cpp" />
@@ -845,10 +846,8 @@
     <ClCompile Include="godot-cpp\gen\src\classes\web_rtc_multiplayer_peer.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\web_rtc_peer_connection.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\web_rtc_peer_connection_extension.cpp" />
-    <ClCompile Include="godot-cpp\gen\src\classes\web_socket_client.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\web_socket_multiplayer_peer.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\web_socket_peer.cpp" />
-    <ClCompile Include="godot-cpp\gen\src\classes\web_socket_server.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\web_xr_interface.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\window.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\worker_thread_pool.cpp" />
@@ -869,6 +868,8 @@
     <ClCompile Include="godot-cpp\gen\src\classes\xr_pose.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\xr_positional_tracker.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\xr_server.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\zip_packer.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\zip_reader.cpp" />
     <ClCompile Include="godot-cpp\gen\src\variant\array.cpp" />
     <ClCompile Include="godot-cpp\gen\src\variant\callable.cpp" />
     <ClCompile Include="godot-cpp\gen\src\variant\dictionary.cpp" />
@@ -973,7 +974,6 @@
     <ClInclude Include="src\RendererGodot\EffekseerGodot.IndexBuffer.h" />
     <ClInclude Include="src\RendererGodot\EffekseerGodot.ModelRenderer.h" />
     <ClInclude Include="src\RendererGodot\EffekseerGodot.Renderer.h" />
-    <ClInclude Include="src\RendererGodot\EffekseerGodot.RendererImplemented.h" />
     <ClInclude Include="src\RendererGodot\EffekseerGodot.RenderResources.h" />
     <ClInclude Include="src\RendererGodot\EffekseerGodot.RenderState.h" />
     <ClInclude Include="src\RendererGodot\EffekseerGodot.Shader.h" />
@@ -1021,13 +1021,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -1109,12 +1109,11 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)godot-cpp\godot-headers;$(ProjectDir)godot-cpp\include;$(ProjectDir)godot-cpp\gen\include;$(ProjectDir)..\Effekseer\Dev\Cpp\Effekseer;$(ProjectDir)..\Effekseer\Dev\Cpp\EffekseerRendererCommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)godot-cpp\gdextension;$(ProjectDir)godot-cpp\include;$(ProjectDir)godot-cpp\gen\include;$(ProjectDir)..\Effekseer\Dev\Cpp\Effekseer;$(ProjectDir)..\Effekseer\Dev\Cpp\EffekseerRendererCommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;26495</DisableSpecificWarnings>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalOptions>-Wno-unused-function -Wno-unused-variable %(AdditionalOptions)</AdditionalOptions>
       <ObjectFileName>$(IntDir)Int\%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
@@ -1175,12 +1174,11 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)godot-cpp\godot-headers;$(ProjectDir)godot-cpp\include;$(ProjectDir)godot-cpp\gen\include;$(ProjectDir)..\Effekseer\Dev\Cpp\Effekseer;$(ProjectDir)..\Effekseer\Dev\Cpp\EffekseerRendererCommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)godot-cpp\gdextension;$(ProjectDir)godot-cpp\include;$(ProjectDir)godot-cpp\gen\include;$(ProjectDir)..\Effekseer\Dev\Cpp\Effekseer;$(ProjectDir)..\Effekseer\Dev\Cpp\EffekseerRendererCommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;26495</DisableSpecificWarnings>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalOptions>-Wno-unused-function -Wno-unused-variable %(AdditionalOptions)</AdditionalOptions>
       <ObjectFileName>$(IntDir)Int\%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
