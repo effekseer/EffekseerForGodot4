@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <godot_cpp/godot.hpp>
 #include <godot_cpp/classes/rendering_server.hpp>
-#include <godot_cpp/classes/world3d.hpp>
 #include <godot_cpp/classes/viewport.hpp>
 #include <godot_cpp/classes/mesh.hpp>
 #include <godot_cpp/classes/image.hpp>
@@ -16,7 +15,7 @@
 #include <Effekseer.SIMD.h>
 #include "EffekseerGodot.Renderer.h"
 #include "EffekseerGodot.RenderState.h"
-#include "EffekseerGodot.RendererImplemented.h"
+#include "EffekseerGodot.Renderer.h"
 
 #include "EffekseerGodot.IndexBuffer.h"
 #include "EffekseerGodot.Shader.h"
@@ -267,7 +266,7 @@ void RenderCommand2D::SetupModels(godot::Node2D* parent, godot::RID mesh, int32_
 //----------------------------------------------------------------------------------
 RendererRef Renderer::Create(int32_t squareMaxCount, int32_t drawMaxCount)
 {
-	auto renderer = Effekseer::MakeRefPtr<RendererImplemented>(squareMaxCount);
+	auto renderer = Effekseer::MakeRefPtr<Renderer>(squareMaxCount);
 	if (renderer->Initialize(drawMaxCount))
 	{
 		return renderer;
@@ -278,7 +277,7 @@ RendererRef Renderer::Create(int32_t squareMaxCount, int32_t drawMaxCount)
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-RendererImplemented::RendererImplemented(int32_t squareMaxCount)
+Renderer::Renderer(int32_t squareMaxCount)
 	: m_squareMaxCount(squareMaxCount)
 {
 	// dummy
@@ -289,7 +288,7 @@ RendererImplemented::RendererImplemented(int32_t squareMaxCount)
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-RendererImplemented::~RendererImplemented()
+Renderer::~Renderer()
 {
 	GetImpl()->DeleteProxyTextures(this);
 
@@ -299,7 +298,7 @@ RendererImplemented::~RendererImplemented()
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-bool RendererImplemented::Initialize(int32_t drawMaxCount)
+bool Renderer::Initialize(int32_t drawMaxCount)
 {
 	m_renderState.reset(new RenderState());
 
@@ -349,13 +348,13 @@ bool RendererImplemented::Initialize(int32_t drawMaxCount)
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-void RendererImplemented::Destroy()
+void Renderer::Destroy()
 {
 	m_renderCommands3D.clear();
 	m_renderCommand2Ds.clear();
 }
 
-void RendererImplemented::ResetState()
+void Renderer::ResetState()
 {
 	for (size_t i = 0; i < m_renderCount3D; i++)
 	{
@@ -375,7 +374,7 @@ void RendererImplemented::ResetState()
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-bool RendererImplemented::BeginRendering()
+bool Renderer::BeginRendering()
 {
 	impl->CalculateCameraProjectionMatrix();
 
@@ -390,7 +389,7 @@ bool RendererImplemented::BeginRendering()
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-bool RendererImplemented::EndRendering()
+bool Renderer::EndRendering()
 {
 	// レンダラーリセット
 	m_standardRenderer->ResetAndRenderingIfRequired();
@@ -401,7 +400,7 @@ bool RendererImplemented::EndRendering()
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-VertexBuffer* RendererImplemented::GetVertexBuffer()
+VertexBuffer* Renderer::GetVertexBuffer()
 {
 	return m_vertexBuffer.Get();
 }
@@ -409,7 +408,7 @@ VertexBuffer* RendererImplemented::GetVertexBuffer()
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-IndexBuffer* RendererImplemented::GetIndexBuffer()
+IndexBuffer* Renderer::GetIndexBuffer()
 {
 	if (GetRenderMode() == ::Effekseer::RenderMode::Wireframe)
 	{
@@ -424,31 +423,31 @@ IndexBuffer* RendererImplemented::GetIndexBuffer()
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-::Effekseer::SpriteRendererRef RendererImplemented::CreateSpriteRenderer()
+::Effekseer::SpriteRendererRef Renderer::CreateSpriteRenderer()
 {
-	return ::Effekseer::SpriteRendererRef(new ::EffekseerRenderer::SpriteRendererBase<RendererImplemented, false>(this));
+	return ::Effekseer::SpriteRendererRef(new ::EffekseerRenderer::SpriteRendererBase<Renderer, false>(this));
 }
 
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-::Effekseer::RibbonRendererRef RendererImplemented::CreateRibbonRenderer()
+::Effekseer::RibbonRendererRef Renderer::CreateRibbonRenderer()
 {
-	return ::Effekseer::RibbonRendererRef(new ::EffekseerRenderer::RibbonRendererBase<RendererImplemented, false>(this));
+	return ::Effekseer::RibbonRendererRef(new ::EffekseerRenderer::RibbonRendererBase<Renderer, false>(this));
 }
 
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-::Effekseer::RingRendererRef RendererImplemented::CreateRingRenderer()
+::Effekseer::RingRendererRef Renderer::CreateRingRenderer()
 {
-	return ::Effekseer::RingRendererRef(new ::EffekseerRenderer::RingRendererBase<RendererImplemented, false>(this));
+	return ::Effekseer::RingRendererRef(new ::EffekseerRenderer::RingRendererBase<Renderer, false>(this));
 }
 
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-::Effekseer::ModelRendererRef RendererImplemented::CreateModelRenderer()
+::Effekseer::ModelRendererRef Renderer::CreateModelRenderer()
 {
 	return ModelRenderer::Create(this);
 }
@@ -456,15 +455,15 @@ IndexBuffer* RendererImplemented::GetIndexBuffer()
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-::Effekseer::TrackRendererRef RendererImplemented::CreateTrackRenderer()
+::Effekseer::TrackRendererRef Renderer::CreateTrackRenderer()
 {
-	return ::Effekseer::TrackRendererRef(new ::EffekseerRenderer::TrackRendererBase<RendererImplemented, false>(this));
+	return ::Effekseer::TrackRendererRef(new ::EffekseerRenderer::TrackRendererBase<Renderer, false>(this));
 }
 
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-const Effekseer::Backend::TextureRef& RendererImplemented::GetBackground()
+const Effekseer::Backend::TextureRef& Renderer::GetBackground()
 {
 	return m_background;
 }
@@ -472,7 +471,7 @@ const Effekseer::Backend::TextureRef& RendererImplemented::GetBackground()
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-EffekseerRenderer::DistortingCallback* RendererImplemented::GetDistortingCallback()
+EffekseerRenderer::DistortingCallback* Renderer::GetDistortingCallback()
 {
 	return nullptr;
 }
@@ -480,30 +479,30 @@ EffekseerRenderer::DistortingCallback* RendererImplemented::GetDistortingCallbac
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-void RendererImplemented::SetDistortingCallback(EffekseerRenderer::DistortingCallback* callback)
+void Renderer::SetDistortingCallback(EffekseerRenderer::DistortingCallback* callback)
 {
 }
 
-void RendererImplemented::SetVertexBuffer(VertexBuffer* vertexBuffer, int32_t size)
+void Renderer::SetVertexBuffer(VertexBuffer* vertexBuffer, int32_t size)
 {
 	m_vertexStride = size;
 }
 
-void RendererImplemented::SetIndexBuffer(IndexBuffer* indexBuffer)
+void Renderer::SetIndexBuffer(IndexBuffer* indexBuffer)
 {
 }
 
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-void RendererImplemented::SetLayout(Shader* shader)
+void Renderer::SetLayout(Shader* shader)
 {
 }
 
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-void RendererImplemented::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
+void Renderer::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 {
 	assert(m_currentShader != nullptr);
 
@@ -563,7 +562,7 @@ void RendererImplemented::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-void RendererImplemented::DrawPolygon(int32_t vertexCount, int32_t indexCount)
+void Renderer::DrawPolygon(int32_t vertexCount, int32_t indexCount)
 {
 	assert(m_currentShader != nullptr);
 	assert(m_modelRenderState.model != nullptr);
@@ -602,7 +601,7 @@ void RendererImplemented::DrawPolygon(int32_t vertexCount, int32_t indexCount)
 	}
 }
 
-void RendererImplemented::DrawPolygonInstanced(int32_t vertexCount, int32_t indexCount, int32_t instanceCount)
+void Renderer::DrawPolygonInstanced(int32_t vertexCount, int32_t indexCount, int32_t instanceCount)
 {
 	assert(m_currentShader != nullptr);
 	assert(m_modelRenderState.model != nullptr);
@@ -647,19 +646,19 @@ void RendererImplemented::DrawPolygonInstanced(int32_t vertexCount, int32_t inde
 	}
 }
 
-void RendererImplemented::BeginModelRendering(Effekseer::ModelRef model, bool softparticleEnabled)
+void Renderer::BeginModelRendering(Effekseer::ModelRef model, bool softparticleEnabled)
 {
 	m_modelRenderState.model = model;
 	m_modelRenderState.softparticleEnabled = softparticleEnabled;
 }
 
-void RendererImplemented::EndModelRendering()
+void Renderer::EndModelRendering()
 {
 	m_modelRenderState.model = nullptr;
 	m_modelRenderState.softparticleEnabled = false;
 }
 
-Shader* RendererImplemented::GetShader(::EffekseerRenderer::RendererShaderType type)
+Shader* Renderer::GetShader(::EffekseerRenderer::RendererShaderType type)
 {
 	if ((size_t)type >= (size_t)EffekseerRenderer::RendererShaderType::Unlit && 
 		(size_t)type <= (size_t)EffekseerRenderer::RendererShaderType::AdvancedBackDistortion)
@@ -671,7 +670,7 @@ Shader* RendererImplemented::GetShader(::EffekseerRenderer::RendererShaderType t
 	return nullptr;
 }
 
-void RendererImplemented::BeginShader(Shader* shader)
+void Renderer::BeginShader(Shader* shader)
 {
 	m_currentShader = shader;
 }
@@ -679,12 +678,12 @@ void RendererImplemented::BeginShader(Shader* shader)
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-void RendererImplemented::EndShader(Shader* shader)
+void Renderer::EndShader(Shader* shader)
 {
 	m_currentShader = nullptr;
 }
 
-void RendererImplemented::SetVertexBufferToShader(const void* data, int32_t size, int32_t dstOffset)
+void Renderer::SetVertexBufferToShader(const void* data, int32_t size, int32_t dstOffset)
 {
 	assert(m_currentShader != nullptr);
 	assert(m_currentShader->GetVertexConstantBufferSize() >= size + dstOffset);
@@ -693,7 +692,7 @@ void RendererImplemented::SetVertexBufferToShader(const void* data, int32_t size
 	memcpy(p, data, size);
 }
 
-void RendererImplemented::SetPixelBufferToShader(const void* data, int32_t size, int32_t dstOffset)
+void Renderer::SetPixelBufferToShader(const void* data, int32_t size, int32_t dstOffset)
 {
 	assert(m_currentShader != nullptr);
 	assert(m_currentShader->GetPixelConstantBufferSize() >= size + dstOffset);
@@ -705,7 +704,7 @@ void RendererImplemented::SetPixelBufferToShader(const void* data, int32_t size,
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-void RendererImplemented::SetTextures(Shader* shader, Effekseer::Backend::TextureRef* textures, int32_t count)
+void Renderer::SetTextures(Shader* shader, Effekseer::Backend::TextureRef* textures, int32_t count)
 {
 	auto& state = m_renderState->GetActiveState();
 	
@@ -717,23 +716,23 @@ void RendererImplemented::SetTextures(Shader* shader, Effekseer::Backend::Textur
 	}
 }
 
-void RendererImplemented::ResetRenderState()
+void Renderer::ResetRenderState()
 {
 	m_renderState->GetActiveState().Reset();
 	m_renderState->Update(true);
 }
 
-Effekseer::Backend::TextureRef RendererImplemented::CreateProxyTexture(EffekseerRenderer::ProxyTextureType type)
+Effekseer::Backend::TextureRef Renderer::CreateProxyTexture(EffekseerRenderer::ProxyTextureType type)
 {
 	return nullptr;
 }
 
-void RendererImplemented::DeleteProxyTexture(Effekseer::Backend::TextureRef& texture)
+void Renderer::DeleteProxyTexture(Effekseer::Backend::TextureRef& texture)
 {
 	texture = nullptr;
 }
 
-void RendererImplemented::TransferVertexToMesh(godot::RID mesh, 
+void Renderer::TransferVertexToMesh(godot::RID mesh, 
 	const void* vertexData, int32_t spriteCount)
 {
 	using namespace Effekseer::SIMD;
@@ -885,7 +884,7 @@ void RendererImplemented::TransferVertexToMesh(godot::RID mesh,
 	rs->mesh_add_surface(mesh, surface);
 }
 
-void RendererImplemented::TransferVertexToCanvasItem2D(godot::RID canvas_item, 
+void Renderer::TransferVertexToCanvasItem2D(godot::RID canvas_item, 
 	const void* vertexData, int32_t spriteCount, godot::Vector2 baseScale)
 {
 	using namespace EffekseerRenderer;
@@ -1010,7 +1009,7 @@ void RendererImplemented::TransferVertexToCanvasItem2D(godot::RID canvas_item,
 	rs->canvas_item_add_triangle_array(canvas_item, indexArray, pointArray, colorArray, uvArray);
 }
 
-void RendererImplemented::TransferModelToCanvasItem2D(godot::RID canvas_item, 
+void Renderer::TransferModelToCanvasItem2D(godot::RID canvas_item, 
 	Effekseer::Model* model, godot::Vector2 baseScale, bool flipPolygon,
 	Effekseer::CullingType cullingType)
 {
