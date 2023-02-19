@@ -113,10 +113,12 @@
     <ClCompile Include="godot-cpp\gen\src\classes\audio_stream_ogg_vorbis.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\audio_stream_playback.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\audio_stream_playback_ogg_vorbis.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\audio_stream_playback_polyphonic.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\audio_stream_playback_resampled.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\audio_stream_player.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\audio_stream_player2d.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\audio_stream_player3d.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\audio_stream_polyphonic.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\audio_stream_randomizer.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\audio_stream_wav.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\a_star2d.cpp" />
@@ -272,6 +274,7 @@
     <ClCompile Include="godot-cpp\gen\src\classes\font.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\font_file.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\font_variation.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\framebuffer_cache_rd.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\gd_extension.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\gd_extension_manager.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\gd_script.cpp" />
@@ -572,6 +575,7 @@
     <ClCompile Include="godot-cpp\gen\src\classes\rendering_device.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\rendering_server.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\resource.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\resource_format_importer_saver.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\resource_format_loader.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\resource_format_saver.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\resource_importer.cpp" />
@@ -624,15 +628,7 @@
     <ClCompile Include="godot-cpp\gen\src\classes\skeleton_modification2d_physical_bones.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\skeleton_modification2d_stack_holder.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\skeleton_modification2d_two_bone_ik.cpp" />
-    <ClCompile Include="godot-cpp\gen\src\classes\skeleton_modification3d.cpp" />
-    <ClCompile Include="godot-cpp\gen\src\classes\skeleton_modification3dccdik.cpp" />
-    <ClCompile Include="godot-cpp\gen\src\classes\skeleton_modification3dfabrik.cpp" />
-    <ClCompile Include="godot-cpp\gen\src\classes\skeleton_modification3d_jiggle.cpp" />
-    <ClCompile Include="godot-cpp\gen\src\classes\skeleton_modification3d_look_at.cpp" />
-    <ClCompile Include="godot-cpp\gen\src\classes\skeleton_modification3d_stack_holder.cpp" />
-    <ClCompile Include="godot-cpp\gen\src\classes\skeleton_modification3d_two_bone_ik.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\skeleton_modification_stack2d.cpp" />
-    <ClCompile Include="godot-cpp\gen\src\classes\skeleton_modification_stack3d.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\skeleton_profile.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\skeleton_profile_humanoid.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\skin.cpp" />
@@ -715,6 +711,7 @@
     <ClCompile Include="godot-cpp\gen\src\classes\tweener.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\udp_server.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\undo_redo.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\uniform_set_cache_rd.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\upnp.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\upnp_device.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\vehicle_body3d.cpp" />
@@ -815,6 +812,10 @@
     <ClCompile Include="godot-cpp\gen\src\classes\visual_shader_node_transform_vec_mult.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\visual_shader_node_uv_func.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\visual_shader_node_uv_polar_coord.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\visual_shader_node_u_int_constant.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\visual_shader_node_u_int_func.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\visual_shader_node_u_int_op.cpp" />
+    <ClCompile Include="godot-cpp\gen\src\classes\visual_shader_node_u_int_parameter.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\visual_shader_node_varying.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\visual_shader_node_varying_getter.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\visual_shader_node_varying_setter.cpp" />
@@ -888,6 +889,7 @@
     <ClCompile Include="godot-cpp\gen\src\variant\string.cpp" />
     <ClCompile Include="godot-cpp\gen\src\variant\string_name.cpp" />
     <ClCompile Include="godot-cpp\gen\src\variant\utility_functions.cpp" />
+    <ClCompile Include="godot-cpp\src\classes\low_level.cpp" />
     <ClCompile Include="godot-cpp\src\classes\wrapped.cpp" />
     <ClCompile Include="godot-cpp\src\core\class_db.cpp" />
     <ClCompile Include="godot-cpp\src\core\error_macros.cpp" />
@@ -1021,13 +1023,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -1086,6 +1088,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>-Wno-unused-function -Wno-unused-variable %(AdditionalOptions)</AdditionalOptions>
       <ObjectFileName>$(IntDir)Int\%(RelativeDir)</ObjectFileName>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -1115,6 +1118,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ObjectFileName>$(IntDir)Int\%(RelativeDir)</ObjectFileName>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -1125,7 +1129,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) $(SolutionDir)..\Godot\addons\effekseer\bin\windows\</Command>
+      <Command>xcopy /Y $(TargetPath) $(SolutionDir)..\Godot\addons\effekseer\bin\windows\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -1147,6 +1151,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>-Wno-unused-function -Wno-unused-variable %(AdditionalOptions)</AdditionalOptions>
       <ObjectFileName>$(IntDir)Int\%(RelativeDir)</ObjectFileName>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -1180,6 +1185,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ObjectFileName>$(IntDir)Int\%(RelativeDir)</ObjectFileName>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -1192,7 +1198,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) $(SolutionDir)..\Godot\addons\effekseer\bin\windows\</Command>
+      <Command>xcopy /Y $(TargetPath) $(SolutionDir)..\Godot\addons\effekseer\bin\windows\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -66,6 +66,9 @@ public:
 
 	int get_total_draw_vertex_count() const;
 
+	EffekseerGodot::Shader* get_builtin_shader(bool is_model, EffekseerRenderer::RendererShaderType shader_type);
+
+	
 	const Effekseer::ManagerRef& get_manager() { return m_manager; }
 
 	void push_load_list(EffekseerEffect* effect);

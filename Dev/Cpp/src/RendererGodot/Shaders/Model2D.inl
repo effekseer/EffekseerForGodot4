@@ -18,6 +18,7 @@ uniform vec4 ModelColor : source_color;
 R"(
 uniform float DistortionIntensity;
 uniform sampler2D DistortionTexture : hint_normal;
+uniform sampler2D ScreenTexture : hint_screen_texture, filter_linear_mipmap;
 )"
 #elif LIGHTING
 R"(
@@ -47,7 +48,7 @@ void fragment() {
 #if DISTORTION
 R"(
 	vec2 distortionUV = DistortionMap(DistortionTexture, UV, DistortionIntensity, COLOR.xy, vec2(1.0, 0.0));
-	COLOR = ColorMap(SCREEN_TEXTURE, SCREEN_UV + distortionUV, vec4(1.0, 1.0, 1.0, COLOR.a));
+	COLOR = ColorMap(ScreenTexture, SCREEN_UV + distortionUV, vec4(1.0, 1.0, 1.0, COLOR.a));
 )"
 #elif LIGHTING
 R"(

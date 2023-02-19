@@ -23,8 +23,8 @@ public:
 
 private:
 	ShaderData GenerateShaderData(const Effekseer::MaterialFile& materialFile, Effekseer::MaterialShaderType shaderType);
-	std::string GenerateShaderCode(const Effekseer::MaterialFile& materialFile, bool isSprite, bool isRefrection, bool isSpatial);
-	void GenerateParamDecls(ShaderData& shaderData, const Effekseer::MaterialFile& materialFile, bool isSprite, bool isRefrection);
+	std::string GenerateShaderCode(const Effekseer::MaterialFile& materialFile, bool forSprite, bool for3D);
+	void GenerateParamDecls(ShaderData& shaderData, const Effekseer::MaterialFile& materialFile, bool forSprite);
 };
 
 } // namespace Effekseer

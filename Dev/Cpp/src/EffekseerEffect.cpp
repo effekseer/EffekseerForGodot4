@@ -6,6 +6,7 @@
 #include "EffekseerSystem.h"
 #include "EffekseerEffect.h"
 #include "Utils/EffekseerGodot.Utils.h"
+#include "RendererGodot/EffekseerGodot.Shader.h"
 #include "../Effekseer/Effekseer/IO/Effekseer.EfkEfcFactory.h"
 
 namespace godot {
@@ -107,6 +108,13 @@ void EffekseerEffect::load()
 		return;
 	}
 
+	if (m_targetLayer == TargetLayer::Both) {
+		setup_node_render(m_native->GetRoot(), TargetLayer::_2D);
+		setup_node_render(m_native->GetRoot(), TargetLayer::_3D);
+	} else {
+		setup_node_render(m_native->GetRoot(), m_targetLayer);
+	}
+
 	if (!Engine::get_singleton()->is_editor_hint()) {
 		// Release data bytes memory
 		m_data_bytes = PackedByteArray();
@@ -116,6 +124,94 @@ void EffekseerEffect::load()
 void EffekseerEffect::release()
 {
 	m_native.Reset();
+}
+
+void EffekseerEffect::setup_node_render(Effekseer::EffectNode* node, TargetLayer targetLayer)
+{
+	auto system = EffekseerSystem::get_singleton();
+	if (system == nullptr) return;
+
+	const auto nodeType = node->GetType();
+
+	const bool isRenderable =
+		nodeType == Effekseer::EffectNodeType::Sprite ||
+		nodeType == Effekseer::EffectNodeType::Ribbon ||
+		nodeType == Effekseer::EffectNodeType::Ring ||
+		nodeType == Effekseer::EffectNodeType::Track ||
+		nodeType == Effekseer::EffectNodeType::Model;
+
+	if (isRenderable) {
+		const auto renderParams = node->GetBasicRenderParameter();
+		const auto modelParams = node->GetEffectModelParameter();
+		const bool isModel = nodeType == Effekseer::EffectNodeType::Model;
+
+		EffekseerGodot::Shader* shader = nullptr;
+
+		if (renderParams.MaterialType == Effekseer::RendererMaterialType::File) {
+			auto material = m_native->GetMaterial(renderParams.MaterialIndex);
+			if (material.Get() != nullptr) {
+				if (nodeType == Effekseer::EffectNodeType::Model) {
+					shader = static_cast<EffekseerGodot::Shader*>(material->ModelUserPtr);
+				}
+				else {
+					shader = static_cast<EffekseerGodot::Shader*>(material->UserPtr);
+				}
+			}
+		}
+		else {
+			switch (renderParams.MaterialType) {
+			case Effekseer::RendererMaterialType::Default:
+				shader = system->get_builtin_shader(isModel, EffekseerRenderer::RendererShaderType::Unlit);
+				break;
+			case Effekseer::RendererMaterialType::Lighting:
+				shader = system->get_builtin_shader(isModel, EffekseerRenderer::RendererShaderType::Lit);
+				break;
+			case Effekseer::RendererMaterialType::BackDistortion:
+				shader = system->get_builtin_shader(isModel, EffekseerRenderer::RendererShaderType::BackDistortion);
+				break;
+			}
+		}
+
+		if (shader != nullptr) {
+			const Effekseer::CullingType cullingType = (isModel) ?
+				modelParams.Culling : Effekseer::CullingType::Double;
+
+			if (targetLayer == TargetLayer::_2D) {
+				const EffekseerGodot::Shader::RenderType shaderType =
+					EffekseerGodot::Shader::RenderType::CanvasItem;
+
+				if (!shader->HasRID(shaderType, renderParams.ZTest, renderParams.ZWrite, renderParams.AlphaBlend, cullingType)) {
+					RID shaderRID = shader->GetRID(shaderType, renderParams.ZTest, renderParams.ZWrite, renderParams.AlphaBlend, cullingType);
+					//system->load_shader(EffekseerSystem::ShaderLoadType::CanvasItem, shaderRID);
+				}
+			}
+			else if (targetLayer == TargetLayer::_3D) {
+				const bool hasSoftparticle =
+					renderParams.SoftParticleDistanceFar != 0.0f ||
+					renderParams.SoftParticleDistanceNear != 0.0f ||
+					renderParams.SoftParticleDistanceNearOffset != 0.0f;
+				const EffekseerGodot::Shader::RenderType shaderType = hasSoftparticle ?
+					EffekseerGodot::Shader::RenderType::SpatialDepthFade : EffekseerGodot::Shader::RenderType::SpatialLightweight;
+
+				if (!shader->HasRID(shaderType, renderParams.ZTest, renderParams.ZWrite, renderParams.AlphaBlend, cullingType)) {
+					RID shaderRID = shader->GetRID(shaderType, renderParams.ZTest, renderParams.ZWrite, renderParams.AlphaBlend, cullingType);
+					//if (isModel) {
+					//	system->load_shader(EffekseerSystem::ShaderLoadType::SpatialModel, shaderRID);
+					//}
+					//else {
+					//	system->load_shader(EffekseerSystem::ShaderLoadType::SpatialStandard, shaderRID);
+					//}
+				}
+			}
+		}
+	}
+
+	// Setup all children
+	for (int childIndex = 0, childrenCount = node->GetChildrenCount();
+		childIndex < childrenCount; childIndex++)
+	{
+		setup_node_render(node->GetChild(childIndex), targetLayer);
+	}
 }
 
 }

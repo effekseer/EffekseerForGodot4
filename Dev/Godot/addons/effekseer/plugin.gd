@@ -30,11 +30,11 @@ func _enter_tree():
 	add_import_plugin(effect_import_plugin)
 	add_inspector_plugin(effect_inspector_plugin)
 	add_import_plugin(resource_import_plugin)
-	add_spatial_gizmo_plugin(emitter3d_gizmo_plugin)
+	# add_spatial_gizmo_plugin(emitter3d_gizmo_plugin)
 	
 
 func _exit_tree():
-	remove_spatial_gizmo_plugin(emitter3d_gizmo_plugin)
+	# remove_spatial_gizmo_plugin(emitter3d_gizmo_plugin)
 	remove_import_plugin(resource_import_plugin)
 	remove_inspector_plugin(effect_inspector_plugin)
 	remove_import_plugin(effect_import_plugin)

@@ -412,7 +412,7 @@ static const char* GetElement(int32_t i)
 	return "";
 }
 
-std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& materialFile, bool isSprite, bool isRefrection, bool isSpatial)
+std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& materialFile, bool forSprite, bool for3D)
 {
 	const int32_t actualTextureCount = std::min(Effekseer::UserTextureSlotMax, materialFile.GetTextureCount());
 	const int32_t customData1Count = materialFile.GetCustomData1Count();
@@ -442,24 +442,53 @@ std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& m
 	{
 		maincode << g_material_uniforms_common;
 
-		if (isSprite)
+		if (for3D)
 		{
-			maincode << g_material_uniforms_sprite;
+			// for 3D uniforms
+			if (forSprite)
+			{
+				maincode << g_material_uniforms_sprite;
+			}
+			else
+			{
+				if (materialFile.GetCustomData1Count() > 0)
+				{
+					maincode << "uniform " << GetType(materialFile.GetCustomData1Count()) << " CustomData1;\n";
+				}
+				if (materialFile.GetCustomData2Count() > 0)
+				{
+					maincode << "uniform " << GetType(materialFile.GetCustomData2Count()) << " CustomData2;\n";
+				}
+				maincode << g_material_uniforms_model;
+			}
 		}
 		else
 		{
-			if (materialFile.GetCustomData1Count() > 0)
+			// for 2D uniforms
+			if (forSprite)
 			{
-				maincode << "uniform " << GetType(materialFile.GetCustomData1Count()) << " CustomData1;\n";
+				if (materialFile.GetCustomData1Count() > 0)
+				{
+					maincode << "uniform sampler2D CustomData1;\n";
+				}
+				if (materialFile.GetCustomData2Count() > 0)
+				{
+					maincode << "uniform sampler2D CustomData2;\n";
+				}
+				maincode << g_material_uniforms_sprite;
 			}
-			if (materialFile.GetCustomData2Count() > 0)
+			else
 			{
-				maincode << "uniform " << GetType(materialFile.GetCustomData2Count()) << " CustomData2;\n";
+				if (materialFile.GetCustomData1Count() > 0)
+				{
+					maincode << "uniform " << GetType(materialFile.GetCustomData1Count()) << " CustomData1;\n";
+				}
+				if (materialFile.GetCustomData2Count() > 0)
+				{
+					maincode << "uniform " << GetType(materialFile.GetCustomData2Count()) << " CustomData2;\n";
+				}
+				maincode << g_material_uniforms_model;
 			}
-			maincode << g_material_uniforms_model;
-		}
-		if (!isSpatial)
-		{
 			maincode << "uniform sampler2D UVTangentTexture;\n";
 		}
 	}
@@ -560,10 +589,10 @@ std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& m
 		Replace(baseCode, keyS, ",0.0,1.0)");
 	}
 
-	if (isSpatial)
+	if (for3D)
 	{
-		// Vertex shader (Spatial)
-		if (isSprite)
+		// Vertex shader (3D)
+		if (forSprite)
 		{
 			maincode << g_material_src_spatial_vertex_sprite_pre;
 		}
@@ -574,7 +603,7 @@ std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& m
 		
 		maincode << g_material_src_spatial_vertex_common;
 
-		if (isSprite)
+		if (forSprite)
 		{
 			if (customData1Count > 0) maincode << "\t" << GetType(customData1Count) << " customData1 = CUSTOM0" << GetElement(customData1Count) << ";\n";
 			if (customData2Count > 0) maincode << "\t" << GetType(customData2Count) << " customData2 = CUSTOM1" << GetElement(customData2Count) << ";\n";
@@ -594,7 +623,7 @@ std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& m
 		if (customData1Count > 0) maincode << "\t" << "v_CustomData1 = customData1;\n";
 		if (customData2Count > 0) maincode << "\t" << "v_CustomData2 = customData2;\n";
 
-		if (isSprite)
+		if (forSprite)
 		{
 			maincode << g_material_src_spatial_vertex_sprite_post;
 		}
@@ -605,8 +634,8 @@ std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& m
 	}
 	else
 	{
-		// Vertex shader (CanvasItem)
-		if (isSprite)
+		// Vertex shader (2D)
+		if (forSprite)
 		{
 			maincode << g_material_src_canvasitem_vertex_sprite_pre;
 		}
@@ -617,10 +646,10 @@ std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& m
 
 		maincode << g_material_src_canvasitem_vertex_common;
 
-		if (isSprite)
+		if (forSprite)
 		{
-			if (customData1Count > 0) maincode << "\t" << GetType(customData1Count) << " customData1 = CUSTOM0" << GetElement(customData1Count) << ";\n";
-			if (customData2Count > 0) maincode << "\t" << GetType(customData2Count) << " customData2 = CUSTOM1" << GetElement(customData2Count) << ";\n";
+			if (customData1Count > 0) maincode << "\t" << GetType(customData1Count) << " customData1 = texture(CustomData1, UV)" << GetElement(customData1Count) << ";\n";
+			if (customData2Count > 0) maincode << "\t" << GetType(customData2Count) << " customData2 = texture(CustomData2, UV)" << GetElement(customData2Count) << ";\n";
 		}
 		else
 		{
@@ -637,7 +666,7 @@ std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& m
 		if (customData1Count > 0) maincode << "\t" << "v_CustomData1 = customData1;\n";
 		if (customData2Count > 0) maincode << "\t" << "v_CustomData2 = customData2;\n";
 
-		if (isSprite)
+		if (forSprite)
 		{
 			maincode << g_material_src_canvasitem_vertex_sprite_post;
 		}
@@ -647,7 +676,7 @@ std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& m
 		}
 	}
 
-	if (isSpatial)
+	if (for3D)
 	{
 		// Fragment shader (Spatial)
 		maincode << g_material_src_spatial_fragment_pre;
@@ -665,7 +694,7 @@ std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& m
 		std::string fragCode = baseCode;
 		
 		Replace(fragCode, g_material_src_common_calcdepthfade_caller, 
-			"CalcDepthFade(DEPTH_TEXTURE, screenUV, meshZ, temp_0)");
+			"CalcDepthFade(DepthTexture, screenUV, meshZ, temp_0)");
 		
 		maincode << fragCode;
 
@@ -714,7 +743,7 @@ std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& m
 	return code;
 }
 
-void ShaderGenerator::GenerateParamDecls(ShaderData& shaderData, const Effekseer::MaterialFile& materialFile, bool isSprite, bool isRefrection)
+void ShaderGenerator::GenerateParamDecls(ShaderData& shaderData, const Effekseer::MaterialFile& materialFile, bool forSprite)
 {
 	auto appendDecls = [](std::vector<Shader::ParamDecl>& decls, const char* name, Shader::ParamType type, uint16_t slot, uint16_t offset)
 	{
@@ -726,9 +755,9 @@ void ShaderGenerator::GenerateParamDecls(ShaderData& shaderData, const Effekseer
 		decls.emplace_back(decl);
 	};
 	auto appendCustomDataDecls = [appendDecls](std::vector<Shader::ParamDecl>& decls, const ::Effekseer::MaterialFile& materialFile, 
-		const EffekseerRenderer::MaterialShaderParameterGenerator& parameterGenerator, bool isSprite)
+		const EffekseerRenderer::MaterialShaderParameterGenerator& parameterGenerator, bool forSprite)
 	{
-		if (!isSprite)
+		if (!forSprite)
 		{
 			if (materialFile.GetCustomData1Count() > 0)
 			{
@@ -763,15 +792,15 @@ void ShaderGenerator::GenerateParamDecls(ShaderData& shaderData, const Effekseer
 		}
 	};
 
-	auto parameterGenerator = EffekseerRenderer::MaterialShaderParameterGenerator(materialFile, !isSprite, 0, 1);
+	auto parameterGenerator = EffekseerRenderer::MaterialShaderParameterGenerator(materialFile, !forSprite, 0, 1);
 
-	if (isSprite)
+	if (forSprite)
 	{
 		std::vector<Shader::ParamDecl> decls;
 		appendDecls(decls, "ViewMatrix",  Shader::ParamType::Matrix44, 0, parameterGenerator.VertexCameraMatrixOffset);
 		appendDecls(decls, "PredefinedData", Shader::ParamType::Vector4, 1, parameterGenerator.PixelPredefinedOffset);
 		appendDecls(decls, "CameraPosition", Shader::ParamType::Vector3, 1, parameterGenerator.PixelCameraPositionOffset);
-		//appendCustomDataDecls(decls, materialFile, parameterGenerator, isSprite);
+		//appendCustomDataDecls(decls, materialFile, parameterGenerator, forSprite);
 		appendUserUniformDecls(decls, materialFile, parameterGenerator);
 		appendTextureDecls(decls, materialFile);
 
@@ -786,7 +815,7 @@ void ShaderGenerator::GenerateParamDecls(ShaderData& shaderData, const Effekseer
 		appendDecls(decls, "ModelColor",  Shader::ParamType::Vector4,  0, parameterGenerator.VertexModelColorOffset);
 		appendDecls(decls, "PredefinedData", Shader::ParamType::Vector4, 1, parameterGenerator.PixelPredefinedOffset);
 		appendDecls(decls, "CameraPosition", Shader::ParamType::Vector3, 1, parameterGenerator.PixelCameraPositionOffset);
-		appendCustomDataDecls(decls, materialFile, parameterGenerator, isSprite);
+		appendCustomDataDecls(decls, materialFile, parameterGenerator, forSprite);
 		appendUserUniformDecls(decls, materialFile, parameterGenerator);
 		appendTextureDecls(decls, materialFile);
 
@@ -800,14 +829,14 @@ void ShaderGenerator::GenerateParamDecls(ShaderData& shaderData, const Effekseer
 ShaderData ShaderGenerator::GenerateShaderData(
 	const Effekseer::MaterialFile& materialFile, Effekseer::MaterialShaderType shaderType)
 {
-	const bool isSprite = shaderType == Effekseer::MaterialShaderType::Standard || shaderType == Effekseer::MaterialShaderType::Refraction;
-	const bool isRefrection = materialFile.GetHasRefraction() &&
-		(shaderType == Effekseer::MaterialShaderType::Refraction || shaderType == Effekseer::MaterialShaderType::RefractionModel);
+	const bool forSprite = shaderType == Effekseer::MaterialShaderType::Standard || shaderType == Effekseer::MaterialShaderType::Refraction;
+	//const bool isRefrection = materialFile.GetHasRefraction() &&
+	//	(shaderType == Effekseer::MaterialShaderType::Refraction || shaderType == Effekseer::MaterialShaderType::RefractionModel);
 	
 	ShaderData shaderData;
-	shaderData.CodeSpatial = GenerateShaderCode(materialFile, isSprite, isRefrection, true);
-	shaderData.CodeCanvasItem = GenerateShaderCode(materialFile, isSprite, isRefrection, false);
-	GenerateParamDecls(shaderData, materialFile, isSprite, isRefrection);
+	shaderData.CodeSpatial = GenerateShaderCode(materialFile, forSprite, true);
+	shaderData.CodeCanvasItem = GenerateShaderCode(materialFile, forSprite, false);
+	GenerateParamDecls(shaderData, materialFile, forSprite);
 	return shaderData;
 }
 

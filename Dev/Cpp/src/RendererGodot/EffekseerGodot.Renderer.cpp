@@ -115,6 +115,71 @@ namespace CanvasItem
 static constexpr int32_t CUSTOM_DATA_TEXTURE_WIDTH = 256;
 static constexpr int32_t CUSTOM_DATA_TEXTURE_HEIGHT = 256;
 
+DynamicTexture::DynamicTexture()
+{
+}
+
+DynamicTexture::~DynamicTexture()
+{
+	auto rs = godot::RenderingServer::get_singleton();
+	rs->free_rid(m_texture2D);
+}
+
+void DynamicTexture::Init(int32_t width, int32_t height)
+{
+	m_textureWidth = width;
+	m_textureHeight = height;
+
+	auto rs = godot::RenderingServer::get_singleton();
+	
+	m_rectData.resize(width * height * sizeof(godot::Color));
+	
+	godot::Ref<godot::Image> image;
+	image.instantiate();
+	image->create(width, height, false, godot::Image::FORMAT_RGBAF);
+	
+	m_texture2D = rs->texture_2d_create(image);
+}
+
+const DynamicTexture::LockedRect* DynamicTexture::Lock(int32_t x, int32_t y, int32_t width, int32_t height)
+{
+	assert(m_lockedRect.ptr == nullptr);
+	assert(m_lockedRect.width == 0 && m_lockedRect.height == 0);
+
+	m_lockedRect.ptr = (float*)m_rectData.ptrw() + ((size_t)x + (size_t)y * (size_t)m_textureWidth) * sizeof(float);
+	m_lockedRect.x = x;
+	m_lockedRect.y = y;
+	m_lockedRect.width = width;
+	m_lockedRect.height = height;
+	return &m_lockedRect;
+}
+
+void DynamicTexture::Unlock()
+{
+	assert(m_lockedRect.ptr != nullptr);
+	assert(m_lockedRect.width > 0 && m_lockedRect.height > 0);
+
+	m_lockedRect = {};
+	m_dirty = true;
+}
+
+void DynamicTexture::Update()
+{
+	if (m_dirty)
+	{
+		auto rs = godot::RenderingServer::get_singleton();
+
+		godot::Ref<godot::Image> image;
+		image.instantiate();
+		image->create_from_data(m_textureWidth, m_textureHeight,
+			false, godot::Image::FORMAT_RGBAF, m_rectData);
+
+		rs->texture_2d_update(m_texture2D, image, 0);
+
+		m_dirty = false;
+	}
+}
+
 inline godot::Color ConvertColor(const EffekseerRenderer::VertexColor& color)
 {
 	return godot::Color(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f, color.A / 255.0f).srgb_to_linear();
@@ -315,29 +380,34 @@ bool Renderer::Initialize(int32_t drawMaxCount)
 		m_shaders[(size_t)RendererShaderType::Unlit] = Shader::Create("Sprite_Basic_Unlit", RendererShaderType::Unlit);
 		m_shaders[(size_t)RendererShaderType::Unlit]->SetVertexConstantBufferSize(sizeof(StandardRendererVertexBuffer));
 		m_shaders[(size_t)RendererShaderType::Unlit]->SetPixelConstantBufferSize(sizeof(PixelConstantBuffer));
-		m_shaders[(size_t)RendererShaderType::Unlit]->Compile(Shader::RenderType::SpatialLightweight, Unlit::Lightweight::code, Unlit::Lightweight::decl);
-		m_shaders[(size_t)RendererShaderType::Unlit]->Compile(Shader::RenderType::SpatialDepthFade, Unlit::SoftParticle::code, Unlit::SoftParticle::decl);
-		m_shaders[(size_t)RendererShaderType::Unlit]->Compile(Shader::RenderType::CanvasItem, Unlit::CanvasItem::code, Unlit::CanvasItem::decl);
+		m_shaders[(size_t)RendererShaderType::Unlit]->SetCode(Shader::RenderType::SpatialLightweight, Unlit::Lightweight::code, Unlit::Lightweight::decl);
+		m_shaders[(size_t)RendererShaderType::Unlit]->SetCode(Shader::RenderType::SpatialDepthFade, Unlit::SoftParticle::code, Unlit::SoftParticle::decl);
+		m_shaders[(size_t)RendererShaderType::Unlit]->SetCode(Shader::RenderType::CanvasItem, Unlit::CanvasItem::code, Unlit::CanvasItem::decl);
 
 		m_shaders[(size_t)RendererShaderType::Lit] = Shader::Create("Sprite_Basic_Lighting", RendererShaderType::Lit);
 		m_shaders[(size_t)RendererShaderType::Lit]->SetVertexConstantBufferSize(sizeof(StandardRendererVertexBuffer));
 		m_shaders[(size_t)RendererShaderType::Lit]->SetPixelConstantBufferSize(sizeof(PixelConstantBuffer));
-		m_shaders[(size_t)RendererShaderType::Lit]->Compile(Shader::RenderType::SpatialLightweight, Lighting::Lightweight::code, Lighting::Lightweight::decl);
-		m_shaders[(size_t)RendererShaderType::Lit]->Compile(Shader::RenderType::SpatialDepthFade, Lighting::SoftParticle::code, Lighting::SoftParticle::decl);
-		m_shaders[(size_t)RendererShaderType::Lit]->Compile(Shader::RenderType::CanvasItem, Lighting::CanvasItem::code, Lighting::CanvasItem::decl);
+		m_shaders[(size_t)RendererShaderType::Lit]->SetCode(Shader::RenderType::SpatialLightweight, Lighting::Lightweight::code, Lighting::Lightweight::decl);
+		m_shaders[(size_t)RendererShaderType::Lit]->SetCode(Shader::RenderType::SpatialDepthFade, Lighting::SoftParticle::code, Lighting::SoftParticle::decl);
+		m_shaders[(size_t)RendererShaderType::Lit]->SetCode(Shader::RenderType::CanvasItem, Lighting::CanvasItem::code, Lighting::CanvasItem::decl);
 
 		m_shaders[(size_t)RendererShaderType::BackDistortion] = Shader::Create("Sprite_Basic_Distortion", RendererShaderType::BackDistortion);
 		m_shaders[(size_t)RendererShaderType::BackDistortion]->SetVertexConstantBufferSize(sizeof(StandardRendererVertexBuffer));
 		m_shaders[(size_t)RendererShaderType::BackDistortion]->SetPixelConstantBufferSize(sizeof(PixelConstantBuffer));
-		m_shaders[(size_t)RendererShaderType::BackDistortion]->Compile(Shader::RenderType::SpatialLightweight, Distortion::Lightweight::code, Distortion::Lightweight::decl);
-		m_shaders[(size_t)RendererShaderType::BackDistortion]->Compile(Shader::RenderType::SpatialDepthFade, Distortion::SoftParticle::code, Distortion::SoftParticle::decl);
-		m_shaders[(size_t)RendererShaderType::BackDistortion]->Compile(Shader::RenderType::CanvasItem, Distortion::CanvasItem::code, Distortion::CanvasItem::decl);
+		m_shaders[(size_t)RendererShaderType::BackDistortion]->SetCode(Shader::RenderType::SpatialLightweight, Distortion::Lightweight::code, Distortion::Lightweight::decl);
+		m_shaders[(size_t)RendererShaderType::BackDistortion]->SetCode(Shader::RenderType::SpatialDepthFade, Distortion::SoftParticle::code, Distortion::SoftParticle::decl);
+		m_shaders[(size_t)RendererShaderType::BackDistortion]->SetCode(Shader::RenderType::CanvasItem, Distortion::CanvasItem::code, Distortion::CanvasItem::decl);
 	}
 
 	m_renderCommands3D.resize((size_t)drawMaxCount);
 	m_renderCommand2Ds.resize((size_t)drawMaxCount);
 
 	m_standardRenderer.reset(new StandardRenderer(this));
+
+	// For 2D
+	m_customData1Texture.Init(CUSTOM_DATA_TEXTURE_WIDTH, CUSTOM_DATA_TEXTURE_HEIGHT);
+	m_customData2Texture.Init(CUSTOM_DATA_TEXTURE_WIDTH, CUSTOM_DATA_TEXTURE_HEIGHT);
+	m_uvTangentTexture.Init(CUSTOM_DATA_TEXTURE_WIDTH, CUSTOM_DATA_TEXTURE_HEIGHT);
 
 	impl->SetBackground(m_background);
 	impl->SetDepth(m_depth, EffekseerRenderer::DepthReconstructionParameter());
@@ -393,6 +463,13 @@ bool Renderer::EndRendering()
 {
 	// レンダラーリセット
 	m_standardRenderer->ResetAndRenderingIfRequired();
+
+	if (m_vertexTextureOffset > 0)
+	{
+		m_uvTangentTexture.Update();
+		m_customData1Texture.Update();
+		m_customData2Texture.Update();
+	}
 
 	return true;
 }
@@ -552,6 +629,21 @@ void Renderer::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 
 		// Setup material
 		m_currentShader->ApplyToMaterial(Shader::RenderType::CanvasItem, command.GetMaterial(), m_renderState->GetActiveState());
+
+		if (m_currentShader->GetShaderType() == EffekseerRenderer::RendererShaderType::Lit ||
+			m_currentShader->GetShaderType() == EffekseerRenderer::RendererShaderType::BackDistortion ||
+			m_currentShader->GetShaderType() == EffekseerRenderer::RendererShaderType::Material)
+		{
+			rs->material_set_param(command.GetMaterial(), "UVTangentTexture", m_uvTangentTexture.GetRID());
+		}
+		if (state.CustomData1Count > 0)
+		{
+			rs->material_set_param(command.GetMaterial(), "CustomData1", m_customData1Texture.GetRID());
+		}
+		if (state.CustomData2Count > 0)
+		{
+			rs->material_set_param(command.GetMaterial(), "CustomData2", m_customData2Texture.GetRID());
+		}
 
 		m_renderCount2D++;
 		impl->drawcallCount++;
@@ -923,7 +1015,7 @@ void Renderer::TransferVertexToCanvasItem2D(godot::RID canvas_item,
 	{
 		godot::Vector2* points = pointArray.ptrw();
 		godot::Color* colors = colorArray.ptrw();
-		godot::Vector2* uvs = uvArray.ptrw();
+		godot::Vector2* urs = uvArray.ptrw();
 
 		const SimpleVertex* vertices = (const SimpleVertex*)vertexData;
 		for (int32_t i = 0; i < spriteCount; i++)
@@ -933,7 +1025,7 @@ void Renderer::TransferVertexToCanvasItem2D(godot::RID canvas_item,
 				auto& v = vertices[i * 4 + j];
 				points[i * 4 + j] = ConvertVector2(v.Pos, baseScale);
 				colors[i * 4 + j] = ConvertColor(v.Col);
-				uvs[i * 4 + j] = ConvertUV(v.UV);
+				urs[i * 4 + j] = ConvertUV(v.UV);
 			}
 		}
 	}
@@ -941,11 +1033,11 @@ void Renderer::TransferVertexToCanvasItem2D(godot::RID canvas_item,
 	{
 		godot::Vector2* points = pointArray.ptrw();
 		godot::Color* colors = colorArray.ptrw();
-		godot::Vector2* uvs = uvArray.ptrw();
+		godot::Vector2* urs = uvArray.ptrw();
 
 		const int32_t width = CUSTOM_DATA_TEXTURE_WIDTH;
 		const int32_t height = (spriteCount * 4 + width - 1) / width;
-		//float* uvtTexPtr = m_uvTangentTexture.Lock(0, m_vertexTextureOffset / width, width, height)->ptr;
+		float* uvtTexPtr = m_uvTangentTexture.Lock(0, m_vertexTextureOffset / width, width, height)->ptr;
 
 		const LightingVertex* vertices = (const LightingVertex*)vertexData;
 		for (int32_t i = 0; i < spriteCount; i++)
@@ -955,14 +1047,14 @@ void Renderer::TransferVertexToCanvasItem2D(godot::RID canvas_item,
 				auto& v = vertices[i * 4 + j];
 				points[i * 4 + j] = ConvertVector2(v.Pos, baseScale);
 				colors[i * 4 + j] = ConvertColor(v.Col);
-				uvs[i * 4 + j] = ConvertVertexTextureUV(m_vertexTextureOffset++, width);
+				urs[i * 4 + j] = ConvertVertexTextureUV(m_vertexTextureOffset++, width);
 
-				//auto tangent = UnpackVector3DF(v.Tangent);
-				//CopyVertexTexture(uvtTexPtr, v.UV[0], v.UV[1], tangent.X, -tangent.Y);
+				auto tangent = UnpackVector3DF(v.Tangent);
+				CopyVertexTexture(uvtTexPtr, v.UV[0], v.UV[1], tangent.X, -tangent.Y);
 			}
 		}
 
-		//m_uvTangentTexture.Unlock();
+		m_uvTangentTexture.Unlock();
 		m_vertexTextureOffset = (m_vertexTextureOffset + width - 1) / width * width;
 	}
 	else if (shaderType == RendererShaderType::Material)
@@ -973,14 +1065,14 @@ void Renderer::TransferVertexToCanvasItem2D(godot::RID canvas_item,
 
 		godot::Vector2* points = pointArray.ptrw();
 		godot::Color* colors = colorArray.ptrw();
-		godot::Vector2* uvs = uvArray.ptrw();
+		godot::Vector2* urs = uvArray.ptrw();
 
 		const int32_t width = CUSTOM_DATA_TEXTURE_WIDTH;
 		const int32_t height = (spriteCount * 4 + width - 1) / width;
 		const uint8_t* vertexPtr = (const uint8_t*)vertexData;
-		//float* uvtTexPtr = m_uvTangentTexture.Lock(0, m_vertexTextureOffset / width, width, height)->ptr;
-		//float* customData1TexPtr = (customData1Count > 0) ? m_customData1Texture.Lock(0, m_vertexTextureOffset / width, width, height)->ptr : nullptr;
-		//float* customData2TexPtr = (customData2Count > 0) ? m_customData2Texture.Lock(0, m_vertexTextureOffset / width, width, height)->ptr : nullptr;
+		float* uvtTexPtr = m_uvTangentTexture.Lock(0, m_vertexTextureOffset / width, width, height)->ptr;
+		float* customData1TexPtr = (customData1Count > 0) ? m_customData1Texture.Lock(0, m_vertexTextureOffset / width, width, height)->ptr : nullptr;
+		float* customData2TexPtr = (customData2Count > 0) ? m_customData2Texture.Lock(0, m_vertexTextureOffset / width, width, height)->ptr : nullptr;
 
 		for (int32_t i = 0; i < spriteCount; i++)
 		{
@@ -989,20 +1081,20 @@ void Renderer::TransferVertexToCanvasItem2D(godot::RID canvas_item,
 				auto& v = *(const DynamicVertex*)vertexPtr;
 				points[i * 4 + j] = ConvertVector2(v.Pos, baseScale);
 				colors[i * 4 + j] = ConvertColor(v.Col);
-				uvs[i * 4 + j] = ConvertVertexTextureUV(m_vertexTextureOffset++, width);
+				urs[i * 4 + j] = ConvertVertexTextureUV(m_vertexTextureOffset++, width);
 				
-				//auto tangent = UnpackVector3DF(v.Tangent);
-				//CopyVertexTexture(uvtTexPtr, v.UV[0], v.UV[1], tangent.X, -tangent.Y);
+				auto tangent = UnpackVector3DF(v.Tangent);
+				CopyVertexTexture(uvtTexPtr, v.UV[0], v.UV[1], tangent.X, -tangent.Y);
 				vertexPtr += sizeof(DynamicVertex);
 
-				//if (customData1TexPtr) CopyCustomData(customData1TexPtr, vertexPtr, customData1Count);
-				//if (customData2TexPtr) CopyCustomData(customData2TexPtr, vertexPtr, customData2Count);
+				if (customData1TexPtr) CopyCustomData(customData1TexPtr, vertexPtr, customData1Count);
+				if (customData2TexPtr) CopyCustomData(customData2TexPtr, vertexPtr, customData2Count);
 			}
 		}
 
-		//m_uvTangentTexture.Unlock();
-		//if (customData1TexPtr) m_customData1Texture.Unlock();
-		//if (customData2TexPtr) m_customData2Texture.Unlock();
+		m_uvTangentTexture.Unlock();
+		if (customData1TexPtr) m_customData1Texture.Unlock();
+		if (customData2TexPtr) m_customData2Texture.Unlock();
 		m_vertexTextureOffset = (m_vertexTextureOffset + width - 1) / width * width;
 	}
 
@@ -1041,7 +1133,7 @@ void Renderer::TransferModelToCanvasItem2D(godot::RID canvas_item,
 		// Copy transfromed vertices
 		godot::Vector2* points = pointArray.ptrw();
 		godot::Color* colors = colorArray.ptrw();
-		godot::Vector2* uvs = uvArray.ptrw();
+		godot::Vector2* urs = uvArray.ptrw();
 
 		for (int32_t i = 0; i < vertexCount; i++)
 		{
@@ -1050,7 +1142,7 @@ void Renderer::TransferModelToCanvasItem2D(godot::RID canvas_item,
 			Effekseer::Vector3D::Transform(pos, v.Position, worldMatrix);
 			points[i] = ConvertVector2(pos, baseScale);
 			colors[i] = ConvertColor(v.VColor);
-			uvs[i] = ConvertUV(v.UV);
+			urs[i] = ConvertUV(v.UV);
 		}
 
 		// Copy indeces without culling
@@ -1073,7 +1165,7 @@ void Renderer::TransferModelToCanvasItem2D(godot::RID canvas_item,
 		godot::Vector3* positions = positionArray.ptrw();
 		godot::Vector2* points = pointArray.ptrw();
 		godot::Color* colors = colorArray.ptrw();
-		godot::Vector2* uvs = uvArray.ptrw();
+		godot::Vector2* urs = uvArray.ptrw();
 
 		const godot::Vector3 frontVec = (flipPolygon) ? godot::Vector3(0.0f, 0.0f, -1.0f) : godot::Vector3(0.0f, 0.0f, 1.0f);
 		const godot::Vector3 backVec = (flipPolygon) ? godot::Vector3(0.0f, 0.0f, 1.0f) : godot::Vector3(0.0f, 0.0f, -1.0f);
@@ -1086,7 +1178,7 @@ void Renderer::TransferModelToCanvasItem2D(godot::RID canvas_item,
 			positions[i] = ConvertVector3(pos);
 			points[i] = ConvertVector2(pos, baseScale);
 			colors[i] = ConvertColor(v.VColor);
-			uvs[i] = ConvertUV(v.UV);
+			urs[i] = ConvertUV(v.UV);
 		}
 
 		// Copy indeces with culling

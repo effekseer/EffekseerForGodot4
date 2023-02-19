@@ -15,6 +15,7 @@ uniform mat4 ViewMatrix;
 R"(
 uniform float DistortionIntensity;
 uniform sampler2D DistortionTexture : hint_normal;
+uniform sampler2D ScreenTexture : hint_screen_texture, filter_linear_mipmap;
 )"
 #elif LIGHTING
 R"(
@@ -33,6 +34,7 @@ uniform sampler2D ColorTexture : source_color;
 R"(
 uniform vec4 SoftParticleParams;
 uniform vec4 SoftParticleReco;
+uniform sampler2D DepthTexture : hint_depth_texture, filter_linear_mipmap;
 )"
 #endif
 
@@ -51,7 +53,7 @@ void fragment() {
 #if DISTORTION
 R"(
 	vec2 distortionUV = DistortionMap(DistortionTexture, UV, DistortionIntensity, COLOR.xy, TANGENT, BINORMAL);
-	vec4 color = ColorMap(SCREEN_TEXTURE, SCREEN_UV + distortionUV, vec4(1.0, 1.0, 1.0, COLOR.a));
+	vec4 color = ColorMap(ScreenTexture, SCREEN_UV + distortionUV, vec4(1.0, 1.0, 1.0, COLOR.a));
 	ALBEDO = color.rgb; ALPHA = color.a;
 )"
 #elif LIGHTING
@@ -70,7 +72,7 @@ R"(
 #if SOFT_PARTICLE
 R"(
 	vec4 reconstruct2 = vec4(PROJECTION_MATRIX[2][2], PROJECTION_MATRIX[3][2], PROJECTION_MATRIX[2][3], PROJECTION_MATRIX[3][3]);
-	ALPHA *= SoftParticle(DEPTH_TEXTURE, SCREEN_UV, FRAGCOORD.z, SoftParticleParams, SoftParticleReco, reconstruct2);
+	ALPHA *= SoftParticle(DepthTexture, SCREEN_UV, FRAGCOORD.z, SoftParticleParams, SoftParticleReco, reconstruct2);
 )"
 #endif
 

@@ -14,6 +14,7 @@
 
 #include "GDLibrary.h"
 #include "RendererGodot/EffekseerGodot.Renderer.h"
+#include "RendererGodot/EffekseerGodot.ModelRenderer.h"
 #include "LoaderGodot/EffekseerGodot.TextureLoader.h"
 #include "LoaderGodot/EffekseerGodot.ModelLoader.h"
 #include "LoaderGodot/EffekseerGodot.MaterialLoader.h"
@@ -86,7 +87,11 @@ void EffekseerSystem::setup()
 	} else {
 		soundScript = ResourceLoader::get_singleton()->load("res://addons/effekseer/src/EffekseerSound.gd", "");
 	}
-	Ref<RefCounted> sound = EffekseerGodot::ScriptNew(soundScript);
+	
+	Ref<RefCounted> sound;
+	if (soundScript.is_valid()) {
+		sound = EffekseerGodot::ScriptNew(soundScript);
+	}
 
 	m_manager = Effekseer::Manager::Create(instanceMaxCount);
 #ifndef __EMSCRIPTEN__
@@ -99,8 +104,11 @@ void EffekseerSystem::setup()
 	effekseerSettings->SetModelLoader(Effekseer::MakeRefPtr<EffekseerGodot::ModelLoader>());
 	effekseerSettings->SetMaterialLoader(Effekseer::MakeRefPtr<EffekseerGodot::MaterialLoader>());
 	effekseerSettings->SetCurveLoader(Effekseer::MakeRefPtr<EffekseerGodot::CurveLoader>());
-	effekseerSettings->SetSoundLoader(Effekseer::MakeRefPtr<EffekseerGodot::SoundLoader>(sound));
 	effekseerSettings->SetProceduralMeshGenerator(Effekseer::MakeRefPtr<EffekseerGodot::ProceduralModelGenerator>());
+
+	if (sound.is_valid()) {
+		effekseerSettings->SetSoundLoader(Effekseer::MakeRefPtr<EffekseerGodot::SoundLoader>(sound));
+	}
 
 	m_manager->SetSetting(effekseerSettings);
 
@@ -112,7 +120,10 @@ void EffekseerSystem::setup()
 	m_manager->SetTrackRenderer(m_renderer->CreateTrackRenderer());
 	m_manager->SetRingRenderer(m_renderer->CreateRingRenderer());
 	m_manager->SetModelRenderer(m_renderer->CreateModelRenderer());
-	m_manager->SetSoundPlayer(Effekseer::MakeRefPtr<EffekseerGodot::SoundPlayer>(sound));
+
+	if (sound.is_valid()) {
+		m_manager->SetSoundPlayer(Effekseer::MakeRefPtr<EffekseerGodot::SoundPlayer>(sound));
+	}
 
 	for (auto effect : m_load_list) {
 		effect->load();
@@ -250,6 +261,17 @@ int EffekseerSystem::get_total_draw_call_count() const
 int EffekseerSystem::get_total_draw_vertex_count() const
 {
 	return m_renderer->GetDrawVertexCount();
+}
+
+
+EffekseerGodot::Shader* EffekseerSystem::get_builtin_shader(bool is_model, EffekseerRenderer::RendererShaderType shader_type)
+{
+	if (is_model) {
+		return m_manager->GetModelRenderer().DownCast<EffekseerGodot::ModelRenderer>()->GetShader(shader_type);
+	}
+	else {
+		return m_renderer->GetShader(shader_type);
+	}
 }
 
 void EffekseerSystem::push_load_list(EffekseerEffect* effect)

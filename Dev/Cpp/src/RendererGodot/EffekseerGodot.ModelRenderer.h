@@ -24,7 +24,7 @@ using ModelRendererRef = Effekseer::RefPtr<ModelRenderer>;
 class ModelRenderer : public ::EffekseerRenderer::ModelRendererBase
 {
 public:
-	static constexpr int InstanceCount = 16;
+	static constexpr int InstanceCount = 1;
 
 private:
 	Renderer* m_renderer = nullptr;
@@ -43,6 +43,8 @@ public:
 	void Rendering(const efkModelNodeParam& parameter, const InstanceParameter& instanceParameter, void* userData) override;
 
 	void EndRendering(const efkModelNodeParam& parameter, void* userData) override;
+
+	Shader* GetShader(::EffekseerRenderer::RendererShaderType type);
 };
 //----------------------------------------------------------------------------------
 //
