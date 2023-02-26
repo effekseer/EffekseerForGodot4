@@ -130,14 +130,12 @@ void DynamicTexture::Init(int32_t width, int32_t height)
 	m_textureWidth = width;
 	m_textureHeight = height;
 
-	auto rs = godot::RenderingServer::get_singleton();
-	
 	m_rectData.resize(width * height * sizeof(godot::Color));
 	
-	godot::Ref<godot::Image> image;
-	image.instantiate();
-	image->create(width, height, false, godot::Image::FORMAT_RGBAF);
-	
+	godot::Ref<godot::Image> image = godot::Image::create(
+		width, height, false, godot::Image::FORMAT_RGBAF);
+
+	auto rs = godot::RenderingServer::get_singleton();
 	m_texture2D = rs->texture_2d_create(image);
 }
 
@@ -169,10 +167,8 @@ void DynamicTexture::Update()
 	{
 		auto rs = godot::RenderingServer::get_singleton();
 
-		godot::Ref<godot::Image> image;
-		image.instantiate();
-		image->create_from_data(m_textureWidth, m_textureHeight,
-			false, godot::Image::FORMAT_RGBAF, m_rectData);
+		godot::Ref<godot::Image> image = godot::Image::create_from_data(
+			m_textureWidth, m_textureHeight, false, godot::Image::FORMAT_RGBAF, m_rectData);
 
 		rs->texture_2d_update(m_texture2D, image, 0);
 
@@ -355,7 +351,7 @@ Renderer::Renderer(int32_t squareMaxCount)
 //----------------------------------------------------------------------------------
 Renderer::~Renderer()
 {
-	GetImpl()->DeleteProxyTextures(this);
+	Destroy();
 
 	assert(GetRef() == 0);
 }
@@ -365,6 +361,8 @@ Renderer::~Renderer()
 //----------------------------------------------------------------------------------
 bool Renderer::Initialize(int32_t drawMaxCount)
 {
+	//GetImpl()->CreateProxyTextures(this);
+
 	m_renderState.reset(new RenderState());
 
 	// generate a vertex buffer
@@ -422,6 +420,8 @@ void Renderer::Destroy()
 {
 	m_renderCommands3D.clear();
 	m_renderCommand2Ds.clear();
+
+	//GetImpl()->DeleteProxyTextures(this);
 }
 
 void Renderer::ResetState()
