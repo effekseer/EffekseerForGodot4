@@ -18,7 +18,7 @@ var view_mode: int = 0
 
 func _enter_tree():
 	if editor:
-		view_mode = editor.get_editor_settings().get_setting("effekseer/preview_mode")
+		view_mode = int(editor.get_editor_settings().get_setting("effekseer/preview_mode"))
 	
 	$Previewer.connect("gui_input",Callable(self,"_previewer_gui_input"))
 	$OpenEditorButton.connect("pressed",Callable(self,"_open_button_pressed"))
