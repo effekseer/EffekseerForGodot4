@@ -1,7 +1,8 @@
 extends Node3D
 
 func _ready():
-	$GUI/Controller/ResourceName.text = $Effect.effect.resource_path
+	if $Effect.effect:
+		$GUI/Controller/ResourceName.text = $Effect.effect.resource_path
 	$GUI/Controller/EffectMenu.connect("effect_choosed", self._on_effect_choosed)
 	$GUI/Controller/PlayButton.connect("pressed", self._on_play_button_pressed)
 	$GUI/Controller/StopButton.connect("pressed", self._on_stop_button_pressed)
