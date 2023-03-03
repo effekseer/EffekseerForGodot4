@@ -173,26 +173,25 @@ void vertex()
 	vec3 worldTangent = TANGENT;
 	vec3 worldBinormal = BINORMAL;
 	vec3 worldPos = VERTEX;
+	vec2 uv1 = UV;
+	vec2 uv2 = UV;
+	vec4 vcolor = COLOR;
 )";
 
 static const char g_material_src_spatial_vertex_model_pre[] =  R"(
 void vertex()
 {
-	UV = (UV.xy * ModelUV.zw) + ModelUV.xy;
-	COLOR = COLOR * ModelColor;
-
 	mat3 normalMatrix = mat3(ModelMatrix);
 	vec3 worldNormal = normalize(normalMatrix * NORMAL);
 	vec3 worldTangent = normalize(normalMatrix * TANGENT);
 	vec3 worldBinormal = normalize(normalMatrix * BINORMAL);
 	vec3 worldPos = (ModelMatrix * vec4(VERTEX, 1.0)).xyz;
+	vec2 uv1 = (UV * ModelUV.zw) + ModelUV.xy;
+	vec2 uv2 = UV;
+	vec4 vcolor = COLOR * ModelColor;
 )";
 
 static const char g_material_src_spatial_vertex_common[] =  R"(
-	vec2 uv1 = UV;
-	vec2 uv2 = UV2;
-	vec4 vcolor = COLOR;
-
 	v_WorldN_PX.xyz = worldNormal;
 	v_WorldB_PY.xyz = worldBinormal;
 	v_WorldT_PZ.xyz = worldTangent;
@@ -203,21 +202,15 @@ static const char g_material_src_spatial_vertex_common[] =  R"(
 	float meshZ = 0.0;
 )";
 
-static const char g_material_src_spatial_vertex_sprite_post[] = R"(
+static const char g_material_src_spatial_vertex_post[] = R"(
 	worldPos += worldPositionOffset;
 	v_WorldN_PX.w = worldPos.x;
 	v_WorldB_PY.w = worldPos.y;
 	v_WorldT_PZ.w = worldPos.z;
 	POSITION = PROJECTION_MATRIX * ViewMatrix * vec4(worldPos, 1.0);
-}
-)";
-
-static const char g_material_src_spatial_vertex_model_post[] = R"(
-	worldPos += worldPositionOffset;
-	v_WorldN_PX.w = worldPos.x;
-	v_WorldB_PY.w = worldPos.y;
-	v_WorldT_PZ.w = worldPos.z;
-	POSITION = PROJECTION_MATRIX * ViewMatrix * vec4(worldPos, 1.0);
+	UV = uv1;
+	UV2 = uv2;
+	COLOR = vcolor;
 }
 )";
 
@@ -230,23 +223,20 @@ void vertex()
 	vec3 worldBinormal = cross(worldNormal, worldTangent);
 	vec3 worldPos = vec3(VERTEX, 0.0);
 	vec2 uv1 = uvTangent.xy;
-	vec2 uv2 = vec2(0.0);
+	vec2 uv2 = uv1;
 	vec4 vcolor = COLOR;
 )";
 
 static const char g_material_src_canvasitem_vertex_model_pre[] =  R"(
 void vertex()
 {
-	UV = (UV * ModelUV.zw) + ModelUV.xy;
-	COLOR = COLOR * ModelColor;
-
 	vec3 worldNormal = vec3(0.0, 0.0, 1.0);
 	vec3 worldTangent = vec3(1.0, 0.0, 0.0);
 	vec3 worldBinormal = vec3(0.0, 1.0, 0.0);
 	vec3 worldPos = vec3(VERTEX, 0.0);
-	vec2 uv1 = UV;
-	vec2 uv2 = vec2(0.0);
-	vec4 vcolor = COLOR;
+	vec2 uv1 = (UV * ModelUV.zw) + ModelUV.xy;
+	vec2 uv2 = UV;
+	vec4 vcolor = COLOR * ModelColor;
 )";
 
 static const char g_material_src_canvasitem_vertex_common[] =  R"(
@@ -260,22 +250,15 @@ static const char g_material_src_canvasitem_vertex_common[] =  R"(
 	float meshZ = 0.0;
 )";
 
-static const char g_material_src_canvasitem_vertex_sprite_post[] = R"(
+static const char g_material_src_canvasitem_vertex_post[] = R"(
 	worldPos += worldPositionOffset;
 	v_WorldN_PX.w = worldPos.x;
 	v_WorldB_PY.w = worldPos.y;
 	v_WorldT_PZ.w = worldPos.z;
 	VERTEX = worldPos.xy;
-	UV = uvTangent.xy;
-}
-)";
-
-static const char g_material_src_canvasitem_vertex_model_post[] = R"(
-	worldPos += worldPositionOffset;
-	v_WorldN_PX.w = worldPos.x;
-	v_WorldB_PY.w = worldPos.y;
-	v_WorldT_PZ.w = worldPos.z;
-	VERTEX = worldPos.xy;
+	UV = uv1;
+	v_uv2 = uv2;
+	COLOR = vcolor;
 }
 )";
 
@@ -283,7 +266,7 @@ static const char g_material_src_spatial_fragment_pre[] = R"(
 void fragment()
 {
 	vec2 uv1 = UV;
-	vec2 uv2 = UV2;
+	vec2 uv2 = uv1;
 	vec4 vcolor = COLOR;
 
 	vec3 worldPos = vec3(v_WorldN_PX.w, v_WorldB_PY.w, v_WorldT_PZ.w);
@@ -323,7 +306,7 @@ static const char g_material_src_canvasitem_fragment_pre[] = R"(
 void fragment()
 {
 	vec2 uv1 = UV;
-	vec2 uv2 = vec2(0.0);
+	vec2 uv2 = uv1;
 	vec4 vcolor = COLOR;
 
 	vec3 worldPos = vec3(v_WorldN_PX.w, v_WorldB_PY.w, v_WorldT_PZ.w);
@@ -428,6 +411,11 @@ std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& m
 	// Output builtin varyings
 	maincode << g_material_varying_common;
 
+	if (!for3D)
+	{
+		maincode << "varying vec2 v_uv2;\n";
+	}
+
 	if (customData1Count > 0)
 	{
 		maincode << "varying " << GetType(customData1Count) << " v_CustomData1;\n";
@@ -513,7 +501,7 @@ std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& m
 	for (int32_t i = 0; i < actualTextureCount; i++)
 	{
 		auto textureName = materialFile.GetTextureName(i);
-		auto textureHint = ": hint_default_black";
+		auto textureHint = ": hint_default_black, repeat_enable";
 		maincode << "uniform sampler2D " << textureName << textureHint << ";" << std::endl;
 	}
 
@@ -623,14 +611,7 @@ std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& m
 		if (customData1Count > 0) maincode << "\t" << "v_CustomData1 = customData1;\n";
 		if (customData2Count > 0) maincode << "\t" << "v_CustomData2 = customData2;\n";
 
-		if (forSprite)
-		{
-			maincode << g_material_src_spatial_vertex_sprite_post;
-		}
-		else
-		{
-			maincode << g_material_src_spatial_vertex_model_post;
-		}
+		maincode << g_material_src_spatial_vertex_post;
 	}
 	else
 	{
@@ -666,14 +647,7 @@ std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& m
 		if (customData1Count > 0) maincode << "\t" << "v_CustomData1 = customData1;\n";
 		if (customData2Count > 0) maincode << "\t" << "v_CustomData2 = customData2;\n";
 
-		if (forSprite)
-		{
-			maincode << g_material_src_canvasitem_vertex_sprite_post;
-		}
-		else
-		{
-			maincode << g_material_src_canvasitem_vertex_model_post;
-		}
+		maincode << g_material_src_canvasitem_vertex_post;
 	}
 
 	if (for3D)

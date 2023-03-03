@@ -130,7 +130,7 @@ void DynamicTexture::Init(int32_t width, int32_t height)
 	m_textureWidth = width;
 	m_textureHeight = height;
 
-	m_rectData.resize(width * height * sizeof(godot::Color));
+	m_pixels.resize(width * height * sizeof(float) * 4);
 	
 	godot::Ref<godot::Image> image = godot::Image::create(
 		width, height, false, godot::Image::FORMAT_RGBAF);
@@ -139,26 +139,11 @@ void DynamicTexture::Init(int32_t width, int32_t height)
 	m_texture2D = rs->texture_2d_create(image);
 }
 
-const DynamicTexture::LockedRect* DynamicTexture::Lock(int32_t x, int32_t y, int32_t width, int32_t height)
+float* DynamicTexture::Pixels(int32_t x, int32_t y)
 {
-	assert(m_lockedRect.ptr == nullptr);
-	assert(m_lockedRect.width == 0 && m_lockedRect.height == 0);
-
-	m_lockedRect.ptr = (float*)m_rectData.ptrw() + ((size_t)x + (size_t)y * (size_t)m_textureWidth) * sizeof(float);
-	m_lockedRect.x = x;
-	m_lockedRect.y = y;
-	m_lockedRect.width = width;
-	m_lockedRect.height = height;
-	return &m_lockedRect;
-}
-
-void DynamicTexture::Unlock()
-{
-	assert(m_lockedRect.ptr != nullptr);
-	assert(m_lockedRect.width > 0 && m_lockedRect.height > 0);
-
-	m_lockedRect = {};
 	m_dirty = true;
+	size_t offset = ((size_t)x + (size_t)y * (size_t)m_textureWidth) * sizeof(float) * 4;
+	return (float*)(m_pixels.ptrw() + offset);
 }
 
 void DynamicTexture::Update()
@@ -168,7 +153,7 @@ void DynamicTexture::Update()
 		auto rs = godot::RenderingServer::get_singleton();
 
 		godot::Ref<godot::Image> image = godot::Image::create_from_data(
-			m_textureWidth, m_textureHeight, false, godot::Image::FORMAT_RGBAF, m_rectData);
+			m_textureWidth, m_textureHeight, false, godot::Image::FORMAT_RGBAF, m_pixels);
 
 		rs->texture_2d_update(m_texture2D, image, 0);
 
@@ -1037,7 +1022,7 @@ void Renderer::TransferVertexToCanvasItem2D(godot::RID canvas_item,
 
 		const int32_t width = CUSTOM_DATA_TEXTURE_WIDTH;
 		const int32_t height = (spriteCount * 4 + width - 1) / width;
-		float* uvtTexPtr = m_uvTangentTexture.Lock(0, m_vertexTextureOffset / width, width, height)->ptr;
+		float* uvtTexPtr = m_uvTangentTexture.Pixels(0, m_vertexTextureOffset / width);
 
 		const LightingVertex* vertices = (const LightingVertex*)vertexData;
 		for (int32_t i = 0; i < spriteCount; i++)
@@ -1054,7 +1039,6 @@ void Renderer::TransferVertexToCanvasItem2D(godot::RID canvas_item,
 			}
 		}
 
-		m_uvTangentTexture.Unlock();
 		m_vertexTextureOffset = (m_vertexTextureOffset + width - 1) / width * width;
 	}
 	else if (shaderType == RendererShaderType::Material)
@@ -1070,9 +1054,9 @@ void Renderer::TransferVertexToCanvasItem2D(godot::RID canvas_item,
 		const int32_t width = CUSTOM_DATA_TEXTURE_WIDTH;
 		const int32_t height = (spriteCount * 4 + width - 1) / width;
 		const uint8_t* vertexPtr = (const uint8_t*)vertexData;
-		float* uvtTexPtr = m_uvTangentTexture.Lock(0, m_vertexTextureOffset / width, width, height)->ptr;
-		float* customData1TexPtr = (customData1Count > 0) ? m_customData1Texture.Lock(0, m_vertexTextureOffset / width, width, height)->ptr : nullptr;
-		float* customData2TexPtr = (customData2Count > 0) ? m_customData2Texture.Lock(0, m_vertexTextureOffset / width, width, height)->ptr : nullptr;
+		float* uvtTexPtr = m_uvTangentTexture.Pixels(0, m_vertexTextureOffset / width);
+		float* customData1TexPtr = (customData1Count > 0) ? m_customData1Texture.Pixels(0, m_vertexTextureOffset / width) : nullptr;
+		float* customData2TexPtr = (customData2Count > 0) ? m_customData2Texture.Pixels(0, m_vertexTextureOffset / width) : nullptr;
 
 		for (int32_t i = 0; i < spriteCount; i++)
 		{
@@ -1092,9 +1076,6 @@ void Renderer::TransferVertexToCanvasItem2D(godot::RID canvas_item,
 			}
 		}
 
-		m_uvTangentTexture.Unlock();
-		if (customData1TexPtr) m_customData1Texture.Unlock();
-		if (customData2TexPtr) m_customData2Texture.Unlock();
 		m_vertexTextureOffset = (m_vertexTextureOffset + width - 1) / width * width;
 	}
 

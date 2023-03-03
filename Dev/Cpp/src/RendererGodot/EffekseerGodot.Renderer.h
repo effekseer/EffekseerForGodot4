@@ -71,27 +71,17 @@ private:
 class DynamicTexture
 {
 public:
-	struct LockedRect {
-		float* ptr;
-		int32_t x;
-		int32_t y;
-		int32_t width;
-		int32_t height;
-	};
-
 	DynamicTexture();
 	~DynamicTexture();
 	void Init(int32_t width, int32_t height);
-	const LockedRect* Lock(int32_t x, int32_t y, int32_t width, int32_t height);
-	void Unlock();
+	float* Pixels(int32_t x, int32_t y);
 	void Update();
 
 	godot::RID GetRID() { return m_texture2D; }
 
 private:
 	godot::RID m_texture2D;
-	godot::PackedByteArray m_rectData;
-	LockedRect m_lockedRect{};
+	godot::PackedByteArray m_pixels;
 	int32_t m_textureWidth;
 	int32_t m_textureHeight;
 	bool m_dirty = false;

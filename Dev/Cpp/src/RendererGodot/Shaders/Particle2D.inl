@@ -16,19 +16,19 @@ uniform sampler2D UVTangentTexture : hint_normal;
 #if DISTORTION
 R"(
 uniform float DistortionIntensity;
-uniform sampler2D DistortionTexture : hint_normal;
-uniform sampler2D ScreenTexture : hint_screen_texture, filter_linear_mipmap;
+uniform sampler2D DistortionTexture : hint_normal, repeat_enable;
+uniform sampler2D ScreenTexture : hint_screen_texture;
 )"
 #elif LIGHTING
 R"(
 uniform float EmissiveScale;
-uniform sampler2D ColorTexture : source_color;
-uniform sampler2D NormalTexture : hint_normal;
+uniform sampler2D ColorTexture : source_color, repeat_enable;
+uniform sampler2D NormalTexture : hint_normal, repeat_enable;
 )"
 #else
 R"(
 uniform float EmissiveScale;
-uniform sampler2D ColorTexture : source_color;
+uniform sampler2D ColorTexture : source_color, repeat_enable;
 )"
 #endif
 
