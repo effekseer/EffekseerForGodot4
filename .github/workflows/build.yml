@@ -1,0 +1,202 @@
+on:
+  push:
+    branches:
+      - main
+jobs:
+  linux:
+    name: Build for Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Update Submodules
+        run: git submodule update --init --recursive
+      - name: Build binaries
+        run: |
+          sudo apt-get update
+          sudo apt-get install scons
+          sudo apt-get install gcc-multilib
+          sudo apt-get install g++-multilib
+          python3 Dev/Cpp/build.py platform=linux
+      - name: Upload binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: bin_linux
+          path: ./Dev/Godot/addons/effekseer/bin
+
+  android:
+    name: Build for Android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Update Submodules
+        run: git submodule update --init --recursive
+      - name: Build binaries
+        run: |
+          sudo apt-get install scons
+          python3 Dev/Cpp/build.py platform=android
+      - name: Upload binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: bin_android
+          path: ./Dev/Godot/addons/effekseer/bin
+
+  macos:
+    name: Build for macOS
+    runs-on: macOS-10.15
+    steps:
+      - uses: actions/checkout@v3
+      - name: Update Submodules
+        run: git submodule update --init --recursive
+      - name: Build binaries
+        run: |
+          brew install scons
+          python3 Dev/Cpp/build.py platform=osx
+      - name: Codesign libraries
+        env:
+          DISTRIBUTION_KEY_BASE64: ${{ secrets.MACOS_DISTRIBUTION_KEY_BASE64 }}
+          DISTRIBUTION_KEY_PASSWORD: ${{ secrets.MACOS_DISTRIBUTION_KEY_PASSWORD }}
+          DISTRIBUTION_KEY_IDENTITY: ${{ secrets.MACOS_DISTRIBUTION_KEY_IDENTITY }}
+          KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
+        run: |
+          DISTRIBUTION_KEY_PATH=$RUNNER_TEMP/distribution.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          echo -n "$DISTRIBUTION_KEY_BASE64" | base64 --decode --output $DISTRIBUTION_KEY_PATH
+
+          echo create keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security default-keychain -s $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          echo import key
+          security import $DISTRIBUTION_KEY_PATH -P "$DISTRIBUTION_KEY_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH -T /usr/bin/codesign
+          security list-keychain -d user -s $KEYCHAIN_PATH
+          security find-identity
+
+          echo codesign
+          /usr/bin/codesign --force --verify --verbose --timestamp --sign "$DISTRIBUTION_KEY_IDENTITY" ./Dev/Cpp/bin/libeffekseer.osx.dylib
+          /usr/bin/codesign -dvvv ./Dev/Cpp/bin/libeffekseer.osx.dylib
+      - name: Upload binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: bin_macos
+          path: ./Dev/Godot/addons/effekseer/bin
+
+  ios:
+    name: Build for iOS
+    runs-on: macOS-10.15
+    steps:
+      - uses: actions/checkout@v3
+      - name: Update Submodules
+        run: git submodule update --init --recursive
+      - name: Build binaries
+        run: |
+          brew install scons
+          python3 Dev/Cpp/build.py platform=ios
+      - name: Upload binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: bin_ios
+          path: ./Dev/Godot/addons/effekseer/bin
+
+  windows:
+    name: Build for Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Update Submodules
+        run: git submodule update --init --recursive
+      - name: Build binaries
+        run: |
+          python -m pip install scons
+          python Dev/Cpp/build.py platform=windows
+        shell: cmd
+      - name: Upload binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: bin_windows
+          path: ./Dev/Godot/addons/effekseer/bin
+
+  html5:
+    name: Build for HTML5
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Update Submodules
+        run: git submodule update --init --recursive
+      - name: Cache emsdk
+        id: cache
+        uses: actions/cache@v1
+        with:
+          path: ./emsdk
+          key: ${{ runner.os }}-emsdk-2_0_25-v1
+      - name: Install emsdk 2.0.25
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          git clone --depth 1 https://github.com/emscripten-core/emsdk.git
+          ./emsdk/emsdk install 2.0.25
+      - name: Build binaries
+        run: |
+          ./emsdk/emsdk activate 2.0.25
+          source ./emsdk/emsdk_env.sh
+          sudo apt-get install scons
+          python3 Dev/Cpp/build.py platform=html5
+      - name: Upload binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: bin_html5
+          path: ./Dev/Godot/addons/effekseer/bin
+
+  merge:
+    name: Merge 
+    runs-on: ubuntu-latest
+    needs: [linux, android, macos, ios, windows, html5]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download Linux binaries
+        uses: actions/download-artifact@v1
+        with:
+          name: bin_linux
+
+      - name: Download Android binaries
+        uses: actions/download-artifact@v1
+        with:
+          name: bin_android
+
+      - name: Download macOS binaries
+        uses: actions/download-artifact@v1
+        with:
+          name: bin_macos
+
+      - name: Download iOS binaries
+        uses: actions/download-artifact@v1
+        with:
+          name: bin_ios
+
+      - name: Download Windows binaries
+        uses: actions/download-artifact@v1
+        with:
+          name: bin_windows
+
+      - name: Download HTML5 binaries
+        uses: actions/download-artifact@v1
+        with:
+          name: bin_html5
+
+      - name: Copy binaries
+        run: |
+          mkdir ./Dev/Godot/addons/effekseer/bin
+          cp -r bin_linux/linux ./Dev/Godot/addons/effekseer/bin/
+          cp -r bin_android/android ./Dev/Godot/addons/effekseer/bin/
+          cp -r bin_macos/osx ./Dev/Godot/addons/effekseer/bin/
+          cp -r bin_ios/ios ./Dev/Godot/addons/effekseer/bin/
+          cp -r bin_windows/windows ./Dev/Godot/addons/effekseer/bin/
+          cp -r bin_html5/html5 ./Dev/Godot/addons/effekseer/bin/
+
+      - name: Upload built package
+        uses: actions/upload-artifact@v3
+        with:
+          name: addons
+          path: ./Dev/Godot/addons
