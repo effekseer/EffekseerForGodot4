@@ -146,10 +146,19 @@ void EffekseerEffect::setup_node_render(Effekseer::EffectNode* node, TargetLayer
 		const bool isModel = nodeType == Effekseer::EffectNodeType::Model;
 
 		EffekseerGodot::Shader* shader = nullptr;
-
-		if (renderParams.MaterialType == Effekseer::RendererMaterialType::File) {
-			auto material = m_native->GetMaterial(renderParams.MaterialIndex);
-			if (material.Get() != nullptr) {
+		
+		switch (renderParams.MaterialType) {
+		case Effekseer::RendererMaterialType::Default:
+			shader = system->get_builtin_shader(isModel, EffekseerRenderer::RendererShaderType::Unlit);
+			break;
+		case Effekseer::RendererMaterialType::Lighting:
+			shader = system->get_builtin_shader(isModel, EffekseerRenderer::RendererShaderType::Lit);
+			break;
+		case Effekseer::RendererMaterialType::BackDistortion:
+			shader = system->get_builtin_shader(isModel, EffekseerRenderer::RendererShaderType::BackDistortion);
+			break;
+		case Effekseer::RendererMaterialType::File:
+			if (auto material = m_native->GetMaterial(renderParams.MaterialIndex); material.Get() != nullptr) {
 				if (nodeType == Effekseer::EffectNodeType::Model) {
 					shader = static_cast<EffekseerGodot::Shader*>(material->ModelUserPtr);
 				}
@@ -157,19 +166,7 @@ void EffekseerEffect::setup_node_render(Effekseer::EffectNode* node, TargetLayer
 					shader = static_cast<EffekseerGodot::Shader*>(material->UserPtr);
 				}
 			}
-		}
-		else {
-			switch (renderParams.MaterialType) {
-			case Effekseer::RendererMaterialType::Default:
-				shader = system->get_builtin_shader(isModel, EffekseerRenderer::RendererShaderType::Unlit);
-				break;
-			case Effekseer::RendererMaterialType::Lighting:
-				shader = system->get_builtin_shader(isModel, EffekseerRenderer::RendererShaderType::Lit);
-				break;
-			case Effekseer::RendererMaterialType::BackDistortion:
-				shader = system->get_builtin_shader(isModel, EffekseerRenderer::RendererShaderType::BackDistortion);
-				break;
-			}
+			break;
 		}
 
 		if (shader != nullptr) {
