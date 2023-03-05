@@ -218,7 +218,7 @@ elif env["platform"] == "osx":
         "-std=c++17", "-arch", "x86_64", "-arch", "arm64",
         "-fvisibility=hidden",
         "-ffunction-sections", "-fdata-sections",
-        "-mmacosx-version-min=10.10",
+        "-mmacosx-version-min=10.14",
         "-isysroot", sdk_path
     ])
     env.Append(LINKFLAGS=[
@@ -238,10 +238,10 @@ elif env["platform"] == "osx":
 elif env["platform"] == "ios":
     if env["ios_arch"] == "x86_64":
         sdk_name = "iphonesimulator"
-        env.Append(CCFLAGS=["-mios-simulator-version-min=10.0"])
+        env.Append(CCFLAGS=["-mios-simulator-version-min=11.0"])
     else:
         sdk_name = "iphoneos"
-        env.Append(CCFLAGS=["-miphoneos-version-min=10.0"])
+        env.Append(CCFLAGS=["-miphoneos-version-min=11.0"])
 
     try:
         sdk_path = decode_utf8(subprocess.check_output(["xcrun", "--sdk", sdk_name, "--show-sdk-path"]).strip())
