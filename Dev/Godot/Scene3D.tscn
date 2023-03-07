@@ -1,8 +1,8 @@
-[gd_scene load_steps=10 format=3 uid="uid://cwiv2c2tyqyw"]
+[gd_scene load_steps=11 format=3 uid="uid://8rt7qtk8mfx6"]
 
 [ext_resource type="Texture2D" uid="uid://cq0rnvcuc6xwp" path="res://grid.png" id="1"]
 [ext_resource type="Script" path="res://scripts/Scene3D.gd" id="4"]
-[ext_resource type="EffekseerEffect" uid="uid://ix8w283s7cb0" path="res://effect/tests/model_instanced.efkefc" id="4_18bpy"]
+[ext_resource type="EffekseerEffect" uid="uid://dnjprdsgyglly" path="res://effect/sample-material4/ef_fire02.efkefc" id="4_c22xi"]
 [ext_resource type="Script" path="res://scripts/CameraController3D.gd" id="5"]
 [ext_resource type="PackedScene" uid="uid://3yy8se2knnd6" path="res://GUI.tscn" id="6"]
 
@@ -11,11 +11,18 @@ albedo_texture = ExtResource("1")
 
 [sub_resource type="PlaneMesh" id="1"]
 
+[sub_resource type="BoxMesh" id="BoxMesh_4buj6"]
+
+[sub_resource type="GDScript" id="GDScript_7xpxe"]
+script/source = "extends MeshInstance3D
+
+func _process(delta: float):
+	rotate_y(deg_to_rad(delta * 180.0))
+"
+
 [sub_resource type="Environment" id="3"]
 ambient_light_color = Color(0.25098, 0.25098, 0.25098, 1)
 glow_enabled = true
-
-[sub_resource type="BoxMesh" id="BoxMesh_4buj6"]
 
 [node name="Scene3D" type="Node3D"]
 script = ExtResource("4")
@@ -34,8 +41,14 @@ script = ExtResource("5")
 transform = Transform3D(1, 0, 0, 0, 0.200531, 0.979687, 0, -0.979687, 0.200531, 0, 6.95046, -4.86754e-07)
 shadow_enabled = true
 
+[node name="Cube" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.93182, 0)
+mesh = SubResource("BoxMesh_4buj6")
+script = SubResource("GDScript_7xpxe")
+
 [node name="Effect" type="EffekseerEmitter3D" parent="."]
-effect = ExtResource("4_18bpy")
+effect = ExtResource("4_c22xi")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("3")
@@ -44,22 +57,12 @@ environment = SubResource("3")
 
 [node name="Title" type="Label" parent="Header"]
 layout_mode = 2
-offset_top = 13.0
-offset_right = 216.0
-offset_bottom = 39.0
 text = "Effekseer 3D Effect Example"
 
 [node name="Description" type="Label" parent="Header"]
 layout_mode = 2
-offset_left = 220.0
-offset_right = 798.0
-offset_bottom = 52.0
 size_flags_horizontal = 3
 text = "W/A/S/D: Move the Emitter.  Q/E: Rotate the Emitter.
 MouseRightDrag: Rotate the Camera, MouseMiddleDrag: Move the Camera"
 
 [node name="GUI" parent="." instance=ExtResource("6")]
-
-[node name="MeshInstance3d" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.93182, 0)
-mesh = SubResource("BoxMesh_4buj6")

@@ -3,10 +3,10 @@ extends Node2D
 func _ready():
 	if $Effect.effect:
 		$GUI/Controller/ResourceName.text = $Effect.effect.resource_path
-	$GUI/Controller/EffectMenu.connect("effect_choosed", self._on_effect_choosed)
-	$GUI/Controller/PlayButton.connect("pressed", self._on_play_button_pressed)
-	$GUI/Controller/StopButton.connect("pressed", self._on_stop_button_pressed)
-	$GUI/Controller/PauseButton.connect("pressed", self._on_pause_button_pressed)
+	$GUI/Controller/System/EffectMenu.connect("effect_choosed", self._on_effect_choosed)
+	$GUI/Controller/Player/PlayButton.connect("pressed", self._on_play_button_pressed)
+	$GUI/Controller/Player/StopButton.connect("pressed", self._on_stop_button_pressed)
+	$GUI/Controller/Player/PauseButton.connect("pressed", self._on_pause_button_pressed)
 	for i in range(4):
 		$GUI/Controller/Triggers/Buttons.get_child(i).connect("pressed", Callable(self, "_on_trigger_button_pressed").bind(i))
 	
@@ -23,7 +23,7 @@ func _on_stop_button_pressed():
 	$Effect.stop()
 
 func _on_pause_button_pressed():
-	get_tree().paused = !get_tree().paused
+	$Effect.paused = $GUI/Controller/Player/PauseButton.button_pressed
 
 func _on_trigger_button_pressed(index: int):
 	$Effect.send_trigger(index)

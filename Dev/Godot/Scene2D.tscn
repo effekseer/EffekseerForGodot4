@@ -1,8 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://bqnawu4crrsem"]
+[gd_scene load_steps=8 format=3 uid="uid://cjugrt6pqxwk5"]
 
 [ext_resource type="Texture2D" uid="uid://7qnlb6vc3vxh" path="res://icon.png" id="2"]
 [ext_resource type="PackedScene" uid="uid://3yy8se2knnd6" path="res://GUI.tscn" id="4"]
-[ext_resource type="EffekseerEffect" uid="uid://ix8w283s7cb0" path="res://effect/tests/model_instanced.efkefc" id="4_xsuav"]
+[ext_resource type="EffekseerEffect" uid="uid://dfsyswa63i5xn" path="res://effect/samples/Laser01.efkefc" id="4_d8ico"]
 [ext_resource type="Texture2D" uid="uid://dod84ervtfcm1" path="res://effect/tests/Textures/Particle02.png" id="5"]
 [ext_resource type="Texture2D" uid="uid://cq0rnvcuc6xwp" path="res://grid.png" id="7"]
 [ext_resource type="Script" path="res://scripts/Scene2D.gd" id="8"]
@@ -31,10 +31,10 @@ position = Vector2(171.514, 105.967)
 texture = ExtResource("2")
 
 [node name="Effect" type="EffekseerEmitter2D" parent="."]
-effect = ExtResource("4_xsuav")
+effect = ExtResource("4_d8ico")
 orientation = Vector3(0, 90, 0)
 position = Vector2(229.379, 184.932)
-scale = Vector2(10, 10)
+scale = Vector2(30, 30)
 
 [node name="MeshInstance2D" type="MeshInstance2D" parent="Effect"]
 modulate = Color(0.796078, 0.6, 0.431373, 1)
@@ -56,14 +56,11 @@ offset = Vector2(640, 360)
 [node name="Header" type="HBoxContainer" parent="."]
 
 [node name="Title" type="Label" parent="Header"]
-offset_right = 216.0
-offset_bottom = 26.0
+layout_mode = 2
 text = "Effekseer 2D Effect Example"
 
 [node name="Description" type="Label" parent="Header"]
-offset_left = 220.0
-offset_right = 624.0
-offset_bottom = 26.0
+layout_mode = 2
 size_flags_horizontal = 3
 text = "W/A/S/D: Move the Emitter.  Q/E: Rotate the Emitter."
 
