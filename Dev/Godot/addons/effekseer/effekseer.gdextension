@@ -2,5 +2,14 @@
 entry_symbol = "effekseer_library_init"
 
 [libraries]
-windows.debug.x86_64 = "res://addons/effekseer/bin/windows/libeffekseer.win64.dll"
-windows.release.x86_64 = "res://addons/effekseer/bin/windows/libeffekseer.win64.dll"
+windows.x86.64 = "res://addons/effekseer/bin/windows/libeffekseer.windows-x86-64.dll"
+windows.x86.32 = "res://addons/effekseer/bin/windows/libeffekseer.windows-x86-32.dll"
+linux.x86.32 = "res://addons/effekseer/bin/linux/libeffekseer.linux-x86-32.so"
+linux.x86.64 = "res://addons/effekseer/bin/linux/libeffekseer.linux-x86-64.so"
+macos = "res://addons/effekseer/bin/macos/libeffekseer.macos.dylib"
+ios = "res://addons/effekseer/bin/ios/libeffekseer.ios.dylib"
+android.arm.32 = "res://addons/effekseer/bin/android/libeffekseer.android-arm-32.so"
+android.arm.64 = "res://addons/effekseer/bin/android/libeffekseer.android-arm-64.so"
+android.x86.32 = "res://addons/effekseer/bin/android/libeffekseer.android-x86-32.so"
+android.x86.64 = "res://addons/effekseer/bin/android/libeffekseer.android-x86-64.so"
+web.wasm.32 = "res://addons/effekseer/bin/web/libeffekseer.web-wasm-32.wasm"

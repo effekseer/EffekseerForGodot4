@@ -37,15 +37,15 @@ if "platform=windows" in sys.argv:
 
     os.makedirs("../Godot/addons/effekseer/bin/windows", exist_ok = True)
 
-    shutil.copy2("bin/libeffekseer.win32.dll", "../Godot/addons/effekseer/bin/windows/")
-    shutil.copy2("bin/libeffekseer.win64.dll", "../Godot/addons/effekseer/bin/windows/")
+    shutil.copy2("bin/libeffekseer.windows-x86-32.dll", "../Godot/addons/effekseer/bin/windows/")
+    shutil.copy2("bin/libeffekseer.windows-x86-64.dll", "../Godot/addons/effekseer/bin/windows/")
 
-elif "platform=osx" in sys.argv:
-    subprocess.run("scons platform=osx bits=64 target=release" + job_opt, shell = True)
+elif "platform=macos" in sys.argv:
+    subprocess.run("scons platform=macos bits=64 target=release" + job_opt, shell = True)
 
-    os.makedirs("../Godot/addons/effekseer/bin/osx", exist_ok = True)
+    os.makedirs("../Godot/addons/effekseer/bin/macos", exist_ok = True)
 
-    shutil.copy2("bin/libeffekseer.osx.dylib", "../Godot/addons/effekseer/bin/osx/")
+    shutil.copy2("bin/libeffekseer.macos.dylib", "../Godot/addons/effekseer/bin/macos/")
 
 elif "platform=android" in sys.argv:
     subprocess.run("scons platform=android android_arch=armv7 target=release" + job_opt, shell = True)
@@ -55,22 +55,21 @@ elif "platform=android" in sys.argv:
 
     os.makedirs("../Godot/addons/effekseer/bin/android", exist_ok = True)
 
-    shutil.copy2("bin/libeffekseer.android-armv7.so", "../Godot/addons/effekseer/bin/android/")
-    shutil.copy2("bin/libeffekseer.android-arm64v8.so", "../Godot/addons/effekseer/bin/android/")
-    shutil.copy2("bin/libeffekseer.android-x86.so", "../Godot/addons/effekseer/bin/android/")
-    shutil.copy2("bin/libeffekseer.android-x86_64.so", "../Godot/addons/effekseer/bin/android/")
+    shutil.copy2("bin/libeffekseer.android-arm-32.so", "../Godot/addons/effekseer/bin/android/")
+    shutil.copy2("bin/libeffekseer.android-arm-64.so", "../Godot/addons/effekseer/bin/android/")
+    shutil.copy2("bin/libeffekseer.android-x86-32.so", "../Godot/addons/effekseer/bin/android/")
+    shutil.copy2("bin/libeffekseer.android-x86-64.so", "../Godot/addons/effekseer/bin/android/")
 
 elif "platform=ios" in sys.argv:
     subprocess.run("scons platform=ios ios_arch=arm64 target=release" + job_opt, shell = True)
     subprocess.run("scons platform=ios ios_arch=x86_64 target=release" + job_opt, shell = True)
 
     subprocess.run("lipo -create bin/libeffekseer.ios-arm64.dylib -output bin/libeffekseer.ios.dylib", shell = True)
-    subprocess.run("lipo -create bin/libeffekseer.ios-x86_64.dylib -output bin/libeffekseer.ios-sim.dylib", shell = True)
+    subprocess.run("lipo -create bin/libeffekseer.ios-x86_64.dylib -output bin/libeffekseer.ios.dylib", shell = True)
 
     os.makedirs("../Godot/addons/effekseer/bin/ios", exist_ok = True)
     
     shutil.copy2("bin/libeffekseer.ios.dylib", "../Godot/addons/effekseer/bin/ios/")
-    shutil.copy2("bin/libeffekseer.ios-sim.dylib", "../Godot/addons/effekseer/bin/ios/")
 
 elif "platform=linux" in sys.argv:
     subprocess.run("scons platform=linux bits=32 target=release use_llvm=1" + job_opt, shell = True)
@@ -78,12 +77,12 @@ elif "platform=linux" in sys.argv:
 
     os.makedirs("../Godot/addons/effekseer/bin/linux", exist_ok = True)
 
-    shutil.copy2("bin/libeffekseer.linux-32.so", "../Godot/addons/effekseer/bin/linux/")
-    shutil.copy2("bin/libeffekseer.linux-64.so", "../Godot/addons/effekseer/bin/linux/")
+    shutil.copy2("bin/libeffekseer.linux-x86-32.so", "../Godot/addons/effekseer/bin/linux/")
+    shutil.copy2("bin/libeffekseer.linux-x86-64.so", "../Godot/addons/effekseer/bin/linux/")
 
-elif "platform=html5" in sys.argv:
-    subprocess.run("scons platform=html5 bits=32 target=release" + job_opt, shell = True)
+elif "platform=web" in sys.argv:
+    subprocess.run("scons platform=web bits=32 target=release" + job_opt, shell = True)
 
-    os.makedirs("../Godot/addons/effekseer/bin/html5", exist_ok = True)
+    os.makedirs("../Godot/addons/effekseer/bin/web", exist_ok = True)
 
-    shutil.copy2("bin/libeffekseer.wasm32.wasm", "../Godot/addons/effekseer/bin/html5/")
+    shutil.copy2("bin/libeffekseer.web-wasm-32.wasm", "../Godot/addons/effekseer/bin/web/")

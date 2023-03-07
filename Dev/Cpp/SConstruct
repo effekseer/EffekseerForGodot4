@@ -58,7 +58,7 @@ def add_sources(sources, dir, extension):
 if sys.platform.startswith("linux"):
     host_platform = "linux"
 elif sys.platform == "darwin":
-    host_platform = "osx"
+    host_platform = "macos"
 elif sys.platform == "win32" or sys.platform == "msys":
     host_platform = "windows"
 else:
@@ -72,7 +72,7 @@ opts.Add(EnumVariable(
     "platform",
     "Target platform",
     host_platform,
-    allowed_values=("linux", "osx", "windows", "android", "ios", "html5"),
+    allowed_values=("linux", "macos", "windows", "android", "ios", "web"),
     ignorecase=2
 ))
 opts.Add(EnumVariable(
@@ -193,9 +193,9 @@ if env["platform"] == "linux":
         env.Append(CCFLAGS=["-m32"])
         env.Append(LINKFLAGS=["-m32"])
 
-    target_path = "libeffekseer.linux-" + env["bits"] + ".so"
+    target_path = "libeffekseer.linux-x86-" + env["bits"] + ".so"
 
-elif env["platform"] == "osx":
+elif env["platform"] == "macos":
     if env["bits"] == "32":
         raise ValueError(
             "Only 64-bit builds are supported for the macOS target."
@@ -233,7 +233,7 @@ elif env["platform"] == "osx":
     elif env["target"] == "release":
         env.Append(CCFLAGS=["-Ofast"])
 
-    target_path = "libeffekseer.osx.dylib"
+    target_path = "libeffekseer.macos.dylib"
 
 elif env["platform"] == "ios":
     if env["ios_arch"] == "x86_64":
@@ -283,7 +283,7 @@ elif env["platform"] == "windows":
     elif env["target"] == "release":
         env.Append(CCFLAGS=["/O2", "/std:c++17", "/EHsc", "/DNDEBUG", "/MT"])
 
-    target_path = "libeffekseer.win" + env["bits"] + ".dll"
+    target_path = "libeffekseer.windows-x86-" + env["bits"] + ".dll"
     
 elif env["platform"] == "android":
     if host_platform == "windows":
@@ -309,37 +309,41 @@ elif env["platform"] == "android":
             toolchain += "-x86_64"
     elif host_platform == "linux":
         toolchain += "linux-x86_64"
-    elif host_platform == "osx":
+    elif host_platform == "macos":
         toolchain += "darwin-x86_64"
     env.PrependENVPath("PATH", toolchain + "/bin") # This does nothing half of the time, but we"ll put it here anyways
 
     # Get architecture info
     arch_info_table = {
         "armv7" : {
+            "outname": "arm-32",
             "march":"armv7-a",
             "target":"armv7a-linux-androideabi", 
             "tool_path":"arm-linux-androideabi",
             "compiler_path":"armv7a-linux-androideabi",
             "sysroot_path":"arch-arm",
             "ccflags" : ["-mfpu=neon"]
-            },
+        },
         "arm64v8" : {
+            "outname": "arm-64",
             "march":"armv8-a",
             "target":"aarch64-linux-android", 
             "tool_path":"aarch64-linux-android",
             "compiler_path":"aarch64-linux-android",
             "sysroot_path":"arch-arm64",
             "ccflags" : []
-            },
+        },
         "x86" : {
+            "outname": "x86-32",
             "march":"i686",
             "target":"i686-linux-android", 
             "tool_path":"i686-linux-android",
             "compiler_path":"i686-linux-android",
             "sysroot_path":"arch-x86",
             "ccflags" : ["-mstackrealign"]
-            },
+        },
         "x86_64" : {
+            "outname": "x86-64",
             "march":"x86-64",
             "target":"x86_64-linux-android", 
             "tool_path":"x86_64-linux-android",
@@ -349,7 +353,7 @@ elif env["platform"] == "android":
         }
     }
     arch_info = arch_info_table[env["android_arch"]]
-    target_path = "libeffekseer.android-" + env["android_arch"] + ".so"
+    target_path = "libeffekseer.android-" + arch_info["outname"] + ".so"
     
     # Setup tools
     env["CC"] = toolchain + "/bin/clang"
@@ -370,15 +374,15 @@ elif env["platform"] == "android":
         "-march=" + arch_info["march"],
     ])
 
-elif env["platform"] == "html5":
+elif env["platform"] == "web":
     if host_platform == "windows":
         raise ValueError("Not supported that build by windows host platform.")
 
     # Verify NDK root
     if not "EMSDK" in env:
-        raise ValueError("To build for HTML5, EMSDK must be defined. Please set EMSDK to the root folder of your Emscripten SDK installation.")
+        raise ValueError("To build for Web, EMSDK must be defined. Please set EMSDK to the root folder of your Emscripten SDK installation.")
 
-    target_path = "libeffekseer.wasm" + "32" + ".wasm"
+    target_path = "libeffekseer.web-wasm-" + env["bits"] + ".wasm"
 
     # Setup tools
     env["ENV"] = os.environ
