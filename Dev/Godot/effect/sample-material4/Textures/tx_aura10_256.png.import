@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://dkdirltc35v2r"
 path.s3tc="res://.godot/imported/tx_aura10_256.png-81e0bf43d9e03624a9eb37510626a494.s3tc.ctex"
+path.etc2="res://.godot/imported/tx_aura10_256.png-81e0bf43d9e03624a9eb37510626a494.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://effect/sample-material4/Textures/tx_aura10_256.png"
-dest_files=["res://.godot/imported/tx_aura10_256.png-81e0bf43d9e03624a9eb37510626a494.s3tc.ctex"]
+dest_files=["res://.godot/imported/tx_aura10_256.png-81e0bf43d9e03624a9eb37510626a494.s3tc.ctex", "res://.godot/imported/tx_aura10_256.png-81e0bf43d9e03624a9eb37510626a494.etc2.ctex"]
 
 [params]
 

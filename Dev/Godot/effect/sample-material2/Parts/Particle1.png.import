@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://dc24a5elwka84"
 path.s3tc="res://.godot/imported/Particle1.png-3d38d1f672e511532a4e70291559a512.s3tc.ctex"
+path.etc2="res://.godot/imported/Particle1.png-3d38d1f672e511532a4e70291559a512.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://effect/sample-material2/Parts/Particle1.png"
-dest_files=["res://.godot/imported/Particle1.png-3d38d1f672e511532a4e70291559a512.s3tc.ctex"]
+dest_files=["res://.godot/imported/Particle1.png-3d38d1f672e511532a4e70291559a512.s3tc.ctex", "res://.godot/imported/Particle1.png-3d38d1f672e511532a4e70291559a512.etc2.ctex"]
 
 [params]
 

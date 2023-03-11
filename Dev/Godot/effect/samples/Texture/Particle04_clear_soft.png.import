@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bvvbfcmsv13ku"
 path.s3tc="res://.godot/imported/Particle04_clear_soft.png-810d465104a5561e67d0367355405b97.s3tc.ctex"
+path.etc2="res://.godot/imported/Particle04_clear_soft.png-810d465104a5561e67d0367355405b97.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://effect/samples/Texture/Particle04_clear_soft.png"
-dest_files=["res://.godot/imported/Particle04_clear_soft.png-810d465104a5561e67d0367355405b97.s3tc.ctex"]
+dest_files=["res://.godot/imported/Particle04_clear_soft.png-810d465104a5561e67d0367355405b97.s3tc.ctex", "res://.godot/imported/Particle04_clear_soft.png-810d465104a5561e67d0367355405b97.etc2.ctex"]
 
 [params]
 

@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://dvg08tpshgppx"
 path.s3tc="res://.godot/imported/tx_white01_8.png-a35bed53c3c5868fe6df24dd47561e18.s3tc.ctex"
+path.etc2="res://.godot/imported/tx_white01_8.png-a35bed53c3c5868fe6df24dd47561e18.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://effect/sample-material4/Textures/tx_white01_8.png"
-dest_files=["res://.godot/imported/tx_white01_8.png-a35bed53c3c5868fe6df24dd47561e18.s3tc.ctex"]
+dest_files=["res://.godot/imported/tx_white01_8.png-a35bed53c3c5868fe6df24dd47561e18.s3tc.ctex", "res://.godot/imported/tx_white01_8.png-a35bed53c3c5868fe6df24dd47561e18.etc2.ctex"]
 
 [params]
 

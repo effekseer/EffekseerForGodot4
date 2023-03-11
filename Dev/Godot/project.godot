@@ -82,6 +82,7 @@ act_rot_right={
 
 [rendering]
 
+textures/vram_compression/import_etc2_astc=true
 quality/intended_usage/framebuffer_allocation.mobile=2
 limits/buffers/canvas_polygon_buffer_size_kb=2048
 limits/buffers/canvas_polygon_index_buffer_size_kb=2048

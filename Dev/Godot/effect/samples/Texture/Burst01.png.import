@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://vwlyun1wfo7m"
 path.s3tc="res://.godot/imported/Burst01.png-42ea15672f8afe0ec59bbeb49e39dc84.s3tc.ctex"
+path.etc2="res://.godot/imported/Burst01.png-42ea15672f8afe0ec59bbeb49e39dc84.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://effect/samples/Texture/Burst01.png"
-dest_files=["res://.godot/imported/Burst01.png-42ea15672f8afe0ec59bbeb49e39dc84.s3tc.ctex"]
+dest_files=["res://.godot/imported/Burst01.png-42ea15672f8afe0ec59bbeb49e39dc84.s3tc.ctex", "res://.godot/imported/Burst01.png-42ea15672f8afe0ec59bbeb49e39dc84.etc2.ctex"]
 
 [params]
 

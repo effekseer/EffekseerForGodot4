@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://33tueu7obvoy"
 path.s3tc="res://.godot/imported/Wind01.png-be5c4bdb901e42da131dd4256544c652.s3tc.ctex"
+path.etc2="res://.godot/imported/Wind01.png-be5c4bdb901e42da131dd4256544c652.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://effect/sample-material3/Wind01.png"
-dest_files=["res://.godot/imported/Wind01.png-be5c4bdb901e42da131dd4256544c652.s3tc.ctex"]
+dest_files=["res://.godot/imported/Wind01.png-be5c4bdb901e42da131dd4256544c652.s3tc.ctex", "res://.godot/imported/Wind01.png-be5c4bdb901e42da131dd4256544c652.etc2.ctex"]
 
 [params]
 
