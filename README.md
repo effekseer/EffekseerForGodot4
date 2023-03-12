@@ -11,12 +11,12 @@ Effekseerで作成したエフェクトをGodot Engine 4.xで表示すること�
 
 ## How to use the plugin
 
-- [How to use (English)](https://effekseer.github.io/Help_Godot4/en/how-to-use.html)
-- [How to use (Japanese)](https://effekseer.github.io/Help_Godot4/en/how-to-use.html)
+- [How to use (English)](https://effekseer.github.io/Help_Godot/en/how-to-use.html)
+- [How to use (Japanese)](https://effekseer.github.io/Help_Godot/en/how-to-use.html)
 
 ## Documents
 
-- [Help](https://effekseer.github.io/Help_Godot4/index.html)
+- [Help](https://effekseer.github.io/Help_Godot/index.html)
 
 ## How to develop the plugin
 
