@@ -2,8 +2,8 @@
 
 ![](../img/Godot_effekseer.png)
 
-## Welcome to EffekseerForGodot
-This is the EffekseerForGodot documentation.
+## Welcome to EffekseerForGodot4
+This is the EffekseerForGodot4 documentation.
 Learn about the Effekseer plugin for Godot Engine.
 By deploying this plugin into your Godot project, you can play effects created with Effekseer on your Godot Engine.
 
@@ -17,7 +17,7 @@ By deploying this plugin into your Godot project, you can play effects created w
 The Effekseer plugin is implemented in GDExtension (C ++).
 It supports common environments, but other platforms require the user to build it.
 
-The support status for each target of EffekseerForGodot is as follows.
+The support status for each target of EffekseerForGodot4 is as follows.
 
 | Target | Status | Architectures |
 |-----------|:-------:|---------------|

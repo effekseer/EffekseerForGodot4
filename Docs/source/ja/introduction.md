@@ -3,7 +3,7 @@
 ![](../img/Godot_effekseer.png)
 
 ## はじめに
-これはEffekseerForGodotのドキュメントです。
+これはEffekseerForGodot4のドキュメントです。
 Godot Engine向けのEffekseerプラグインについて説明します。
 このプラグインをGodotプロジェクトに導入することで、Effekseerで作成したエフェクトをGodot Engine上で再生することができます。
 
@@ -17,7 +17,7 @@ Godot Engine向けのEffekseerプラグインについて説明します。
 EffekseerのプラグインはGDExtension(C++)で実装されています。
 一般的な環境はサポートしていますが、それ以外のプラットフォームではユーザーがビルドする必要があります。
 
-EffekseerForGodotのターゲットごとのサポート状況は以下の通りです。
+EffekseerForGodot4のターゲットごとのサポート状況は以下の通りです。
 
 | ターゲット | サポート | アーキテクチャ |
 |-----------|:-------:|---------------|
