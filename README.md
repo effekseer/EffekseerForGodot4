@@ -7,16 +7,12 @@ You will be able to show the effects that was created with Effekseer.
 [Godot Engine](https://godotengine.org)向けEffekseerプラグインです。  
 Effekseerで作成したエフェクトをGodot Engine 4.xで表示することができます。
 
-- [Official website](http://effekseer.github.io)
+- [Official website](https://effekseer.github.io)
+- [For Godot 3.x plugin](https://github.com/effekseer/EffekseerForGodot3)
 
-## How to use the plugin
+## Documents (How to use it)
 
-- [How to use (English)](https://effekseer.github.io/Help_Godot/en/how-to-use.html)
-- [How to use (Japanese)](https://effekseer.github.io/Help_Godot/en/how-to-use.html)
-
-## Documents
-
-- [Help](https://effekseer.github.io/Help_Godot/index.html)
+- [Help](https://effekseer.github.io/Help_Godot/v4/index.html)
 
 ## How to develop the plugin
 
