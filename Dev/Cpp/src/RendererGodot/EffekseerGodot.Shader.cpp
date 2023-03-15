@@ -208,39 +208,112 @@ void Shader::ApplyToMaterial(RenderType renderType, godot::RID material, Effekse
 
 		if (decl.type == ParamType::Int)
 		{
-			auto value = *(const int32_t*)&m_constantBuffers[decl.slot][decl.offset];
-			rs->material_set_param(material, decl.name, value);
+			if (decl.length == 0)
+			{
+				auto value = *(const int32_t*)&m_constantBuffers[decl.slot][decl.offset];
+				rs->material_set_param(material, decl.name, value);
+			}
+			else
+			{
+				PackedInt32Array array;
+				array.resize((size_t)decl.length);
+				memcpy(array.ptrw(), &m_constantBuffers[decl.slot][decl.offset], decl.length * sizeof(int32_t));
+				rs->material_set_param(material, decl.name, array);
+			}
 		}
 		else if (decl.type == ParamType::Float)
 		{
-			auto value = *(const float*)&m_constantBuffers[decl.slot][decl.offset];
-			rs->material_set_param(material, decl.name, value);
+			if (decl.length == 0)
+			{
+				auto value = *(const float*)&m_constantBuffers[decl.slot][decl.offset];
+				rs->material_set_param(material, decl.name, value);
+			}
+			else
+			{
+				PackedFloat32Array array;
+				array.resize((size_t)decl.length);
+				memcpy(array.ptrw(), &m_constantBuffers[decl.slot][decl.offset], decl.length * sizeof(float));
+				rs->material_set_param(material, decl.name, array);
+			}
 		}
 		else if (decl.type == ParamType::Vector2)
 		{
-			auto& vector = *(const Vector2*)&m_constantBuffers[decl.slot][decl.offset];
-			rs->material_set_param(material, decl.name, vector);
+			if (decl.length == 0)
+			{
+				auto& vector = *(const Vector2*)&m_constantBuffers[decl.slot][decl.offset];
+				rs->material_set_param(material, decl.name, vector);
+			}
+			else
+			{
+				PackedVector2Array array;
+				array.resize((size_t)decl.length);
+				memcpy(array.ptrw(), &m_constantBuffers[decl.slot][decl.offset], decl.length * sizeof(Vector2));
+				rs->material_set_param(material, decl.name, array);
+			}
 		}
 		else if (decl.type == ParamType::Vector3)
 		{
-			auto& vector = *(const Vector3*)&m_constantBuffers[decl.slot][decl.offset];
-			rs->material_set_param(material, decl.name, vector);
+			if (decl.length == 0)
+			{
+				auto& vector = *(const Vector3*)&m_constantBuffers[decl.slot][decl.offset];
+				rs->material_set_param(material, decl.name, vector);
+			}
+			else
+			{
+				PackedVector3Array array;
+				array.resize((size_t)decl.length);
+				memcpy(array.ptrw(), &m_constantBuffers[decl.slot][decl.offset], decl.length * sizeof(Vector3));
+				rs->material_set_param(material, decl.name, array);
+			}
 		}
 		else if (decl.type == ParamType::Vector4)
 		{
-			auto& vector = *(const Vector4*)&m_constantBuffers[decl.slot][decl.offset];
-			//auto& vector = *(const Color*)&m_constantBuffers[decl.slot][decl.offset];
-			rs->material_set_param(material, decl.name, vector);
+			if (decl.length == 0)
+			{
+				auto& vector = *(const Vector4*)&m_constantBuffers[decl.slot][decl.offset];
+				rs->material_set_param(material, decl.name, vector);
+			}
+			else
+			{
+				PackedFloat32Array array;
+				array.resize((size_t)decl.length * 4);
+				memcpy(array.ptrw(), &m_constantBuffers[decl.slot][decl.offset], decl.length * sizeof(Vector4));
+				rs->material_set_param(material, decl.name, array);
+			}
 		}
 		else if (decl.type == ParamType::Color)
 		{
-			auto& color = *(const Color*)&m_constantBuffers[decl.slot][decl.offset];
-			rs->material_set_param(material, decl.name, color.srgb_to_linear());
+			if (decl.length == 0)
+			{
+				auto& color = *(const Color*)&m_constantBuffers[decl.slot][decl.offset];
+				rs->material_set_param(material, decl.name, color.srgb_to_linear());
+			}
+			else
+			{
+				PackedColorArray array;
+				array.resize((size_t)decl.length);
+				memcpy(array.ptrw(), &m_constantBuffers[decl.slot][decl.offset], decl.length * sizeof(Color));
+				rs->material_set_param(material, decl.name, array);
+			}
 		}
 		else if (decl.type == ParamType::Matrix44)
 		{
-			auto& matrix = *(const Effekseer::Matrix44*)&m_constantBuffers[decl.slot][decl.offset];
-			rs->material_set_param(material, decl.name, ToGdMatrix(matrix));
+			if (decl.length == 0)
+			{
+				auto& matrix = *(const Effekseer::Matrix44*)&m_constantBuffers[decl.slot][decl.offset];
+				rs->material_set_param(material, decl.name, ToGdMatrix(matrix));
+			}
+			else
+			{
+				PackedFloat32Array array;
+				array.resize((size_t)decl.length * 12);
+				for (size_t i = 0; i < (size_t)decl.length; i++)
+				{
+					auto transform = ToGdMatrix(((const Effekseer::Matrix44*)&m_constantBuffers[decl.slot][decl.offset])[i]);
+					memcpy(&array[i * 12], &transform, sizeof(transform));
+				}
+				rs->material_set_param(material, decl.name, array);
+			}
 		}
 		else if (decl.type == ParamType::Texture)
 		{

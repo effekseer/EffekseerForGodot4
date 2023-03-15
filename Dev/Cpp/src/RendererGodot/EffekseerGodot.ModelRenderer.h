@@ -24,7 +24,7 @@ using ModelRendererRef = Effekseer::RefPtr<ModelRenderer>;
 class ModelRenderer : public ::EffekseerRenderer::ModelRendererBase
 {
 public:
-	static constexpr int InstanceCount = 1;
+	static constexpr int32_t InstanceCount = 16;
 
 private:
 	Renderer* m_renderer = nullptr;

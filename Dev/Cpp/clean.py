@@ -10,3 +10,8 @@ files = glob.glob("src/**/*.os", recursive=True)
 for file in files:
     print(file)
     os.remove(file)
+
+files = glob.glob("src/**/*.bc", recursive=True)
+for file in files:
+    print(file)
+    os.remove(file)
