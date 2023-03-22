@@ -1,5 +1,9 @@
 extends Node3D
 
+@onready var camera = get_viewport().get_camera_3d()
+const MOVE_SPEED = 5.0
+const ROTATE_SPEED = 60.0
+	
 func _ready():
 	if $Effect.effect:
 		$GUI/Controller/ResourceName.text = $Effect.effect.resource_path
@@ -23,21 +27,22 @@ func _on_stop_button_pressed():
 	$Effect.stop()
 
 func _on_pause_button_pressed():
-	$Effect.paused = $GUI/Controller/Player/PauseButton.button_pressed
+	#$Effect.paused = $GUI/Controller/Player/PauseButton.button_pressed
+	get_tree().paused = $GUI/Controller/Player/PauseButton.button_pressed
 
 func _on_trigger_button_pressed(index: int):
 	$Effect.send_trigger(index)
 
 func _process(delta: float):
 	if Input.is_action_pressed("act_move_left"):
-		$Effect.transform.origin += Vector3(-5, 0, 0) * delta
+		$Effect.transform.origin += camera.basis.z.cross(Vector3.UP).normalized() * MOVE_SPEED * delta
 	if Input.is_action_pressed("act_move_right"):
-		$Effect.transform.origin += Vector3(5, 0, 0) * delta
+		$Effect.transform.origin -= camera.basis.z.cross(Vector3.UP).normalized() * MOVE_SPEED * delta
 	if Input.is_action_pressed("act_move_up"):
-		$Effect.transform.origin += Vector3(0, 0, -5) * delta
+		$Effect.transform.origin -= camera.basis.x.cross(Vector3.UP).normalized() * MOVE_SPEED * delta
 	if Input.is_action_pressed("act_move_down"):
-		$Effect.transform.origin += Vector3(0, 0, 5) * delta
+		$Effect.transform.origin += camera.basis.x.cross(Vector3.UP).normalized() * MOVE_SPEED * delta
 	if Input.is_action_pressed("act_rot_left"):
-		$Effect.rotate_y(deg_to_rad(-60) * delta)
+		$Effect.rotate_y(deg_to_rad(-ROTATE_SPEED) * delta)
 	if Input.is_action_pressed("act_rot_right"):
-		$Effect.rotate_y(deg_to_rad(60) * delta)
+		$Effect.rotate_y(deg_to_rad(ROTATE_SPEED) * delta)

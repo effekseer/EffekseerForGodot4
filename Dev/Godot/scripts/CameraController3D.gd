@@ -1,6 +1,7 @@
 extends Camera3D
 
 var origin_pos := Vector3(0.0, 0.0, 0.0)
+var zoom := 0.0
 var distance := 16.0
 var azimuth := 45.0
 var elevation := 20.0
@@ -41,10 +42,12 @@ func _input(event):
 				drag_button = 0
 		elif event.button_index == MOUSE_BUTTON_WHEEL_UP:
 			# Zoom up
-			distance -= 2.0
+			zoom -= 0.1
+			distance = 16 * pow(2, zoom)
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			# Zoom down
-			distance += 2.0
+			zoom += 0.1
+			distance = 16 * pow(2, zoom)
 	elif event is InputEventMouseMotion:
 		if drag_button == MOUSE_BUTTON_MIDDLE:
 			var diff = event.position - drag_mouse_pos
