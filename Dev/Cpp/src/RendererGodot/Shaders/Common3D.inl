@@ -1,15 +1,8 @@
 
-R"(
-vec4 ColorMap(sampler2D tex, vec2 uv, vec4 color) {
-	vec4 texel = texture(tex, uv);
-	return texel * color;
-}
-)"
-
 #if LIGHTING
 R"(
-vec3 NormalMap(sampler2D tex, vec2 uv, vec3 normal, vec3 tangent, vec3 binormal) {
-	vec4 texel = texture(tex, uv) * 2.0 - 1.0;
+vec3 NormalMap(vec4 texel, vec3 normal, vec3 tangent, vec3 binormal) {
+	texel = texel * 2.0 - 1.0;
 	return normalize(tangent * texel.x + binormal * texel.y + normal * texel.z);
 }
 )"
@@ -17,8 +10,7 @@ vec3 NormalMap(sampler2D tex, vec2 uv, vec3 normal, vec3 tangent, vec3 binormal)
 
 #if DISTORTION
 R"(
-vec2 DistortionMap(sampler2D screenTex, vec2 uv, float intencity, vec2 offset, vec3 tangent, vec3 binormal) {
-	vec4 texel = texture(screenTex, uv);
+vec2 DistortionMap(vec4 texel, float intencity, vec2 offset, vec3 tangent, vec3 binormal) {
 	vec2 posU = binormal.xy;
 	vec2 posR = tangent.xy;
 	vec2 scale = (texel.xy * 2.0 - 1.0) * offset * intencity * 4.0;
@@ -29,8 +21,8 @@ vec2 DistortionMap(sampler2D screenTex, vec2 uv, float intencity, vec2 offset, v
 
 #if SOFT_PARTICLE
 R"(
-float SoftParticle(sampler2D depthTex, vec2 uv, float fragZ, vec4 params, vec4 reconstruct1, vec4 reconstruct2) {
-	float backgroundZ = texture(depthTex, uv).x;
+float SoftParticle(vec4 texel, float fragZ, vec4 params, vec4 reconstruct1, vec4 reconstruct2) {
+	float backgroundZ = texel.x;
 	float distanceFar = params.x;
 	float distanceNear = params.y;
 	float distanceNearOffset = params.z;

@@ -51,18 +51,18 @@ void fragment() {
 )"
 #if DISTORTION
 R"(
-	vec2 distortionUV = DistortionMap(DistortionTexture, v_UVTangent.xy, DistortionIntensity, COLOR.xy, v_UVTangent.zw);
-	COLOR = ColorMap(ScreenTexture, SCREEN_UV + distortionUV, vec4(1.0, 1.0, 1.0, COLOR.a));
+	vec2 distortionUV = DistortionMap(texture(DistortionTexture, v_UVTangent.xy), DistortionIntensity, COLOR.xy, v_UVTangent.zw);
+	COLOR = texture(ScreenTexture, SCREEN_UV + distortionUV) * vec4(1.0, 1.0, 1.0, COLOR.a);
 )"
 #elif LIGHTING
 R"(
-	NORMAL = NormalMap(NormalTexture, v_UVTangent.xy, v_UVTangent.zw);
-	COLOR = ColorMap(ColorTexture, v_UVTangent.xy, COLOR);
+	NORMAL = NormalMap(texture(NormalTexture, v_UVTangent.xy), v_UVTangent.zw);
+	COLOR = texture(ColorTexture, v_UVTangent.xy) * COLOR;
 	COLOR.rgb *= EmissiveScale;
 )"
 #else
 R"(
-	COLOR = ColorMap(ColorTexture, UV, COLOR);
+	COLOR = texture(ColorTexture, UV) * COLOR;
 	COLOR.rgb *= EmissiveScale;
 )"
 #endif

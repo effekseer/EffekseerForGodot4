@@ -50,19 +50,19 @@ void fragment() {
 )"
 #if DISTORTION
 R"(
-	vec2 distortionUV = DistortionMap(DistortionTexture, UV, DistortionIntensity, COLOR.xy, TANGENT, BINORMAL);
-	vec4 color = ColorMap(ScreenTexture, SCREEN_UV + distortionUV, vec4(1.0, 1.0, 1.0, COLOR.a));
+	vec2 distortionUV = DistortionMap(texture(DistortionTexture, UV), DistortionIntensity, COLOR.xy, TANGENT, BINORMAL);
+	vec4 color = texture(ScreenTexture, SCREEN_UV + distortionUV) * vec4(1.0, 1.0, 1.0, COLOR.a);
 	ALBEDO = color.rgb; ALPHA = color.a;
 )"
 #elif LIGHTING
 R"(
-	NORMAL = NormalMap(NormalTexture, UV, NORMAL, TANGENT, BINORMAL);
-	vec4 color = ColorMap(ColorTexture, UV, COLOR);
+	NORMAL = NormalMap(texture(NormalTexture, UV), NORMAL, TANGENT, BINORMAL);
+	vec4 color = texture(ColorTexture, UV) * COLOR;
 	ALBEDO = color.rgb * EmissiveScale; ALPHA = color.a;
 )"
 #else
 R"(
-	vec4 color = ColorMap(ColorTexture, UV, COLOR);
+	vec4 color = texture(ColorTexture, UV) * COLOR;
 	ALBEDO = color.rgb * EmissiveScale; ALPHA = color.a;
 )"
 #endif
@@ -70,7 +70,7 @@ R"(
 #if SOFT_PARTICLE
 R"(
 	vec4 reconstruct2 = vec4(PROJECTION_MATRIX[2][2], PROJECTION_MATRIX[3][2], PROJECTION_MATRIX[2][3], PROJECTION_MATRIX[3][3]);
-	ALPHA *= SoftParticle(DepthTexture, SCREEN_UV, FRAGCOORD.z, SoftParticleParams, SoftParticleReco, reconstruct2);
+	ALPHA *= SoftParticle(texture(DepthTexture, SCREEN_UV), FRAGCOORD.z, SoftParticleParams, SoftParticleReco, reconstruct2);
 )"
 #endif
 
