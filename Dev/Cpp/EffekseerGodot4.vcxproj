@@ -991,12 +991,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\RendererGodot\Shaders\Advanced.inl" />
     <None Include="src\RendererGodot\Shaders\Common2D.inl" />
     <None Include="src\RendererGodot\Shaders\Common3D.inl" />
     <None Include="src\RendererGodot\Shaders\Model2D.inl" />
     <None Include="src\RendererGodot\Shaders\Model3D.inl" />
-    <None Include="src\RendererGodot\Shaders\Particle2D.inl" />
-    <None Include="src\RendererGodot\Shaders\Particle3D.inl" />
+    <None Include="src\RendererGodot\Shaders\Sprite2D.inl" />
+    <None Include="src\RendererGodot\Shaders\Sprite3D.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

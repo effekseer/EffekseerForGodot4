@@ -51,7 +51,8 @@ void fragment() {
 )"
 #if DISTORTION
 R"(
-	vec2 distortionUV = DistortionMap(texture(DistortionTexture, v_UVTangent.xy), DistortionIntensity, COLOR.xy, v_UVTangent.zw);
+	vec4 distortionTexel = texture(DistortionTexture, v_UVTangent.xy);
+	vec2 distortionUV = DistortionMap(distortionTexel, DistortionIntensity, COLOR.xy, v_UVTangent.zw);
 	COLOR = texture(ScreenTexture, SCREEN_UV + distortionUV) * vec4(1.0, 1.0, 1.0, COLOR.a);
 )"
 #elif LIGHTING

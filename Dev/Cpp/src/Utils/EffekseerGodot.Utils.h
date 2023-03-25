@@ -225,6 +225,19 @@ struct GdAttribute {
 	Effekseer::Vector2D uv;
 };
 
+struct GdAdvancedAttribute {
+	Effekseer::Color color;
+	Effekseer::Vector2D uv;
+
+	float alphaUV[2];
+	float uvDistortionUV[2];
+	float blendUV[2];
+	float blendAlphaUV[2];
+	float blendUVDistortionUV[2];
+	float flipbookIndexAndNextRate;
+	float alphaThreshold;
+};
+
 uint32_t ToGdNormal(const Effekseer::Vector3D& v);
 
 uint32_t ToGdTangent(const Effekseer::Vector3D& v);

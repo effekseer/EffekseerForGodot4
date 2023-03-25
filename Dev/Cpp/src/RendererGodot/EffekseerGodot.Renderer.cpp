@@ -35,9 +35,9 @@
 namespace EffekseerGodot
 {
 
-namespace StandardShaders
+namespace SpriteBasicShaders
 {
-
+#define ADVANCED 0
 namespace Unlit
 {
 #define DISTORTION 0
@@ -45,18 +45,18 @@ namespace Unlit
 namespace Lightweight
 {
 #define SOFT_PARTICLE 0
-#include "Shaders/Particle3D.inl"
+#include "Shaders/Sprite3D.inl"
 #undef SOFT_PARTICLE
 }
 namespace SoftParticle
 {
 #define SOFT_PARTICLE 1
-#include "Shaders/Particle3D.inl"
+#include "Shaders/Sprite3D.inl"
 #undef SOFT_PARTICLE
 }
 namespace CanvasItem
 {
-#include "Shaders/Particle2D.inl"
+#include "Shaders/Sprite2D.inl"
 }
 #undef LIGHTING
 #undef DISTORTION
@@ -69,18 +69,18 @@ namespace Lighting
 namespace Lightweight
 {
 #define SOFT_PARTICLE 0
-#include "Shaders/Particle3D.inl"
+#include "Shaders/Sprite3D.inl"
 #undef SOFT_PARTICLE
 }
 namespace SoftParticle
 {
 #define SOFT_PARTICLE 1
-#include "Shaders/Particle3D.inl"
+#include "Shaders/Sprite3D.inl"
 #undef SOFT_PARTICLE
 }
 namespace CanvasItem
 {
-#include "Shaders/Particle2D.inl"
+#include "Shaders/Sprite2D.inl"
 }
 #undef LIGHTING
 #undef DISTORTION
@@ -93,23 +93,100 @@ namespace Distortion
 namespace Lightweight
 {
 #define SOFT_PARTICLE 0
-#include "Shaders/Particle3D.inl"
+#include "Shaders/Sprite3D.inl"
 #undef SOFT_PARTICLE
 }
 namespace SoftParticle
 {
 #define SOFT_PARTICLE 1
-#include "Shaders/Particle3D.inl"
+#include "Shaders/Sprite3D.inl"
 #undef SOFT_PARTICLE
 }
 namespace CanvasItem
 {
-#include "Shaders/Particle2D.inl"
+#include "Shaders/Sprite2D.inl"
+}
+#undef LIGHTING
+#undef DISTORTION
+}
+#undef ADVANCED
+}
+
+namespace SpriteAdvancedShaders
+{
+#define ADVANCED 1
+namespace Unlit
+{
+#define DISTORTION 0
+#define LIGHTING 0
+namespace Lightweight
+{
+#define SOFT_PARTICLE 0
+#include "Shaders/Sprite3D.inl"
+#undef SOFT_PARTICLE
+}
+namespace SoftParticle
+{
+#define SOFT_PARTICLE 1
+#include "Shaders/Sprite3D.inl"
+#undef SOFT_PARTICLE
+}
+namespace CanvasItem
+{
+#include "Shaders/Sprite2D.inl"
 }
 #undef LIGHTING
 #undef DISTORTION
 }
 
+namespace Lighting
+{
+#define DISTORTION 0
+#define LIGHTING 1
+namespace Lightweight
+{
+#define SOFT_PARTICLE 0
+#include "Shaders/Sprite3D.inl"
+#undef SOFT_PARTICLE
+}
+namespace SoftParticle
+{
+#define SOFT_PARTICLE 1
+#include "Shaders/Sprite3D.inl"
+#undef SOFT_PARTICLE
+}
+namespace CanvasItem
+{
+#include "Shaders/Sprite2D.inl"
+}
+#undef LIGHTING
+#undef DISTORTION
+}
+
+namespace Distortion
+{
+#define DISTORTION 1
+#define LIGHTING 0
+namespace Lightweight
+{
+#define SOFT_PARTICLE 0
+#include "Shaders/Sprite3D.inl"
+#undef SOFT_PARTICLE
+}
+namespace SoftParticle
+{
+#define SOFT_PARTICLE 1
+#include "Shaders/Sprite3D.inl"
+#undef SOFT_PARTICLE
+}
+namespace CanvasItem
+{
+#include "Shaders/Sprite2D.inl"
+}
+#undef LIGHTING
+#undef DISTORTION
+}
+#undef ADVANCED
 }
 
 static constexpr int32_t CUSTOM_DATA_TEXTURE_WIDTH = 256;
@@ -358,28 +435,56 @@ bool Renderer::Initialize(int32_t drawMaxCount)
 	}
 	{
 		using namespace EffekseerRenderer;
-		using namespace EffekseerGodot::StandardShaders;
 
-		m_shaders[(size_t)RendererShaderType::Unlit] = Shader::Create("Sprite_Basic_Unlit", RendererShaderType::Unlit);
-		m_shaders[(size_t)RendererShaderType::Unlit]->SetVertexConstantBufferSize(sizeof(StandardRendererVertexBuffer));
-		m_shaders[(size_t)RendererShaderType::Unlit]->SetPixelConstantBufferSize(sizeof(PixelConstantBuffer));
-		m_shaders[(size_t)RendererShaderType::Unlit]->SetCode(Shader::RenderType::SpatialLightweight, Unlit::Lightweight::code, Unlit::Lightweight::decl);
-		m_shaders[(size_t)RendererShaderType::Unlit]->SetCode(Shader::RenderType::SpatialDepthFade, Unlit::SoftParticle::code, Unlit::SoftParticle::decl);
-		m_shaders[(size_t)RendererShaderType::Unlit]->SetCode(Shader::RenderType::CanvasItem, Unlit::CanvasItem::code, Unlit::CanvasItem::decl);
+		{
+			using namespace EffekseerGodot::SpriteBasicShaders;
 
-		m_shaders[(size_t)RendererShaderType::Lit] = Shader::Create("Sprite_Basic_Lighting", RendererShaderType::Lit);
-		m_shaders[(size_t)RendererShaderType::Lit]->SetVertexConstantBufferSize(sizeof(StandardRendererVertexBuffer));
-		m_shaders[(size_t)RendererShaderType::Lit]->SetPixelConstantBufferSize(sizeof(PixelConstantBuffer));
-		m_shaders[(size_t)RendererShaderType::Lit]->SetCode(Shader::RenderType::SpatialLightweight, Lighting::Lightweight::code, Lighting::Lightweight::decl);
-		m_shaders[(size_t)RendererShaderType::Lit]->SetCode(Shader::RenderType::SpatialDepthFade, Lighting::SoftParticle::code, Lighting::SoftParticle::decl);
-		m_shaders[(size_t)RendererShaderType::Lit]->SetCode(Shader::RenderType::CanvasItem, Lighting::CanvasItem::code, Lighting::CanvasItem::decl);
+			m_shaders[(size_t)RendererShaderType::Unlit] = Shader::Create("Sprite_Basic_Unlit", RendererShaderType::Unlit);
+			m_shaders[(size_t)RendererShaderType::Unlit]->SetVertexConstantBufferSize(sizeof(StandardRendererVertexBuffer));
+			m_shaders[(size_t)RendererShaderType::Unlit]->SetPixelConstantBufferSize(sizeof(PixelConstantBuffer));
+			m_shaders[(size_t)RendererShaderType::Unlit]->SetCode(Shader::RenderType::SpatialLightweight, Unlit::Lightweight::code, Unlit::Lightweight::decl);
+			m_shaders[(size_t)RendererShaderType::Unlit]->SetCode(Shader::RenderType::SpatialDepthFade, Unlit::SoftParticle::code, Unlit::SoftParticle::decl);
+			m_shaders[(size_t)RendererShaderType::Unlit]->SetCode(Shader::RenderType::CanvasItem, Unlit::CanvasItem::code, Unlit::CanvasItem::decl);
 
-		m_shaders[(size_t)RendererShaderType::BackDistortion] = Shader::Create("Sprite_Basic_Distortion", RendererShaderType::BackDistortion);
-		m_shaders[(size_t)RendererShaderType::BackDistortion]->SetVertexConstantBufferSize(sizeof(StandardRendererVertexBuffer));
-		m_shaders[(size_t)RendererShaderType::BackDistortion]->SetPixelConstantBufferSize(sizeof(PixelConstantBuffer));
-		m_shaders[(size_t)RendererShaderType::BackDistortion]->SetCode(Shader::RenderType::SpatialLightweight, Distortion::Lightweight::code, Distortion::Lightweight::decl);
-		m_shaders[(size_t)RendererShaderType::BackDistortion]->SetCode(Shader::RenderType::SpatialDepthFade, Distortion::SoftParticle::code, Distortion::SoftParticle::decl);
-		m_shaders[(size_t)RendererShaderType::BackDistortion]->SetCode(Shader::RenderType::CanvasItem, Distortion::CanvasItem::code, Distortion::CanvasItem::decl);
+			m_shaders[(size_t)RendererShaderType::Lit] = Shader::Create("Sprite_Basic_Lighting", RendererShaderType::Lit);
+			m_shaders[(size_t)RendererShaderType::Lit]->SetVertexConstantBufferSize(sizeof(StandardRendererVertexBuffer));
+			m_shaders[(size_t)RendererShaderType::Lit]->SetPixelConstantBufferSize(sizeof(PixelConstantBuffer));
+			m_shaders[(size_t)RendererShaderType::Lit]->SetCode(Shader::RenderType::SpatialLightweight, Lighting::Lightweight::code, Lighting::Lightweight::decl);
+			m_shaders[(size_t)RendererShaderType::Lit]->SetCode(Shader::RenderType::SpatialDepthFade, Lighting::SoftParticle::code, Lighting::SoftParticle::decl);
+			m_shaders[(size_t)RendererShaderType::Lit]->SetCode(Shader::RenderType::CanvasItem, Lighting::CanvasItem::code, Lighting::CanvasItem::decl);
+
+			m_shaders[(size_t)RendererShaderType::BackDistortion] = Shader::Create("Sprite_Basic_Distortion", RendererShaderType::BackDistortion);
+			m_shaders[(size_t)RendererShaderType::BackDistortion]->SetVertexConstantBufferSize(sizeof(StandardRendererVertexBuffer));
+			m_shaders[(size_t)RendererShaderType::BackDistortion]->SetPixelConstantBufferSize(sizeof(PixelConstantBufferDistortion));
+			m_shaders[(size_t)RendererShaderType::BackDistortion]->SetCode(Shader::RenderType::SpatialLightweight, Distortion::Lightweight::code, Distortion::Lightweight::decl);
+			m_shaders[(size_t)RendererShaderType::BackDistortion]->SetCode(Shader::RenderType::SpatialDepthFade, Distortion::SoftParticle::code, Distortion::SoftParticle::decl);
+			m_shaders[(size_t)RendererShaderType::BackDistortion]->SetCode(Shader::RenderType::CanvasItem, Distortion::CanvasItem::code, Distortion::CanvasItem::decl);
+		}
+
+		{
+			using namespace EffekseerGodot::SpriteAdvancedShaders;
+
+			m_shaders[(size_t)RendererShaderType::AdvancedUnlit] = Shader::Create("Sprite_Advanced_Unlit", RendererShaderType::AdvancedUnlit);
+			m_shaders[(size_t)RendererShaderType::AdvancedUnlit]->SetVertexConstantBufferSize(sizeof(StandardRendererVertexBuffer));
+			m_shaders[(size_t)RendererShaderType::AdvancedUnlit]->SetPixelConstantBufferSize(sizeof(PixelConstantBuffer));
+			m_shaders[(size_t)RendererShaderType::AdvancedUnlit]->SetCode(Shader::RenderType::SpatialLightweight, Unlit::Lightweight::code, Unlit::Lightweight::decl);
+			m_shaders[(size_t)RendererShaderType::AdvancedUnlit]->SetCode(Shader::RenderType::SpatialDepthFade, Unlit::SoftParticle::code, Unlit::SoftParticle::decl);
+			m_shaders[(size_t)RendererShaderType::AdvancedUnlit]->SetCode(Shader::RenderType::CanvasItem, Unlit::CanvasItem::code, Unlit::CanvasItem::decl);
+
+			m_shaders[(size_t)RendererShaderType::AdvancedLit] = Shader::Create("Sprite_Advanced_Lighting", RendererShaderType::AdvancedLit);
+			m_shaders[(size_t)RendererShaderType::AdvancedLit]->SetVertexConstantBufferSize(sizeof(StandardRendererVertexBuffer));
+			m_shaders[(size_t)RendererShaderType::AdvancedLit]->SetPixelConstantBufferSize(sizeof(PixelConstantBuffer));
+			m_shaders[(size_t)RendererShaderType::AdvancedLit]->SetCode(Shader::RenderType::SpatialLightweight, Lighting::Lightweight::code, Lighting::Lightweight::decl);
+			m_shaders[(size_t)RendererShaderType::AdvancedLit]->SetCode(Shader::RenderType::SpatialDepthFade, Lighting::SoftParticle::code, Lighting::SoftParticle::decl);
+			m_shaders[(size_t)RendererShaderType::AdvancedLit]->SetCode(Shader::RenderType::CanvasItem, Lighting::CanvasItem::code, Lighting::CanvasItem::decl);
+
+			m_shaders[(size_t)RendererShaderType::AdvancedBackDistortion] = Shader::Create("Sprite_Advanced_Distortion", RendererShaderType::AdvancedBackDistortion);
+			m_shaders[(size_t)RendererShaderType::AdvancedBackDistortion]->SetVertexConstantBufferSize(sizeof(StandardRendererVertexBuffer));
+			m_shaders[(size_t)RendererShaderType::AdvancedBackDistortion]->SetPixelConstantBufferSize(sizeof(PixelConstantBufferDistortion));
+			m_shaders[(size_t)RendererShaderType::AdvancedBackDistortion]->SetCode(Shader::RenderType::SpatialLightweight, Distortion::Lightweight::code, Distortion::Lightweight::decl);
+			m_shaders[(size_t)RendererShaderType::AdvancedBackDistortion]->SetCode(Shader::RenderType::SpatialDepthFade, Distortion::SoftParticle::code, Distortion::SoftParticle::decl);
+			m_shaders[(size_t)RendererShaderType::AdvancedBackDistortion]->SetCode(Shader::RenderType::CanvasItem, Distortion::CanvasItem::code, Distortion::CanvasItem::decl);
+		}
 	}
 
 	m_renderCommands3D.resize((size_t)drawMaxCount);
@@ -701,13 +806,34 @@ void Renderer::DrawPolygonInstanced(int32_t vertexCount, int32_t indexCount, int
 		command.SetupModels(emitter->get_world_3d().ptr(), (int32_t)m_renderCount3D, meshRID, instanceCount);
 		
 		auto multimeshRID = command.GetBase();
-		auto constantBuffer = (const EffekseerRenderer::ModelRendererVertexConstantBuffer<ModelRenderer::InstanceCount>*)m_currentShader->GetVertexConstantBuffer();
 
-		for (int32_t i = 0; i < instanceCount; i++)
+		const EffekseerRenderer::RendererShaderType shaderType = m_currentShader->GetShaderType();
+		const bool isShaderAdvanced = 
+			shaderType == EffekseerRenderer::RendererShaderType::AdvancedUnlit ||
+			shaderType == EffekseerRenderer::RendererShaderType::AdvancedLit ||
+			shaderType == EffekseerRenderer::RendererShaderType::AdvancedBackDistortion;
+		
+		if (isShaderAdvanced)
 		{
-			rs->multimesh_instance_set_transform(multimeshRID, i, EffekseerGodot::ToGdMatrix(constantBuffer->ModelMatrix[i]));
-			rs->multimesh_instance_set_color(multimeshRID, i, EffekseerGodot::ToGdColor(constantBuffer->ModelColor[i]));
-			rs->multimesh_instance_set_custom_data(multimeshRID, i, EffekseerGodot::ToGdColor(constantBuffer->ModelUV[i]));
+			auto constantBuffer = (const EffekseerRenderer::ModelRendererAdvancedVertexConstantBuffer<ModelRenderer::InstanceCount>*)m_currentShader->GetVertexConstantBuffer();
+
+			for (int32_t i = 0; i < instanceCount; i++)
+			{
+				rs->multimesh_instance_set_transform(multimeshRID, i, EffekseerGodot::ToGdMatrix(constantBuffer->ModelMatrix[i]));
+				rs->multimesh_instance_set_color(multimeshRID, i, EffekseerGodot::ToGdColor(constantBuffer->ModelColor[i]));
+				rs->multimesh_instance_set_custom_data(multimeshRID, i, EffekseerGodot::ToGdColor(constantBuffer->ModelUV[i]));
+			}
+		}
+		else
+		{
+			auto constantBuffer = (const EffekseerRenderer::ModelRendererVertexConstantBuffer<ModelRenderer::InstanceCount>*)m_currentShader->GetVertexConstantBuffer();
+
+			for (int32_t i = 0; i < instanceCount; i++)
+			{
+				rs->multimesh_instance_set_transform(multimeshRID, i, EffekseerGodot::ToGdMatrix(constantBuffer->ModelMatrix[i]));
+				rs->multimesh_instance_set_color(multimeshRID, i, EffekseerGodot::ToGdColor(constantBuffer->ModelColor[i]));
+				rs->multimesh_instance_set_custom_data(multimeshRID, i, EffekseerGodot::ToGdColor(constantBuffer->ModelUV[i]));
+			}
 		}
 		
 		// Setup material
@@ -737,14 +863,7 @@ void Renderer::EndModelRendering()
 
 Shader* Renderer::GetShader(::EffekseerRenderer::RendererShaderType type)
 {
-	if ((size_t)type >= (size_t)EffekseerRenderer::RendererShaderType::Unlit && 
-		(size_t)type <= (size_t)EffekseerRenderer::RendererShaderType::AdvancedBackDistortion)
-	{
-		return m_shaders[(size_t)type].get();
-	}
-
-	assert(0);
-	return nullptr;
+	return m_shaders[(size_t)type].get();
 }
 
 void Renderer::BeginShader(Shader* shader)
@@ -872,6 +991,72 @@ void Renderer::TransferVertexToMesh(godot::RID mesh,
 			auto& v = *srcVertex++;
 			*dstVertex++ = GdLitVertex{ v.Pos, ToGdNormal(v.Normal), ToGdTangent(v.Tangent) };
 			*dstAttribute++ = GdAttribute{ v.Col, {v.UV[0], v.UV[1]} };
+
+			aabbMin = Vec3f::Min(aabbMin, v.Pos);
+			aabbMax = Vec3f::Max(aabbMax, v.Pos);
+		}
+	}
+	else if (shaderType == RendererShaderType::AdvancedUnlit)
+	{
+		format = RenderingServer::ARRAY_FORMAT_VERTEX |
+			RenderingServer::ARRAY_FORMAT_COLOR |
+			RenderingServer::ARRAY_FORMAT_TEX_UV |
+			RenderingServer::ARRAY_FORMAT_CUSTOM0 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM0_SHIFT) |
+			RenderingServer::ARRAY_FORMAT_CUSTOM1 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM1_SHIFT) |
+			RenderingServer::ARRAY_FORMAT_CUSTOM2 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM2_SHIFT);
+
+		m_vertexData.resize(vertexCount * sizeof(GdSimpleVertex));
+		m_attributeData.resize(vertexCount * sizeof(GdAdvancedAttribute));
+
+		GdSimpleVertex* dstVertex = (GdSimpleVertex*)m_vertexData.ptrw();
+		GdAdvancedAttribute* dstAttribute = (GdAdvancedAttribute*)m_attributeData.ptrw();
+
+		const AdvancedSimpleVertex* srcVertex = (const AdvancedSimpleVertex*)vertexData;
+		aabbMin = aabbMax = srcVertex[0].Pos;
+		for (int32_t i = 0; i < vertexCount; i++)
+		{
+			auto& v = *srcVertex++;
+			*dstVertex++ = GdSimpleVertex{ v.Pos };
+			*dstAttribute++ = GdAdvancedAttribute{ v.Col, {v.UV[0], v.UV[1]}, 
+				{v.AlphaUV[0], v.AlphaUV[1]}, {v.UVDistortionUV[0], v.UVDistortionUV[1]},
+				{v.BlendUV[0], v.BlendUV[1]}, {v.BlendAlphaUV[0], v.BlendAlphaUV[1]},
+				{v.BlendUVDistortionUV[0], v.BlendUVDistortionUV[1]},
+				v.FlipbookIndexAndNextRate, v.AlphaThreshold
+			};
+
+			aabbMin = Vec3f::Min(aabbMin, v.Pos);
+			aabbMax = Vec3f::Max(aabbMax, v.Pos);
+		}
+	}
+	else if (shaderType == RendererShaderType::AdvancedBackDistortion || shaderType == RendererShaderType::AdvancedLit)
+	{
+		format = RenderingServer::ARRAY_FORMAT_VERTEX |
+			RenderingServer::ARRAY_FORMAT_NORMAL |
+			RenderingServer::ARRAY_FORMAT_TANGENT |
+			RenderingServer::ARRAY_FORMAT_COLOR |
+			RenderingServer::ARRAY_FORMAT_TEX_UV |
+			RenderingServer::ARRAY_FORMAT_CUSTOM0 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM0_SHIFT) |
+			RenderingServer::ARRAY_FORMAT_CUSTOM1 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM1_SHIFT) |
+			RenderingServer::ARRAY_FORMAT_CUSTOM2 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM2_SHIFT);
+
+		m_vertexData.resize(vertexCount * sizeof(GdLitVertex));
+		m_attributeData.resize(vertexCount * sizeof(GdAdvancedAttribute));
+
+		GdLitVertex* dstVertex = (GdLitVertex*)m_vertexData.ptrw();
+		GdAdvancedAttribute* dstAttribute = (GdAdvancedAttribute*)m_attributeData.ptrw();
+
+		const AdvancedLightingVertex* srcVertex = (const AdvancedLightingVertex*)vertexData;
+		aabbMin = aabbMax = srcVertex[0].Pos;
+		for (int32_t i = 0; i < vertexCount; i++)
+		{
+			auto& v = *srcVertex++;
+			*dstVertex++ = GdLitVertex{ v.Pos, ToGdNormal(v.Normal), ToGdTangent(v.Tangent) };
+			*dstAttribute++ = GdAdvancedAttribute{ v.Col, {v.UV[0], v.UV[1]},
+				{v.AlphaUV[0], v.AlphaUV[1]}, {v.UVDistortionUV[0], v.UVDistortionUV[1]},
+				{v.BlendUV[0], v.BlendUV[1]}, {v.BlendAlphaUV[0], v.BlendAlphaUV[1]},
+				{v.BlendUVDistortionUV[0], v.BlendUVDistortionUV[1]},
+				v.FlipbookIndexAndNextRate, v.AlphaThreshold
+			};
 
 			aabbMin = Vec3f::Min(aabbMin, v.Pos);
 			aabbMax = Vec3f::Max(aabbMax, v.Pos);

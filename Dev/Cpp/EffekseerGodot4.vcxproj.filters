@@ -2941,7 +2941,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\RendererGodot\Shaders\Particle2D.inl">
+    <None Include="src\RendererGodot\Shaders\Sprite2D.inl">
       <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
     </None>
     <None Include="src\RendererGodot\Shaders\Common2D.inl">
@@ -2956,7 +2956,10 @@
     <None Include="src\RendererGodot\Shaders\Model3D.inl">
       <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
     </None>
-    <None Include="src\RendererGodot\Shaders\Particle3D.inl">
+    <None Include="src\RendererGodot\Shaders\Sprite3D.inl">
+      <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
+    </None>
+    <None Include="src\RendererGodot\Shaders\Advanced.inl">
       <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
     </None>
   </ItemGroup>

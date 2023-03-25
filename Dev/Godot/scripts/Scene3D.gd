@@ -27,8 +27,8 @@ func _on_stop_button_pressed():
 	$Effect.stop()
 
 func _on_pause_button_pressed():
-	#$Effect.paused = $GUI/Controller/Player/PauseButton.button_pressed
-	get_tree().paused = $GUI/Controller/Player/PauseButton.button_pressed
+	$Effect.paused = $GUI/Controller/Player/PauseButton.button_pressed
+	# get_tree().paused = $GUI/Controller/Player/PauseButton.button_pressed
 
 func _on_trigger_button_pressed(index: int):
 	$Effect.send_trigger(index)

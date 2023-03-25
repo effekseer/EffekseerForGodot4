@@ -16,9 +16,9 @@
 namespace EffekseerGodot
 {
 	
-namespace ModelShaders
+namespace ModelBasicShaders
 {
-
+#define ADVANCED 0
 namespace Unlit
 {
 #define DISTORTION 0
@@ -90,35 +90,140 @@ namespace CanvasItem
 #undef LIGHTING
 #undef DISTORTION
 }
+#undef ADVANCED
+}
 
+namespace ModelAdvancedShaders
+{
+#define ADVANCED 1
+namespace Unlit
+{
+#define DISTORTION 0
+#define LIGHTING 0
+namespace Lightweight
+{
+#define SOFT_PARTICLE 0
+#include "Shaders/Model3D.inl"
+#undef SOFT_PARTICLE
+}
+namespace SoftParticle
+{
+#define SOFT_PARTICLE 1
+#include "Shaders/Model3D.inl"
+#undef SOFT_PARTICLE
+}
+namespace CanvasItem
+{
+#include "Shaders/Model2D.inl"
+}
+#undef LIGHTING
+#undef DISTORTION
+}
+
+namespace Lighting
+{
+#define DISTORTION 0
+#define LIGHTING 1
+namespace Lightweight
+{
+#define SOFT_PARTICLE 0
+#include "Shaders/Model3D.inl"
+#undef SOFT_PARTICLE
+}
+namespace SoftParticle
+{
+#define SOFT_PARTICLE 1
+#include "Shaders/Model3D.inl"
+#undef SOFT_PARTICLE
+}
+namespace CanvasItem
+{
+#include "Shaders/Model2D.inl"
+}
+#undef LIGHTING
+#undef DISTORTION
+}
+
+namespace Distortion
+{
+#define DISTORTION 1
+#define LIGHTING 0
+namespace Lightweight
+{
+#define SOFT_PARTICLE 0
+#include "Shaders/Model3D.inl"
+#undef SOFT_PARTICLE
+}
+namespace SoftParticle
+{
+#define SOFT_PARTICLE 1
+#include "Shaders/Model3D.inl"
+#undef SOFT_PARTICLE
+}
+namespace CanvasItem
+{
+#include "Shaders/Model2D.inl"
+}
+#undef LIGHTING
+#undef DISTORTION
+}
+#undef ADVANCED
 }
 
 ModelRenderer::ModelRenderer(Renderer* renderer)
 	: m_renderer(renderer)
 {
 	using namespace EffekseerRenderer;
-	using namespace EffekseerGodot::ModelShaders;
 
-	m_shaders[(size_t)RendererShaderType::Unlit] = Shader::Create("Model_Basic_Unlit", RendererShaderType::Unlit);
-	m_shaders[(size_t)RendererShaderType::Unlit]->SetVertexConstantBufferSize(sizeof(ModelRendererVertexConstantBuffer<InstanceCount>));
-	m_shaders[(size_t)RendererShaderType::Unlit]->SetPixelConstantBufferSize(sizeof(PixelConstantBuffer));
-	m_shaders[(size_t)RendererShaderType::Unlit]->SetCode(Shader::RenderType::SpatialLightweight, Unlit::Lightweight::code, Unlit::Lightweight::decl);
-	m_shaders[(size_t)RendererShaderType::Unlit]->SetCode(Shader::RenderType::SpatialDepthFade, Unlit::SoftParticle::code, Unlit::SoftParticle::decl);
-	m_shaders[(size_t)RendererShaderType::Unlit]->SetCode(Shader::RenderType::CanvasItem, Unlit::CanvasItem::code, Unlit::CanvasItem::decl);
+	{
+		using namespace EffekseerGodot::ModelBasicShaders;
 
-	m_shaders[(size_t)RendererShaderType::Lit] = Shader::Create("Model_Basic_Lighting", RendererShaderType::Lit);
-	m_shaders[(size_t)RendererShaderType::Lit]->SetVertexConstantBufferSize(sizeof(ModelRendererVertexConstantBuffer<InstanceCount>));
-	m_shaders[(size_t)RendererShaderType::Lit]->SetPixelConstantBufferSize(sizeof(PixelConstantBuffer));
-	m_shaders[(size_t)RendererShaderType::Lit]->SetCode(Shader::RenderType::SpatialLightweight, Lighting::Lightweight::code, Lighting::Lightweight::decl);
-	m_shaders[(size_t)RendererShaderType::Lit]->SetCode(Shader::RenderType::SpatialDepthFade, Lighting::SoftParticle::code, Lighting::SoftParticle::decl);
-	m_shaders[(size_t)RendererShaderType::Lit]->SetCode(Shader::RenderType::CanvasItem, Lighting::CanvasItem::code, Lighting::CanvasItem::decl);
+		m_shaders[(size_t)RendererShaderType::Unlit] = Shader::Create("Model_Basic_Unlit", RendererShaderType::Unlit);
+		m_shaders[(size_t)RendererShaderType::Unlit]->SetVertexConstantBufferSize(sizeof(ModelRendererVertexConstantBuffer<InstanceCount>));
+		m_shaders[(size_t)RendererShaderType::Unlit]->SetPixelConstantBufferSize(sizeof(PixelConstantBuffer));
+		m_shaders[(size_t)RendererShaderType::Unlit]->SetCode(Shader::RenderType::SpatialLightweight, Unlit::Lightweight::code, Unlit::Lightweight::decl);
+		m_shaders[(size_t)RendererShaderType::Unlit]->SetCode(Shader::RenderType::SpatialDepthFade, Unlit::SoftParticle::code, Unlit::SoftParticle::decl);
+		m_shaders[(size_t)RendererShaderType::Unlit]->SetCode(Shader::RenderType::CanvasItem, Unlit::CanvasItem::code, Unlit::CanvasItem::decl);
 
-	m_shaders[(size_t)RendererShaderType::BackDistortion] = Shader::Create("Model_Basic_Distortion", RendererShaderType::BackDistortion);
-	m_shaders[(size_t)RendererShaderType::BackDistortion]->SetVertexConstantBufferSize(sizeof(ModelRendererVertexConstantBuffer<InstanceCount>));
-	m_shaders[(size_t)RendererShaderType::BackDistortion]->SetPixelConstantBufferSize(sizeof(PixelConstantBuffer));
-	m_shaders[(size_t)RendererShaderType::BackDistortion]->SetCode(Shader::RenderType::SpatialLightweight, Distortion::Lightweight::code, Distortion::Lightweight::decl);
-	m_shaders[(size_t)RendererShaderType::BackDistortion]->SetCode(Shader::RenderType::SpatialDepthFade, Distortion::SoftParticle::code, Distortion::SoftParticle::decl);
-	m_shaders[(size_t)RendererShaderType::BackDistortion]->SetCode(Shader::RenderType::CanvasItem, Distortion::CanvasItem::code, Distortion::CanvasItem::decl);
+		m_shaders[(size_t)RendererShaderType::Lit] = Shader::Create("Model_Basic_Lighting", RendererShaderType::Lit);
+		m_shaders[(size_t)RendererShaderType::Lit]->SetVertexConstantBufferSize(sizeof(ModelRendererVertexConstantBuffer<InstanceCount>));
+		m_shaders[(size_t)RendererShaderType::Lit]->SetPixelConstantBufferSize(sizeof(PixelConstantBuffer));
+		m_shaders[(size_t)RendererShaderType::Lit]->SetCode(Shader::RenderType::SpatialLightweight, Lighting::Lightweight::code, Lighting::Lightweight::decl);
+		m_shaders[(size_t)RendererShaderType::Lit]->SetCode(Shader::RenderType::SpatialDepthFade, Lighting::SoftParticle::code, Lighting::SoftParticle::decl);
+		m_shaders[(size_t)RendererShaderType::Lit]->SetCode(Shader::RenderType::CanvasItem, Lighting::CanvasItem::code, Lighting::CanvasItem::decl);
+
+		m_shaders[(size_t)RendererShaderType::BackDistortion] = Shader::Create("Model_Basic_Distortion", RendererShaderType::BackDistortion);
+		m_shaders[(size_t)RendererShaderType::BackDistortion]->SetVertexConstantBufferSize(sizeof(ModelRendererVertexConstantBuffer<InstanceCount>));
+		m_shaders[(size_t)RendererShaderType::BackDistortion]->SetPixelConstantBufferSize(sizeof(PixelConstantBufferDistortion));
+		m_shaders[(size_t)RendererShaderType::BackDistortion]->SetCode(Shader::RenderType::SpatialLightweight, Distortion::Lightweight::code, Distortion::Lightweight::decl);
+		m_shaders[(size_t)RendererShaderType::BackDistortion]->SetCode(Shader::RenderType::SpatialDepthFade, Distortion::SoftParticle::code, Distortion::SoftParticle::decl);
+		m_shaders[(size_t)RendererShaderType::BackDistortion]->SetCode(Shader::RenderType::CanvasItem, Distortion::CanvasItem::code, Distortion::CanvasItem::decl);
+	}
+
+	{
+		using namespace EffekseerGodot::ModelAdvancedShaders;
+
+		m_shaders[(size_t)RendererShaderType::AdvancedUnlit] = Shader::Create("Model_Advanced_Unlit", RendererShaderType::AdvancedUnlit);
+		m_shaders[(size_t)RendererShaderType::AdvancedUnlit]->SetVertexConstantBufferSize(sizeof(ModelRendererAdvancedVertexConstantBuffer<InstanceCount>));
+		m_shaders[(size_t)RendererShaderType::AdvancedUnlit]->SetPixelConstantBufferSize(sizeof(PixelConstantBuffer));
+		m_shaders[(size_t)RendererShaderType::AdvancedUnlit]->SetCode(Shader::RenderType::SpatialLightweight, Unlit::Lightweight::code, Unlit::Lightweight::decl);
+		m_shaders[(size_t)RendererShaderType::AdvancedUnlit]->SetCode(Shader::RenderType::SpatialDepthFade, Unlit::SoftParticle::code, Unlit::SoftParticle::decl);
+		m_shaders[(size_t)RendererShaderType::AdvancedUnlit]->SetCode(Shader::RenderType::CanvasItem, Unlit::CanvasItem::code, Unlit::CanvasItem::decl);
+
+		m_shaders[(size_t)RendererShaderType::AdvancedLit] = Shader::Create("Model_Advanced_Lighting", RendererShaderType::AdvancedLit);
+		m_shaders[(size_t)RendererShaderType::AdvancedLit]->SetVertexConstantBufferSize(sizeof(ModelRendererAdvancedVertexConstantBuffer<InstanceCount>));
+		m_shaders[(size_t)RendererShaderType::AdvancedLit]->SetPixelConstantBufferSize(sizeof(PixelConstantBuffer));
+		m_shaders[(size_t)RendererShaderType::AdvancedLit]->SetCode(Shader::RenderType::SpatialLightweight, Lighting::Lightweight::code, Lighting::Lightweight::decl);
+		m_shaders[(size_t)RendererShaderType::AdvancedLit]->SetCode(Shader::RenderType::SpatialDepthFade, Lighting::SoftParticle::code, Lighting::SoftParticle::decl);
+		m_shaders[(size_t)RendererShaderType::AdvancedLit]->SetCode(Shader::RenderType::CanvasItem, Lighting::CanvasItem::code, Lighting::CanvasItem::decl);
+
+		m_shaders[(size_t)RendererShaderType::AdvancedBackDistortion] = Shader::Create("Model_Advanced_Distortion", RendererShaderType::AdvancedBackDistortion);
+		m_shaders[(size_t)RendererShaderType::AdvancedBackDistortion]->SetVertexConstantBufferSize(sizeof(ModelRendererAdvancedVertexConstantBuffer<InstanceCount>));
+		m_shaders[(size_t)RendererShaderType::AdvancedBackDistortion]->SetPixelConstantBufferSize(sizeof(PixelConstantBufferDistortion));
+		m_shaders[(size_t)RendererShaderType::AdvancedBackDistortion]->SetCode(Shader::RenderType::SpatialLightweight, Distortion::Lightweight::code, Distortion::Lightweight::decl);
+		m_shaders[(size_t)RendererShaderType::AdvancedBackDistortion]->SetCode(Shader::RenderType::SpatialDepthFade, Distortion::SoftParticle::code, Distortion::SoftParticle::decl);
+		m_shaders[(size_t)RendererShaderType::AdvancedBackDistortion]->SetCode(Shader::RenderType::CanvasItem, Distortion::CanvasItem::code, Distortion::CanvasItem::decl);
+	}
 }
 
 //----------------------------------------------------------------------------------
@@ -200,7 +305,9 @@ void ModelRenderer::EndRendering(const efkModelNodeParam& parameter, void* userD
 	{
 		EndRendering_<Renderer, Shader, Effekseer::Model, true, InstanceCount>(
 			m_renderer,
-			nullptr, nullptr, nullptr, 
+			m_shaders[(size_t)RendererShaderType::AdvancedLit].get(),
+			m_shaders[(size_t)RendererShaderType::AdvancedUnlit].get(),
+			m_shaders[(size_t)RendererShaderType::AdvancedBackDistortion].get(),
 			m_shaders[(size_t)RendererShaderType::Lit].get(),
 			m_shaders[(size_t)RendererShaderType::Unlit].get(),
 			m_shaders[(size_t)RendererShaderType::BackDistortion].get(),
@@ -210,7 +317,9 @@ void ModelRenderer::EndRendering(const efkModelNodeParam& parameter, void* userD
 	{
 		EndRendering_<Renderer, Shader, Effekseer::Model, false, 1>(
 			m_renderer,
-			nullptr, nullptr, nullptr, 
+			m_shaders[(size_t)RendererShaderType::AdvancedLit].get(),
+			m_shaders[(size_t)RendererShaderType::AdvancedUnlit].get(),
+			m_shaders[(size_t)RendererShaderType::AdvancedBackDistortion].get(),
 			m_shaders[(size_t)RendererShaderType::Lit].get(),
 			m_shaders[(size_t)RendererShaderType::Unlit].get(),
 			m_shaders[(size_t)RendererShaderType::BackDistortion].get(),

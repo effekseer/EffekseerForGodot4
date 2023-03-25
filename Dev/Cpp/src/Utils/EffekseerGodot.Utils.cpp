@@ -68,65 +68,22 @@ godot::Variant ScriptNew(godot::Ref<godot::Script> script)
 
 uint32_t ToGdNormal(const Effekseer::Vector3D& v)
 {
-#if 0
-	// To RGB10
-	uint32_t x = (uint32_t)((float)v.R / 255.0f * 1023.0f);
-	uint32_t y = (uint32_t)((float)v.G / 255.0f * 1023.0f);
-	uint32_t z = (uint32_t)((float)v.B / 255.0f * 1023.0f);
-	return (x) | (y << 10) | (z << 20);
-#else
-	// Octahedral Normal Compression (godot::Vector3::octahedron_encode)
-	Effekseer::Vector3D n;
-	Effekseer::Vector3D::Normal(n, v);
+	auto v2 = ToGdVector3(v).octahedron_encode();
 
-	float x, y;
-	if (n.Z >= 0.0f) {
-		x = n.X;
-		y = n.Y;
-	} else {
-		x = (1.0f - fabsf(n.Y)) * (n.X >= 0.0f ? 1.0f : -1.0f);
-		y = (1.0f - fabsf(n.X)) * (n.Y >= 0.0f ? 1.0f : -1.0f);
-	}
-	x = x * 0.5f + 0.5f;
-	y = y * 0.5f + 0.5f;
-
-	uint32_t ux = (uint32_t)std::clamp((int32_t)(x * 65535.0f), 0, 65535);
-	uint32_t uy = (uint32_t)std::clamp((int32_t)(y * 65535.0f), 0, 65535);
+	uint32_t ux = (uint32_t)std::clamp((int32_t)(v2.x * UINT16_MAX), 0, (int32_t)UINT16_MAX);
+	uint32_t uy = (uint32_t)std::clamp((int32_t)(v2.y * UINT16_MAX), 0, (int32_t)UINT16_MAX);
 
 	return (ux) | (uy << 16);
-#endif
 }
 
 uint32_t ToGdTangent(const Effekseer::Vector3D& v)
 {
-#if 0
-	// To RGB10_A2
-	uint32_t x = (uint32_t)((float)v.R / 255.0f * 1023.0f);
-	uint32_t y = (uint32_t)((float)v.G / 255.0f * 1023.0f);
-	uint32_t z = (uint32_t)((float)v.B / 255.0f * 1023.0f);
-	return (x) | (y << 10) | (z << 20) | (3U << 30);
-#else
-	// Octahedral Tangent Compression (godot::Vector3::octahedron_tangent_encode)
-	Effekseer::Vector3D n;
-	Effekseer::Vector3D::Normal(n, v);
+	auto v2 = ToGdVector3(v).octahedron_tangent_encode(1.0f);
 
-	float x, y;
-	if (n.Z >= 0.0f) {
-		x = n.X;
-		y = n.Y;
-	} else {
-		x = (1.0f - fabsf(n.Y)) * (n.X >= 0.0f ? 1.0f : -1.0f);
-		y = (1.0f - fabsf(n.X)) * (n.Y >= 0.0f ? 1.0f : -1.0f);
-	}
-	x = x * 0.5f + 0.5f;
-	y = y * 0.5f + 0.5f;
-	y = y * 0.5f + 0.5f;  // binormal sign
-
-	uint32_t ux = (uint32_t)std::clamp((int32_t)(x * 65535.0f), 0, 65535);
-	uint32_t uy = (uint32_t)std::clamp((int32_t)(y * 65535.0f), 0, 65535);
+	uint32_t ux = (uint32_t)std::clamp((int32_t)(v2.x * UINT16_MAX), 0, (int32_t)UINT16_MAX);
+	uint32_t uy = (uint32_t)std::clamp((int32_t)(v2.y * UINT16_MAX), 0, (int32_t)UINT16_MAX);
 
 	return (ux) | (uy << 16);
-#endif
 }
 
 uint32_t ToGdNormal(const Effekseer::Color& v)
