@@ -218,12 +218,12 @@ static const char g_material_src_spatial_vertex_post[] = R"(
 static const char g_material_src_canvasitem_vertex_sprite_pre[] =  R"(
 void vertex()
 {
-	vec4 uvTangent = texture(UVTangentTexture, UV);
+	vec4 tangent = texture(TangentTexture, UV);
 	vec3 worldNormal = vec3(0.0, 0.0, 1.0);
-	vec3 worldTangent = vec3(uvTangent.zw, 0.0);
+	vec3 worldTangent = vec3(tangent.xy * 2.0 - 1.0, 0.0);
 	vec3 worldBinormal = cross(worldNormal, worldTangent);
 	vec3 worldPos = vec3(VERTEX, 0.0);
-	vec2 uv1 = uvTangent.xy;
+	vec2 uv1 = UV;
 	vec2 uv2 = uv1;
 	vec4 vcolor = COLOR;
 )";
@@ -477,7 +477,7 @@ std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& m
 				}
 				maincode << g_material_uniforms_model;
 			}
-			maincode << "uniform sampler2D UVTangentTexture;\n";
+			maincode << "uniform sampler2D TangentTexture;\n";
 		}
 	}
 

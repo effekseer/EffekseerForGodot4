@@ -41,6 +41,7 @@ void fragment() {
 
 #if ADVANCED
 	ADVANCED_FRAGMENT_CODE
+#undef ADVANCED_FRAGMENT_CODE
 #else
 R"(
 	vec2 distUV = DistortionMap(texture(DistortionTexture, UV), DistortionIntensity, COLOR.xy, TANGENT, BINORMAL);
@@ -63,6 +64,7 @@ R"(
 
 #if ADVANCED
 	ADVANCED_FRAGMENT_CODE
+#undef ADVANCED_FRAGMENT_CODE
 #else
 R"(
 	vec4 colorTexel = texture(ColorTexture, UV);

@@ -8,8 +8,9 @@ render_mode unshaded;
 
 #if DISTORTION || LIGHTING
 R"(
-varying vec4 v_UVTangent;
-uniform sampler2D UVTangentTexture : hint_normal;
+varying vec4 v_Tangent;
+uniform sampler2D TangentTexture : hint_normal, filter_nearest;
+uniform int VertexTextureOffset;
 )"
 #endif
 
@@ -39,7 +40,9 @@ void vertex() {
 )"
 #if DISTORTION || LIGHTING
 R"(
-	v_UVTangent = texture(UVTangentTexture, UV);
+	ivec2 size = textureSize(TangentTexture, 0);
+	int offset = VERTEX_ID + VertexTextureOffset;
+	v_Tangent = texelFetch(TangentTexture, ivec2(offset % 256, offset / 256), 0);
 )"
 #endif
 R"(
@@ -51,14 +54,14 @@ void fragment() {
 )"
 #if DISTORTION
 R"(
-	vec4 distortionTexel = texture(DistortionTexture, v_UVTangent.xy);
-	vec2 distortionUV = DistortionMap(distortionTexel, DistortionIntensity, COLOR.xy, v_UVTangent.zw);
-	COLOR = texture(ScreenTexture, SCREEN_UV + distortionUV) * vec4(1.0, 1.0, 1.0, COLOR.a);
+	vec4 distTexel = texture(DistortionTexture, UV);
+	vec2 distUV = DistortionMap(distTexel, DistortionIntensity, COLOR.xy, v_Tangent.xy);
+	COLOR = texture(ScreenTexture, SCREEN_UV + distUV) * vec4(1.0, 1.0, 1.0, COLOR.a);
 )"
 #elif LIGHTING
 R"(
-	NORMAL = NormalMap(texture(NormalTexture, v_UVTangent.xy), v_UVTangent.zw);
-	COLOR = texture(ColorTexture, v_UVTangent.xy) * COLOR;
+	NORMAL_MAP = NormalMap(texture(NormalTexture, UV), v_Tangent.xy);
+	COLOR = texture(ColorTexture, UV) * COLOR;
 	COLOR.rgb *= EmissiveScale;
 )"
 #else
@@ -75,7 +78,7 @@ const Shader::ParamDecl decl[] = {
 #if DISTORTION
 	{ "DistortionIntensity", Shader::ParamType::Float, 0, 1, 48 },
 	{ "DistortionTexture", Shader::ParamType::Texture, 0, 0, 0 },
-	{ "UVTangentTexture", Shader::ParamType::Texture, 0, 1, 0 },
+	{ "TangentTexture", Shader::ParamType::Texture, 0, 1, 0 },
 #elif LIGHTING
 	{ "EmissiveScale", Shader::ParamType::Float, 0, 1, offsetof(EffekseerRenderer::PixelConstantBuffer, EmmisiveParam) },
 	{ "ColorTexture",  Shader::ParamType::Texture, 0, 0, 0 },

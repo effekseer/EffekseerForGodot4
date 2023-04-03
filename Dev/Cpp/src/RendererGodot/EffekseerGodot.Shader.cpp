@@ -307,10 +307,11 @@ void Shader::ApplyToMaterial(RenderType renderType, godot::RID material, Effekse
 			{
 				PackedFloat32Array array;
 				array.resize((size_t)decl.length * 12);
+				float* arrayPtr = array.ptrw();
 				for (size_t i = 0; i < (size_t)decl.length; i++)
 				{
 					auto transform = ToGdMatrix(((const Effekseer::Matrix44*)&m_constantBuffers[decl.slot][decl.offset])[i]);
-					memcpy(&array[i * 12], &transform, sizeof(transform));
+					memcpy(&arrayPtr[i * 12], &transform, sizeof(transform));
 				}
 				rs->material_set_param(material, decl.name, array);
 			}

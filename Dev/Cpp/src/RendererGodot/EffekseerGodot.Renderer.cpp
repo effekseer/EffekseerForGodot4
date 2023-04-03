@@ -493,9 +493,9 @@ bool Renderer::Initialize(int32_t drawMaxCount)
 	m_standardRenderer.reset(new StandardRenderer(this));
 
 	// For 2D
+	m_tangentTexture.Init(CUSTOM_DATA_TEXTURE_WIDTH, CUSTOM_DATA_TEXTURE_HEIGHT);
 	m_customData1Texture.Init(CUSTOM_DATA_TEXTURE_WIDTH, CUSTOM_DATA_TEXTURE_HEIGHT);
 	m_customData2Texture.Init(CUSTOM_DATA_TEXTURE_WIDTH, CUSTOM_DATA_TEXTURE_HEIGHT);
-	m_uvTangentTexture.Init(CUSTOM_DATA_TEXTURE_WIDTH, CUSTOM_DATA_TEXTURE_HEIGHT);
 
 	impl->SetBackground(m_background);
 	impl->SetDepth(m_depth, EffekseerRenderer::DepthReconstructionParameter());
@@ -556,7 +556,7 @@ bool Renderer::EndRendering()
 
 	if (m_vertexTextureOffset > 0)
 	{
-		m_uvTangentTexture.Update();
+		m_tangentTexture.Update();
 		m_customData1Texture.Update();
 		m_customData2Texture.Update();
 	}
@@ -712,6 +712,8 @@ void Renderer::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 		auto& command = m_renderCommand2Ds[m_renderCount2D];
 		command.SetupSprites(emitter);
 
+		rs->material_set_param(command.GetMaterial(), "VertexTextureOffset", m_vertexTextureOffset);
+
 		// Transfer vertex data
 		auto srt = EffekseerGodot::ToSRT(emitter->get_global_transform());
 		TransferVertexToCanvasItem2D(command.GetCanvasItem(), 
@@ -724,7 +726,7 @@ void Renderer::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 			m_currentShader->GetShaderType() == EffekseerRenderer::RendererShaderType::BackDistortion ||
 			m_currentShader->GetShaderType() == EffekseerRenderer::RendererShaderType::Material)
 		{
-			rs->material_set_param(command.GetMaterial(), "UVTangentTexture", m_uvTangentTexture.GetRID());
+			rs->material_set_param(command.GetMaterial(), "TangentTexture", m_tangentTexture.GetRID());
 		}
 		if (state.CustomData1Count > 0)
 		{
@@ -929,7 +931,7 @@ void Renderer::DeleteProxyTexture(Effekseer::Backend::TextureRef& texture)
 }
 
 void Renderer::TransferVertexToMesh(godot::RID mesh, 
-	const void* vertexData, int32_t spriteCount)
+	const void* vertexData, size_t spriteCount)
 {
 	using namespace Effekseer::SIMD;
 	using namespace EffekseerRenderer;
@@ -943,7 +945,7 @@ void Renderer::TransferVertexToMesh(godot::RID mesh,
 	RendererShaderType shaderType = m_currentShader->GetShaderType();
 	
 	uint32_t format = 0;
-	const size_t vertexCount = (size_t)spriteCount * 4;
+	const size_t vertexCount = spriteCount * 4;
 	Vec3f aabbMin{}, aabbMax{};
 
 	if (shaderType == RendererShaderType::Unlit)
@@ -1116,7 +1118,7 @@ void Renderer::TransferVertexToMesh(godot::RID mesh,
 	}
 
 	// Generate degenerate triangles
-	const size_t indexCount = (size_t)spriteCount * 6;
+	const size_t indexCount = spriteCount * 6;
 	m_indexData.resize(indexCount * sizeof(uint16_t));
 	uint16_t* dstIndex = (uint16_t*)m_indexData.ptrw();
 	for (size_t i = 0; i < spriteCount; i++)
@@ -1147,7 +1149,7 @@ void Renderer::TransferVertexToMesh(godot::RID mesh,
 }
 
 void Renderer::TransferVertexToCanvasItem2D(godot::RID canvas_item, 
-	const void* vertexData, int32_t spriteCount, godot::Vector2 baseScale)
+	const void* vertexData, size_t spriteCount, godot::Vector2 baseScale)
 {
 	using namespace EffekseerRenderer;
 
@@ -1167,14 +1169,14 @@ void Renderer::TransferVertexToCanvasItem2D(godot::RID canvas_item,
 	{
 		int* indices = indexArray.ptrw();
 
-		for (int32_t i = 0; i < spriteCount; i++)
+		for (size_t i = 0; i < spriteCount; i++)
 		{
-			indices[i * 6 + 0] = i * 4 + 0;
-			indices[i * 6 + 1] = i * 4 + 1;
-			indices[i * 6 + 2] = i * 4 + 2;
-			indices[i * 6 + 3] = i * 4 + 3;
-			indices[i * 6 + 4] = i * 4 + 2;
-			indices[i * 6 + 5] = i * 4 + 1;
+			indices[i * 6 + 0] = (int)(i * 4 + 0);
+			indices[i * 6 + 1] = (int)(i * 4 + 1);
+			indices[i * 6 + 2] = (int)(i * 4 + 2);
+			indices[i * 6 + 3] = (int)(i * 4 + 3);
+			indices[i * 6 + 4] = (int)(i * 4 + 2);
+			indices[i * 6 + 5] = (int)(i * 4 + 1);
 		}
 	}
 
@@ -1188,9 +1190,9 @@ void Renderer::TransferVertexToCanvasItem2D(godot::RID canvas_item,
 		godot::Vector2* urs = uvArray.ptrw();
 
 		const SimpleVertex* vertices = (const SimpleVertex*)vertexData;
-		for (int32_t i = 0; i < spriteCount; i++)
+		for (size_t i = 0; i < spriteCount; i++)
 		{
-			for (int32_t j = 0; j < 4; j++)
+			for (size_t j = 0; j < 4; j++)
 			{
 				auto& v = vertices[i * 4 + j];
 				points[i * 4 + j] = ConvertVector2(v.Pos, baseScale);
@@ -1206,8 +1208,7 @@ void Renderer::TransferVertexToCanvasItem2D(godot::RID canvas_item,
 		godot::Vector2* urs = uvArray.ptrw();
 
 		const int32_t width = CUSTOM_DATA_TEXTURE_WIDTH;
-		const int32_t height = (spriteCount * 4 + width - 1) / width;
-		float* uvtTexPtr = m_uvTangentTexture.Pixels(0, m_vertexTextureOffset / width);
+		float* tangentTexPtr = m_tangentTexture.Pixels(m_vertexTextureOffset % width, m_vertexTextureOffset / width);
 
 		const LightingVertex* vertices = (const LightingVertex*)vertexData;
 		for (int32_t i = 0; i < spriteCount; i++)
@@ -1217,14 +1218,14 @@ void Renderer::TransferVertexToCanvasItem2D(godot::RID canvas_item,
 				auto& v = vertices[i * 4 + j];
 				points[i * 4 + j] = ConvertVector2(v.Pos, baseScale);
 				colors[i * 4 + j] = ConvertColor(v.Col);
-				urs[i * 4 + j] = ConvertVertexTextureUV(m_vertexTextureOffset++, width);
+				urs[i * 4 + j] = ConvertUV(v.UV);
 
 				auto tangent = UnpackVector3DF(v.Tangent);
-				CopyVertexTexture(uvtTexPtr, v.UV[0], v.UV[1], tangent.X, -tangent.Y);
+				CopyVertexTexture(tangentTexPtr, tangent.X, tangent.Y, 0.0f, 0.0f);
 			}
 		}
 
-		m_vertexTextureOffset = (m_vertexTextureOffset + width - 1) / width * width;
+		m_vertexTextureOffset += spriteCount * 4;
 	}
 	else if (shaderType == RendererShaderType::Material)
 	{
@@ -1237,31 +1238,30 @@ void Renderer::TransferVertexToCanvasItem2D(godot::RID canvas_item,
 		godot::Vector2* urs = uvArray.ptrw();
 
 		const int32_t width = CUSTOM_DATA_TEXTURE_WIDTH;
-		const int32_t height = (spriteCount * 4 + width - 1) / width;
 		const uint8_t* vertexPtr = (const uint8_t*)vertexData;
-		float* uvtTexPtr = m_uvTangentTexture.Pixels(0, m_vertexTextureOffset / width);
-		float* customData1TexPtr = (customData1Count > 0) ? m_customData1Texture.Pixels(0, m_vertexTextureOffset / width) : nullptr;
-		float* customData2TexPtr = (customData2Count > 0) ? m_customData2Texture.Pixels(0, m_vertexTextureOffset / width) : nullptr;
+		float* tangentTexPtr = m_tangentTexture.Pixels(m_vertexTextureOffset % width, m_vertexTextureOffset / width);
+		float* customData1TexPtr = m_customData1Texture.Pixels(m_vertexTextureOffset % width, m_vertexTextureOffset / width);
+		float* customData2TexPtr = m_customData2Texture.Pixels(m_vertexTextureOffset % width, m_vertexTextureOffset / width);
 
-		for (int32_t i = 0; i < spriteCount; i++)
+		for (size_t i = 0; i < spriteCount; i++)
 		{
-			for (int32_t j = 0; j < 4; j++)
+			for (size_t j = 0; j < 4; j++)
 			{
 				auto& v = *(const DynamicVertex*)vertexPtr;
 				points[i * 4 + j] = ConvertVector2(v.Pos, baseScale);
 				colors[i * 4 + j] = ConvertColor(v.Col);
-				urs[i * 4 + j] = ConvertVertexTextureUV(m_vertexTextureOffset++, width);
-				
+				urs[i * 4 + j] = ConvertUV(v.UV);
+
 				auto tangent = UnpackVector3DF(v.Tangent);
-				CopyVertexTexture(uvtTexPtr, v.UV[0], v.UV[1], tangent.X, -tangent.Y);
+				CopyVertexTexture(tangentTexPtr, tangent.X, tangent.Y, 0.0f, 0.0f);
 				vertexPtr += sizeof(DynamicVertex);
 
-				if (customData1TexPtr) CopyCustomData(customData1TexPtr, vertexPtr, customData1Count);
-				if (customData2TexPtr) CopyCustomData(customData2TexPtr, vertexPtr, customData2Count);
+				if (customData1Count > 0) CopyCustomData(customData1TexPtr, vertexPtr, customData1Count);
+				if (customData2Count > 0) CopyCustomData(customData2TexPtr, vertexPtr, customData2Count);
 			}
 		}
 
-		m_vertexTextureOffset = (m_vertexTextureOffset + width - 1) / width * width;
+		m_vertexTextureOffset += spriteCount * 4;
 	}
 
 	rs->canvas_item_add_triangle_array(canvas_item, indexArray, pointArray, colorArray, uvArray);

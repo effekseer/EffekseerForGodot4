@@ -121,9 +121,9 @@ private:
 	};
 	ModelRenderState m_modelRenderState;
 
+	DynamicTexture m_tangentTexture;
 	DynamicTexture m_customData1Texture;
 	DynamicTexture m_customData2Texture;
-	DynamicTexture m_uvTangentTexture;
 	int32_t m_vertexTextureOffset = 0;
 
 	std::unique_ptr<StandardRenderer> m_standardRenderer;
@@ -223,14 +223,13 @@ public:
 
 private:
 	void TransferVertexToMesh(godot::RID immediate,
-		const void* vertexData, int32_t spriteCount);
+		const void* vertexData, size_t spriteCount);
 
 	void TransferVertexToCanvasItem2D(godot::RID canvas_item,
-		const void* vertexData, int32_t spriteCount, godot::Vector2 baseScale);
+		const void* vertexData, size_t spriteCount, godot::Vector2 baseScale);
 
 	void TransferModelToCanvasItem2D(godot::RID canvas_item, Effekseer::Model* model,
-		godot::Vector2 baseScale, bool flipPolygon,
-		Effekseer::CullingType cullingType);
+		godot::Vector2 baseScale, bool flipPolygon, Effekseer::CullingType cullingType);
 };
 
 } // namespace EffekseerGodot
