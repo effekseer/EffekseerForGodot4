@@ -179,7 +179,7 @@ void EffekseerEffect::setup_node_render(Effekseer::EffectNode* node, TargetLayer
 
 				if (!shader->HasRID(shaderType, renderParams.ZTest, renderParams.ZWrite, renderParams.AlphaBlend, cullingType)) {
 					RID shaderRID = shader->GetRID(shaderType, renderParams.ZTest, renderParams.ZWrite, renderParams.AlphaBlend, cullingType);
-					//system->load_shader(EffekseerSystem::ShaderLoadType::CanvasItem, shaderRID);
+					system->load_shader(EffekseerSystem::ShaderLoadType::CanvasItem, shaderRID);
 				}
 			}
 			else if (targetLayer == TargetLayer::_3D) {
@@ -192,12 +192,7 @@ void EffekseerEffect::setup_node_render(Effekseer::EffectNode* node, TargetLayer
 
 				if (!shader->HasRID(shaderType, renderParams.ZTest, renderParams.ZWrite, renderParams.AlphaBlend, cullingType)) {
 					RID shaderRID = shader->GetRID(shaderType, renderParams.ZTest, renderParams.ZWrite, renderParams.AlphaBlend, cullingType);
-					//if (isModel) {
-					//	system->load_shader(EffekseerSystem::ShaderLoadType::SpatialModel, shaderRID);
-					//}
-					//else {
-					//	system->load_shader(EffekseerSystem::ShaderLoadType::SpatialStandard, shaderRID);
-					//}
+					system->load_shader(EffekseerSystem::ShaderLoadType::Spatial, shaderRID);
 				}
 			}
 		}

@@ -2,7 +2,7 @@
 extends Node
 
 func _enter_tree():
-	EffekseerSystem.setup()
+	EffekseerSystem.setup(self)
 	RenderingServer.connect("frame_pre_draw", self._frame_pre_draw)
 	
 func _exit_tree():

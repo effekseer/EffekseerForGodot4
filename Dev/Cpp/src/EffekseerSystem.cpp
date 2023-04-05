@@ -64,8 +64,10 @@ EffekseerSystem::~EffekseerSystem()
 {
 }
 
-void EffekseerSystem::setup()
+void EffekseerSystem::setup(Node* server_node)
 {
+	m_server_node = server_node;
+
 	int32_t instanceMaxCount = 2000;
 	int32_t squareMaxCount = 8000;
 	int32_t drawMaxCount = 128;
@@ -163,6 +165,9 @@ void EffekseerSystem::process(float delta)
 		m_manager->Update(advance);
 	}
 	m_renderer->SetTime(m_renderer->GetTime() + (float)delta);
+	
+	// Shader loading process
+	_process_shader_loader();
 }
 
 void EffekseerSystem::update_draw()
@@ -278,6 +283,93 @@ void EffekseerSystem::push_load_list(EffekseerEffect* effect)
 {
 	effect->reference();
 	m_load_list.push_back(effect);
+}
+
+void EffekseerSystem::load_shader(ShaderLoadType load_type, RID shader_rid)
+{
+	m_shader_load_queue.push({ load_type, shader_rid });
+	m_shader_load_count++;
+}
+
+void EffekseerSystem::clear_shader_load_count()
+{
+	m_shader_load_count -= m_shader_load_progress;
+	m_shader_load_progress = 0;
+}
+
+int EffekseerSystem::get_shader_load_count() const
+{
+	return m_shader_load_count;
+}
+
+int EffekseerSystem::get_shader_load_progress() const
+{
+	return m_shader_load_progress;
+}
+
+void EffekseerSystem::complete_all_shader_loads()
+{
+	m_should_complete_all_shader_loads = true;
+}
+
+void EffekseerSystem::_process_shader_loader()
+{
+	auto rs = RenderingServer::get_singleton();
+
+	// Destroy all completed loaders
+	for (auto& loader : m_shader_loaders) {
+		rs->free_rid(loader.matarial);
+		rs->free_rid(loader.mesh);
+		rs->free_rid(loader.instance);
+	}
+	m_shader_loaders.clear();
+
+	// Start loader if queued load request
+	const size_t load_count_in_a_frame = 1;
+	size_t loaded_count = 0;
+	while (loaded_count < load_count_in_a_frame || m_should_complete_all_shader_loads) {
+		if (m_shader_load_queue.size() == 0) {
+			break;
+		}
+
+		auto request = m_shader_load_queue.front();
+		m_shader_load_queue.pop();
+
+		ShaderLoader loader;
+		loader.load_type = request.load_type;
+		loader.matarial = rs->material_create();
+		rs->material_set_shader(loader.matarial, request.shader_rid);
+
+		if (loader.load_type == ShaderLoadType::CanvasItem) {
+			loader.instance = rs->canvas_item_create();
+			rs->canvas_item_set_material(loader.instance, loader.matarial);
+			rs->canvas_item_add_rect(loader.instance, Rect2(0.0f, 0.0f, 0.0f, 0.0f), Color());
+			rs->canvas_item_set_parent(loader.instance, m_server_node->get_viewport()->find_world_2d()->get_canvas());
+			m_shader_loaders.push_back(loader);
+		}
+		else {
+			loader.mesh = rs->mesh_create();
+			loader.instance = rs->instance_create();
+
+			PackedVector3Array positions;
+			positions.resize(1);
+
+			Array arrays;
+			arrays.resize(RenderingServer::ARRAY_MAX);
+			arrays[RenderingServer::ARRAY_VERTEX] = positions;
+
+			rs->mesh_add_surface_from_arrays(loader.mesh, RenderingServer::PRIMITIVE_POINTS, arrays);
+			rs->mesh_surface_set_material(loader.mesh, 0, loader.matarial);
+			rs->instance_set_base(loader.instance, loader.mesh);
+			rs->instance_set_scenario(loader.instance, m_server_node->get_viewport()->find_world_3d()->get_scenario());
+		}
+
+		m_shader_loaders.push_back(loader);
+		loaded_count++;
+	}
+
+	m_shader_load_progress += (int)loaded_count;
+	m_should_complete_all_shader_loads = false;
 }
 
 }

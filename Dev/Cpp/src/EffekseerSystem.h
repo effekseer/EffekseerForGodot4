@@ -44,7 +44,7 @@ public:
 
 	~EffekseerSystem();
 
-	void setup();
+	void setup(Node* server_node);
 
 	void teardown();
 
@@ -67,17 +67,36 @@ public:
 	int get_total_draw_vertex_count() const;
 
 	EffekseerGodot::Shader* get_builtin_shader(bool is_model, EffekseerRenderer::RendererShaderType shader_type);
-
 	
 	const Effekseer::ManagerRef& get_manager() { return m_manager; }
 
 	void push_load_list(EffekseerEffect* effect);
+
+	enum class ShaderLoadType
+	{
+		CanvasItem,
+		Spatial,
+	};
+
+	void load_shader(ShaderLoadType load_type, godot::RID shader_rid);
+
+	void clear_shader_load_count();
+
+	int get_shader_load_count() const;
+
+	int get_shader_load_progress() const;
+
+	void complete_all_shader_loads();
+
+private:
+	void _process_shader_loader();
 
 private:
 	static EffekseerSystem* s_singleton;
 
 	Effekseer::ManagerRef m_manager;
 	EffekseerGodot::RendererRef m_renderer;
+	Node* m_server_node = nullptr;
 
 	struct RenderLayer {
 		Viewport* viewport = nullptr;
@@ -86,7 +105,25 @@ private:
 	};
 	std::array<RenderLayer, 30> m_render_layers;
 
+	// Delayed effect loading
 	std::vector<EffekseerEffect*> m_load_list;
+
+	// Dynamic shader loading
+	struct ShaderLoader {
+		ShaderLoadType load_type;
+		godot::RID matarial;
+		godot::RID mesh;
+		godot::RID instance;
+	};
+	struct ShaderLoadRequest {
+		ShaderLoadType load_type;
+		godot::RID shader_rid;
+	};
+	std::vector<ShaderLoader> m_shader_loaders;
+	std::queue<ShaderLoadRequest> m_shader_load_queue;
+	bool m_should_complete_all_shader_loads = false;
+	int m_shader_load_count = 0;
+	int m_shader_load_progress = 0;
 };
 
 }
