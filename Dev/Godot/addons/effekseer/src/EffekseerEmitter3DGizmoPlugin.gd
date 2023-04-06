@@ -17,7 +17,7 @@ func _redraw(gizmo: EditorNode3DGizmo):
 		create_icon_material("icon", load("res://addons/effekseer/icon64.png"));
 		is_first_draw = false
 	
-	var emitter = gizmo.get_spatial_node()
+	var emitter = gizmo.get_node_3d()
 	gizmo.clear()
 
 	gizmo.add_unscaled_billboard(get_material("icon", gizmo), 0.04);
