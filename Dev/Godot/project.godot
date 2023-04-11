@@ -15,10 +15,6 @@ run/main_scene="res://Scene3D.tscn"
 config/features=PackedStringArray("4.0")
 config/icon="res://addons/effekseer/icon64.png"
 
-[autoload]
-
-EffekseerServer="*res://addons/effekseer/src/EffekseerServer.gd"
-
 [debug]
 
 gdscript/warnings/unused_variable=false

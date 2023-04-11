@@ -19,9 +19,9 @@ class EffekseerEmitter2D;
 
 constexpr int32_t EFFEKSEER_INVALID_LAYER = -1;
 
-class EffekseerSystem : public Object
+class EffekseerSystem : public Node
 {
-	GDCLASS(EffekseerSystem, Object)
+	GDCLASS(EffekseerSystem, Node)
 
 public:
 	enum class LayerType {
@@ -44,13 +44,19 @@ public:
 
 	~EffekseerSystem();
 
-	void setup(Node* server_node);
+	bool is_ready() const;
 
-	void teardown();
+	void _init_modules();
 
-	void process(float delta);
+	void _register_to_scenetree();
 
-	void update_draw();
+	virtual void _enter_tree() override;
+
+	virtual void _exit_tree() override;
+
+	virtual void _process(double delta) override;
+
+	void _update_draw();
 
 	int32_t attach_layer(Viewport* viewport, LayerType layer_type);
 
@@ -100,7 +106,6 @@ private:
 
 	Effekseer::ManagerRef m_manager;
 	EffekseerGodot::RendererRef m_renderer;
-	Node* m_server_node = nullptr;
 
 	struct RenderLayer {
 		Viewport* viewport = nullptr;

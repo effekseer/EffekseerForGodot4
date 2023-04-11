@@ -16,7 +16,6 @@ func _enter_tree():
 	add_editor_setting("effekseer/editor_path", "", TYPE_STRING, PROPERTY_HINT_GLOBAL_FILE, get_editor_file_name())
 	add_editor_setting("effekseer/preview_mode", "", TYPE_INT, PROPERTY_HINT_ENUM, "3D,2D")
 	
-	add_autoload_singleton("EffekseerServer", plugin_source_path + "/EffekseerServer.gd")
 	var icon = load(plugin_path + "/icon16.png") as Texture2D
 	var theme = get_editor_interface().get_base_control().get_theme()
 	theme.set_icon("EffekseerEmitter3D", "EditorIcons", icon)
@@ -38,8 +37,6 @@ func _exit_tree():
 	remove_import_plugin(resource_import_plugin)
 	remove_inspector_plugin(effect_inspector_plugin)
 	remove_import_plugin(effect_import_plugin)
-	
-	remove_autoload_singleton("EffekseerServer")
 	
 	remove_editor_setting("effekseer/editor_path")
 	remove_editor_setting("effekseer/preview_mode")

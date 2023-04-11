@@ -1,10 +1,11 @@
 #include <assert.h>
 #include <algorithm>
-#include <godot_cpp/variant/transform3d.hpp>
 #include <godot_cpp/classes/project_settings.hpp>
+#include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/scene_tree.hpp>
+#include <godot_cpp/classes/window.hpp>
 #include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/classes/viewport.hpp>
-#include <godot_cpp/classes/gd_script.hpp>
 #include <godot_cpp/classes/rendering_server.hpp>
 #include <godot_cpp/classes/world3d.hpp>
 #include <godot_cpp/classes/world2d.hpp>
@@ -34,10 +35,9 @@ EffekseerSystem* EffekseerSystem::s_singleton = nullptr;
 
 void EffekseerSystem::_bind_methods()
 {
-	GDBIND_METHOD(EffekseerSystem, setup);
-	GDBIND_METHOD(EffekseerSystem, teardown);
-	GDBIND_METHOD(EffekseerSystem, process);
-	GDBIND_METHOD(EffekseerSystem, update_draw);
+	GDBIND_METHOD(EffekseerSystem, _init_modules);
+	GDBIND_METHOD(EffekseerSystem, _register_to_scenetree);
+	GDBIND_METHOD(EffekseerSystem, _update_draw);
 	GDBIND_METHOD(EffekseerSystem, spawn_effect_2d, "effect", "parent", "xform");
 	GDBIND_METHOD(EffekseerSystem, spawn_effect_3d, "effect", "parent", "xform");
 	GDBIND_METHOD(EffekseerSystem, stop_all_effects);
@@ -60,15 +60,25 @@ void EffekseerSystem::finalize()
 
 EffekseerSystem::EffekseerSystem()
 {
+	set_name("EffekseerSystem");
+	call_deferred("_init_modules");
+	call_deferred("_register_to_scenetree");
 }
 
 EffekseerSystem::~EffekseerSystem()
 {
 }
 
-void EffekseerSystem::setup(Node* server_node)
+bool EffekseerSystem::is_ready() const
 {
-	m_server_node = server_node;
+	return m_manager != nullptr && m_renderer != nullptr;
+}
+
+void EffekseerSystem::_init_modules()
+{
+	if (is_ready()) {
+		return;
+	}
 
 	int32_t instanceMaxCount = 2000;
 	int32_t squareMaxCount = 8000;
@@ -88,10 +98,11 @@ void EffekseerSystem::setup(Node* server_node)
 	}
 	if (settings->has_setting("effekseer/sound_script")) {
 		soundScript = Ref<Script>(settings->get_setting("effekseer/sound_script"));
-	} else {
+	}
+	else {
 		soundScript = ResourceLoader::get_singleton()->load("res://addons/effekseer/src/EffekseerSound.gd", "");
 	}
-	
+
 	Ref<RefCounted> sound;
 	if (soundScript.is_valid()) {
 		sound = EffekseerGodot::ScriptNew(soundScript);
@@ -136,14 +147,36 @@ void EffekseerSystem::setup(Node* server_node)
 	m_load_list.clear();
 }
 
-void EffekseerSystem::teardown()
+void EffekseerSystem::_register_to_scenetree()
 {
-	m_manager.Reset();
-	m_renderer.Reset();
+	auto tree = Object::cast_to<SceneTree>(Engine::get_singleton()->get_main_loop());
+	tree->get_root()->add_child(this);
+	set_process(true);
+	set_process_priority(100);
+	set_process_mode(PROCESS_MODE_ALWAYS);
 }
 
-void EffekseerSystem::process(float delta)
+void EffekseerSystem::_enter_tree()
 {
+	Node::_enter_tree();
+
+	RenderingServer::get_singleton()->connect("frame_pre_draw", Callable(this, "_update_draw"));
+}
+
+void EffekseerSystem::_exit_tree()
+{
+	RenderingServer::get_singleton()->disconnect("frame_pre_draw", Callable(this, "_update_draw"));
+
+	m_manager.Reset();
+	m_renderer.Reset();
+
+	Node::_exit_tree();
+}
+
+void EffekseerSystem::_process(double delta)
+{
+	Node::_process(delta);
+
 	for (size_t i = 0; i < m_render_layers.size(); i++) {
 		auto& layer = m_render_layers[i];
 		if (layer.viewport == nullptr) {
@@ -160,7 +193,7 @@ void EffekseerSystem::process(float delta)
 	}
 
 	// Stabilize in a variable frame environment
-	float deltaFrames = (float)delta * 60.0f;
+	float deltaFrames = (float)(delta * 60.0);
 	int iterations = std::max(1, (int)roundf(deltaFrames));
 	float advance = deltaFrames / iterations;
 	for (int i = 0; i < iterations; i++) {
@@ -172,7 +205,7 @@ void EffekseerSystem::process(float delta)
 	_process_shader_loader();
 }
 
-void EffekseerSystem::update_draw()
+void EffekseerSystem::_update_draw()
 {
 	m_renderer->ResetState();
 	m_renderer->ResetDrawCallCount();
@@ -300,7 +333,6 @@ int EffekseerSystem::get_total_draw_vertex_count() const
 	return m_renderer->GetDrawVertexCount();
 }
 
-
 EffekseerGodot::Shader* EffekseerSystem::get_builtin_shader(bool is_model, EffekseerRenderer::RendererShaderType shader_type)
 {
 	if (is_model) {
@@ -376,7 +408,7 @@ void EffekseerSystem::_process_shader_loader()
 			loader.instance = rs->canvas_item_create();
 			rs->canvas_item_set_material(loader.instance, loader.matarial);
 			rs->canvas_item_add_rect(loader.instance, Rect2(0.0f, 0.0f, 0.0f, 0.0f), Color());
-			rs->canvas_item_set_parent(loader.instance, m_server_node->get_viewport()->find_world_2d()->get_canvas());
+			rs->canvas_item_set_parent(loader.instance, get_viewport()->find_world_2d()->get_canvas());
 			m_shader_loaders.push_back(loader);
 		}
 		else {
@@ -393,7 +425,7 @@ void EffekseerSystem::_process_shader_loader()
 			rs->mesh_add_surface_from_arrays(loader.mesh, RenderingServer::PRIMITIVE_POINTS, arrays);
 			rs->mesh_surface_set_material(loader.mesh, 0, loader.matarial);
 			rs->instance_set_base(loader.instance, loader.mesh);
-			rs->instance_set_scenario(loader.instance, m_server_node->get_viewport()->find_world_3d()->get_scenario());
+			rs->instance_set_scenario(loader.instance, get_viewport()->find_world_3d()->get_scenario());
 		}
 
 		m_shader_loaders.push_back(loader);
