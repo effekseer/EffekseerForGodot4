@@ -21,8 +21,8 @@ void initialize_effekseer_module(ModuleInitializationLevel p_level)
 	ClassDB::register_class<EffekseerEmitter3D>();
 	ClassDB::register_class<EffekseerEmitter2D>();
 
-	EffekseerSystem::initialize();
-	Engine::get_singleton()->register_singleton("EffekseerSystem", EffekseerSystem::get_singleton());
+	auto system = memnew(EffekseerSystem());
+	Engine::get_singleton()->register_singleton("EffekseerSystem", system);
 }
 
 void uninitialize_effekseer_module(ModuleInitializationLevel p_level)
@@ -32,7 +32,9 @@ void uninitialize_effekseer_module(ModuleInitializationLevel p_level)
 	}
 
 	Engine::get_singleton()->unregister_singleton("EffekseerSystem");
-	EffekseerSystem::finalize();
+	if (auto system = EffekseerSystem::get_singleton()) {
+		memdelete(system);
+	}
 }
 
 extern "C" 

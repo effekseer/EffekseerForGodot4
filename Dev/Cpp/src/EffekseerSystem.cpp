@@ -47,19 +47,11 @@ void EffekseerSystem::_bind_methods()
 	GDBIND_METHOD(EffekseerSystem, get_total_draw_vertex_count);
 }
 
-void EffekseerSystem::initialize()
-{
-	s_singleton = memnew(EffekseerSystem());
-}
-
-void EffekseerSystem::finalize()
-{
-	memdelete(s_singleton);
-	s_singleton = nullptr;
-}
-
 EffekseerSystem::EffekseerSystem()
 {
+	assert(s_singleton == nullptr);
+	s_singleton = this;
+
 	set_name("EffekseerSystem");
 	call_deferred("_init_modules");
 	call_deferred("_register_to_scenetree");
@@ -67,6 +59,7 @@ EffekseerSystem::EffekseerSystem()
 
 EffekseerSystem::~EffekseerSystem()
 {
+	s_singleton = nullptr;
 }
 
 bool EffekseerSystem::is_ready() const
