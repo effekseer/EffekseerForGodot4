@@ -56,6 +56,10 @@ public:
 
 	void detach_layer(Viewport* viewport, LayerType layer_type);
 
+	EffekseerEmitter2D* spawn_effect_2d(EffekseerEffect* effect, Node* parent, Transform2D xform);
+
+	EffekseerEmitter3D* spawn_effect_3d(EffekseerEffect* effect, Node* parent, Transform3D xform);
+
 	void stop_all_effects();
 
 	void set_paused_to_all_effects(bool paused);

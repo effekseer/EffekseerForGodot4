@@ -66,6 +66,10 @@ public:
 
 	bool is_autoplay() const { return m_autoplay; }
 
+	void set_autofree(bool autofree) { m_autofree = autofree; }
+
+	bool is_autofree() const { return m_autofree; }
+
 	void set_dynamic_input(int index, float value);
 
 	void send_trigger(int index);
@@ -74,6 +78,7 @@ private:
 	Ref<EffekseerEffect> m_effect;
 	int32_t m_layer = -1;
 	bool m_autoplay = true;
+	bool m_autofree = false;
 	Array m_handles;
 	bool m_paused = false;
 	float m_speed = 1.0f;

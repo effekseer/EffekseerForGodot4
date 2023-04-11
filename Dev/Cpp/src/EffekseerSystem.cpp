@@ -38,6 +38,8 @@ void EffekseerSystem::_bind_methods()
 	GDBIND_METHOD(EffekseerSystem, teardown);
 	GDBIND_METHOD(EffekseerSystem, process);
 	GDBIND_METHOD(EffekseerSystem, update_draw);
+	GDBIND_METHOD(EffekseerSystem, spawn_effect_2d, "effect", "parent", "xform");
+	GDBIND_METHOD(EffekseerSystem, spawn_effect_3d, "effect", "parent", "xform");
 	GDBIND_METHOD(EffekseerSystem, stop_all_effects);
 	GDBIND_METHOD(EffekseerSystem, set_paused_to_all_effects, "paused");
 	GDBIND_METHOD(EffekseerSystem, get_total_instance_count);
@@ -241,6 +243,36 @@ void EffekseerSystem::detach_layer(Viewport* viewport, LayerType layer_type)
 			it->ref_count = 0;
 		}
 	}
+}
+
+EffekseerEmitter2D* EffekseerSystem::spawn_effect_2d(EffekseerEffect* effect, Node* parent, Transform2D xform)
+{
+	if (parent == nullptr) {
+		parent = this;
+	}
+
+	EffekseerEmitter2D* emitter = memnew(EffekseerEmitter2D());
+	emitter->set_name(effect->get_name());
+	emitter->set_effect(effect);
+	emitter->set_autofree(true);
+	emitter->set_transform(xform);
+	parent->add_child(emitter);
+	return emitter;
+}
+
+EffekseerEmitter3D* EffekseerSystem::spawn_effect_3d(EffekseerEffect* effect, Node* parent, Transform3D xform)
+{
+	if (parent == nullptr) {
+		parent = this;
+	}
+
+	EffekseerEmitter3D* emitter = memnew(EffekseerEmitter3D());
+	emitter->set_name(effect->get_name());
+	emitter->set_effect(effect);
+	emitter->set_autofree(true);
+	emitter->set_transform(xform);
+	parent->add_child(emitter);
+	return emitter;
 }
 
 void EffekseerSystem::stop_all_effects()

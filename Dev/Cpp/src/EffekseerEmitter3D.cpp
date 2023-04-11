@@ -19,6 +19,7 @@ void EffekseerEmitter3D::_bind_methods()
 
 	GDBIND_PROPERTY_SET_GET(EffekseerEmitter3D, effect, Variant::OBJECT);
 	GDBIND_PROPERTY_SET_IS(EffekseerEmitter3D, autoplay, Variant::BOOL);
+	GDBIND_PROPERTY_SET_IS(EffekseerEmitter3D, autofree, Variant::BOOL);
 	GDBIND_PROPERTY_SET_IS(EffekseerEmitter3D, paused, Variant::BOOL);
 	GDBIND_PROPERTY_SET_GET(EffekseerEmitter3D, speed, Variant::FLOAT);
 	GDBIND_PROPERTY_SET_GET(EffekseerEmitter3D, color, Variant::COLOR);
@@ -47,6 +48,7 @@ void EffekseerEmitter3D::_ready()
 void EffekseerEmitter3D::_enter_tree()
 {
 	if (auto system = EffekseerSystem::get_singleton()) {
+		system->_init_modules();
 		m_layer = system->attach_layer(get_viewport(), EffekseerSystem::LayerType::_3D);
 	}
 }
@@ -111,6 +113,10 @@ void EffekseerEmitter3D::_update_paused()
 void EffekseerEmitter3D::remove_handle(Effekseer::Handle handle)
 {
 	m_handles.erase(handle);
+
+	if (m_autofree && m_handles.size() == 0) {
+		queue_free();
+	}
 }
 
 void EffekseerEmitter3D::play()
