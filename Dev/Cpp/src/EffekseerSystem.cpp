@@ -278,7 +278,7 @@ EffekseerEmitter2D* EffekseerSystem::spawn_effect_2d(EffekseerEffect* effect, No
 	}
 
 	EffekseerEmitter2D* emitter = memnew(EffekseerEmitter2D());
-	emitter->set_name(effect->get_name());
+	//emitter->set_name(effect->get_name());
 	emitter->set_effect(effect);
 	emitter->set_autofree(true);
 	emitter->set_transform(xform);
@@ -293,7 +293,7 @@ EffekseerEmitter3D* EffekseerSystem::spawn_effect_3d(EffekseerEffect* effect, No
 	}
 
 	EffekseerEmitter3D* emitter = memnew(EffekseerEmitter3D());
-	emitter->set_name(effect->get_name());
+	//emitter->set_name(effect->get_name());
 	emitter->set_effect(effect);
 	emitter->set_autofree(true);
 	emitter->set_transform(xform);
