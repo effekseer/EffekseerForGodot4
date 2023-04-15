@@ -16,6 +16,12 @@ def replace_word(file_name, target_str, replace_str):
     with open(file_name, "w") as file:
         file.write(text)
 
+def apply_patch():
+    cwd = os.getcwd()
+    os.chdir(os.path.join(os.path.dirname(script_path), "godot-cpp"))
+    os.system("git apply ../godot-cpp.patch")
+    os.chdir(cwd)
+
 def import_generate_bindings():
     binding_generator = __import__("godot-cpp.binding_generator").binding_generator
     cwd = os.getcwd()
@@ -23,6 +29,7 @@ def import_generate_bindings():
     binding_generator.generate_bindings("gdextension/extension_api.json", False)
     os.chdir(cwd)
 
+apply_patch()
 import_generate_bindings()
 
 os.chdir(os.path.dirname(script_path))

@@ -1,0 +1,60 @@
+diff --git a/binding_generator.py b/binding_generator.py
+index 7634942..a57c93b 100644
+--- a/binding_generator.py
++++ b/binding_generator.py
+@@ -1419,17 +1419,8 @@ def generate_engine_class_source(class_api, used_classes, fully_used_classes, us
+ 
+     if is_singleton:
+         result.append(f"{class_name} *{class_name}::get_singleton() {{")
+-        result.append(f"\tconst StringName __class_name = {class_name}::get_class_static();")
+-        result.append(
+-            "\tstatic GDExtensionObjectPtr singleton_obj = internal::gde_interface->global_get_singleton(__class_name._native_ptr());"
+-        )
+-        result.append("#ifdef DEBUG_ENABLED")
+-        result.append("\tERR_FAIL_COND_V(singleton_obj == nullptr, nullptr);")
+-        result.append("#endif // DEBUG_ENABLED")
+-        result.append(
+-            f"\tstatic {class_name} *singleton = reinterpret_cast<{class_name} *>(internal::gde_interface->object_get_instance_binding(singleton_obj, internal::token, &{class_name}::___binding_callbacks));"
+-        )
+-        result.append("\treturn singleton;")
++        result.append(f"\tstatic SingletonBinder<{class_name}> singleton;")
++        result.append("\treturn singleton.binding;")
+         result.append("}")
+         result.append("")
+ 
+diff --git a/include/godot_cpp/classes/wrapped.hpp b/include/godot_cpp/classes/wrapped.hpp
+index 17a742c..0dde2d3 100644
+--- a/include/godot_cpp/classes/wrapped.hpp
++++ b/include/godot_cpp/classes/wrapped.hpp
+@@ -95,6 +95,31 @@ public:
+ 	GodotObject *_owner = nullptr;
+ };
+ 
++template <class T>
++struct SingletonBinder {
++	T *binding = nullptr;
++
++	SingletonBinder() {
++		const StringName __class_name = T::get_class_static();
++		static GDExtensionObjectPtr singleton_obj = internal::gde_interface->global_get_singleton(__class_name._native_ptr());
++#ifdef DEBUG_ENABLED
++		ERR_FAIL_COND_V(singleton_obj == nullptr, nullptr);
++#endif // DEBUG_ENABLED
++		binding = reinterpret_cast<T *>(internal::gde_interface->object_get_instance_binding(singleton_obj, internal::token, &___binding_callbacks));
++	}
++
++	~SingletonBinder() {
++		reinterpret_cast<T *>(binding)->~T();
++		Memory::free_static(reinterpret_cast<T *>(binding));
++	}
++
++	static constexpr GDExtensionInstanceBindingCallbacks ___binding_callbacks = {
++		T::___binding_create_callback,
++		nullptr,  // free callback is not required
++		T::___binding_reference_callback,
++	};
++};
++
+ } // namespace godot
+ 
+ #define GDCLASS(m_class, m_inherits)                                                                                                                                                   \
