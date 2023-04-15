@@ -78,15 +78,15 @@ inline Effekseer::Matrix44 ToEfkMatrix44(const godot::Transform3D& transform)
 {
 	Effekseer::Matrix44 matrix;
 	matrix.Values[0][0] = transform.basis[0][0];
-	matrix.Values[0][1] = transform.basis[0][1];
-	matrix.Values[0][2] = transform.basis[0][2];
+	matrix.Values[0][1] = transform.basis[1][0];
+	matrix.Values[0][2] = transform.basis[2][0];
 	matrix.Values[0][3] = 0.0f;
-	matrix.Values[1][0] = transform.basis[1][0];
+	matrix.Values[1][0] = transform.basis[0][1];
 	matrix.Values[1][1] = transform.basis[1][1];
-	matrix.Values[1][2] = transform.basis[1][2];
+	matrix.Values[1][2] = transform.basis[2][1];
 	matrix.Values[1][3] = 0.0f;
-	matrix.Values[2][0] = transform.basis[2][0];
-	matrix.Values[2][1] = transform.basis[2][1];
+	matrix.Values[2][0] = transform.basis[0][2];
+	matrix.Values[2][1] = transform.basis[1][2];
 	matrix.Values[2][2] = transform.basis[2][2];
 	matrix.Values[2][3] = 0.0f;
 	matrix.Values[3][0] = transform.origin.x;
@@ -165,13 +165,13 @@ inline godot::Transform3D ToGdMatrix(Effekseer::Matrix44 matrix)
 {
 	godot::Transform3D transform;
 	transform.basis[0][0] = matrix.Values[0][0];
-	transform.basis[1][0] = matrix.Values[1][0];
-	transform.basis[2][0] = matrix.Values[2][0];
-	transform.basis[0][1] = matrix.Values[0][1];
+	transform.basis[1][0] = matrix.Values[0][1];
+	transform.basis[2][0] = matrix.Values[0][2];
+	transform.basis[0][1] = matrix.Values[1][0];
 	transform.basis[1][1] = matrix.Values[1][1];
-	transform.basis[2][1] = matrix.Values[2][1];
-	transform.basis[0][2] = matrix.Values[0][2];
-	transform.basis[1][2] = matrix.Values[1][2];
+	transform.basis[2][1] = matrix.Values[1][2];
+	transform.basis[0][2] = matrix.Values[2][0];
+	transform.basis[1][2] = matrix.Values[2][1];
 	transform.basis[2][2] = matrix.Values[2][2];
 	transform.origin.x = matrix.Values[3][0];
 	transform.origin.y = matrix.Values[3][1];
