@@ -30,10 +30,24 @@ Effekseerのエフェクトを再生、描画するための3Dオブジェクト
 | *Setter*	| set_autoplay(value) |
 | *Getter*	| is_autoplay()       |
 
-自動再生の設定。
+自動再生の設定。`true`を指定すると`ready()`で再生が開始されます。
 
 - true: 自動再生を行う
 - false: 自動再生を行わない
+
+----
+
+#### bool autofree
+
+|           |                     |
+|-----------|---------------------|
+| *Setter*	| set_autofree(value) |
+| *Getter*	| is_autofree()       |
+
+自動解放の設定。`true`を指定すると再生が終了したときエミッターの`queue_free()`が呼ばれます。
+
+- true: 自動解放を行う
+- false: 自動解放を行わない
 
 ----
 
@@ -166,10 +180,24 @@ Effekseerのエフェクトを再生、描画するための2Dオブジェクト
 | *Setter*	| set_autoplay(value) |
 | *Getter*	| is_autoplay()       |
 
-自動再生の設定。
+自動再生の設定。`true`を指定すると`ready()`で再生が開始されます。
 
 - true: 自動再生を行う
 - false: 自動再生を行わない
+
+----
+
+#### bool autofree
+
+|           |                     |
+|-----------|---------------------|
+| *Setter*	| set_autofree(value) |
+| *Getter*	| is_autofree()       |
+
+自動解放の設定。`true`を指定すると再生が終了したときエミッターの`queue_free()`が呼ばれます。
+
+- true: 自動解放を行う
+- false: 自動解放を行わない
 
 ----
 
@@ -351,6 +379,44 @@ Effekseerのエフェクトリソース。
 Effekseerのシステム管理用シングルトン。
 
 ### メソッド一覧
+
+#### EffekseerEmitter2D spawn_effect_2d(EffekseerEffect effect, Node parent, Transform2D xform)
+
+| 引数      | 説明                        |
+|-----------|----------------------------|
+| effect    | エフェクトリソース          |
+| parent    | エミッターを追加するノード   |
+| xform     | エミッターのトランスフォーム |
+
+エミッター(EffekseerEmitter2D)を生成しエフェクトを再生します。再生が終了するとエミッターは削除されます。
+
+```gd
+extends Node2D
+
+func ready():
+    EffekseerSystem.spawn_effect_2d(effect, get_viewport(), global_transform())
+```
+
+----
+
+#### EffekseerEmitter3D spawn_effect_3d(EffekseerEffect effect, Node parent, Transform3D xform)
+
+| 引数      | 説明                        |
+|-----------|----------------------------|
+| effect    | エフェクトリソース          |
+| parent    | エミッターを追加するノード   |
+| xform     | エミッターのトランスフォーム |
+
+エミッター(EffekseerEmitter3D)を生成しエフェクトを再生します。再生が終了するとエミッターは削除されます。
+
+```gd
+extends Node3D
+
+func ready():
+    EffekseerSystem.spawn_effect_3d(effect, get_viewport(), global_transform())
+```
+
+----
 
 #### void stop_all_effects()
 現在再生中の全てのエフェクトを停止します。

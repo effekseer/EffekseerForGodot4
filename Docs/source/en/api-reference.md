@@ -33,10 +33,24 @@ The effect resource set on the emitter.
 | *Setter*	| set_autoplay(value) |
 | *Getter*	| is_autoplay()       |
 
-Autoplay settings.
+Autoplay settings. If `true`, playback will start with `ready()`.
 
-- true: play automatically
+- true: Do play automatically
 - false: Do not play automatically
+
+----
+
+#### bool autofree
+
+|           |                     |
+|-----------|---------------------|
+| *Setter*	| set_autofree(value) |
+| *Getter*	| is_autofree()       |
+
+Automatic free settings. If `true`, the emitter will call `queue_free()` when playback is finished.
+
+- true: Do free automatically
+- false: Do not free automatically
 
 ----
 
@@ -172,10 +186,24 @@ The effect set on the emitter.
 | *Setter*	| set_autoplay(value) |
 | *Getter*	| is_autoplay()       |
 
-Autoplay settings.
+Autoplay settings. If `true`, playback will start with `ready()`.
 
-- true: play automatically
+- true: Do play automatically
 - false: Do not play automatically
+
+----
+
+#### bool autofree
+
+|           |                     |
+|-----------|---------------------|
+| *Setter*	| set_autofree(value) |
+| *Getter*	| is_autofree()       |
+
+Automatic free settings. If `true`, the emitter will call `queue_free()` when playback is finished.
+
+- true: Do free automatically
+- false: Do not free automatically
 
 ----
 
@@ -359,6 +387,44 @@ Basically, don't use this method, just release it with Godot's resource feature.
 Effekseer singleton for system management.
 
 ### Methods
+
+#### EffekseerEmitter2D spawn_effect_2d(EffekseerEffect effect, Node parent, Transform2D xform)
+
+| Arguments | Descriptions                       |
+|-----------|------------------------------------|
+| effect    | Effect resource                    |
+| parent    | Node to which emitters are added   |
+| xform     | Transform specify for the emitter  |
+
+An emitter (EffekseerEmitter2D) is spawned and the effect is played back. When playback is complete, the emitters are deleted.
+
+```gd
+extends Node2D
+
+func ready():
+    EffekseerSystem.spawn_effect_2d(effect, get_viewport(), global_transform())
+```
+
+----
+
+#### EffekseerEmitter3D spawn_effect_3d(EffekseerEffect effect, Node parent, Transform3D xform)
+
+| Arguments | Descriptions                       |
+|-----------|------------------------------------|
+| effect    | Effect resource                    |
+| parent    | Node to which emitters are added   |
+| xform     | Transform specify for the emitter  |
+
+An emitter (EffekseerEmitter3D) is spawned and the effect is played back. When playback is complete, the emitters are deleted.
+
+```gd
+extends Node3D
+
+func ready():
+    EffekseerSystem.spawn_effect_3d(effect, get_viewport(), global_transform())
+```
+
+----
 
 #### void stop_all_effects()
 Stops all currently playing effects.

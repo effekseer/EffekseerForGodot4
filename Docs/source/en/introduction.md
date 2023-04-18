@@ -24,26 +24,13 @@ The support status for each target of EffekseerForGodot4 is as follows.
 | Windows   | ✅ | x86, x86_64 |
 | macOS     | ✅ | x86_64, arm64 |
 | Linux     | ✅ | x86, x86_64 |
-| Android   | ❓ | armv7, arm64, x86, x86_64 |
-| iOS       | ❓ | arm64, x86_64(Simulator) |
+| Android   | ✅ | armv7, arm64, x86, x86_64 |
+| iOS       | ✅ | arm64, x86_64(Simulator) |
 | Web       | ✅ | wasm32 |
 | Others    | ❓ | User needs to build | 
 
 
 ## Known issues
-
-### Advanced rendering panel function does not work
-
-The following features do not work.
-
-- Alpha texture
-- UV distortion texture
-- Alpha cutoff
-- Falloff
-- Blend texture
-
-*Soft particles work.  
-*Will be supported in the future version.  
 
 ### [2D] Depth parameters in the render common panel do not work
 
@@ -63,4 +50,3 @@ The following features do not work in 2D.
 - PixelNormal
 - VertexTangent
 - PixelTangent
-- Light
