@@ -222,6 +222,8 @@ public:
 	virtual int Release() override { return Effekseer::ReferenceObject::Release(); }
 
 private:
+	bool IsSoftParticleEnabled() const;
+
 	void TransferVertexToMesh(godot::RID immediate,
 		const void* vertexData, size_t spriteCount);
 

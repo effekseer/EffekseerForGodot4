@@ -538,9 +538,12 @@ bool Renderer::BeginRendering()
 {
 	impl->CalculateCameraProjectionMatrix();
 
-	// ステート初期設定
+	// reset states
 	m_renderState->GetActiveState().Reset();
 	m_renderState->Update(true);
+
+	// reset a renderer
+	m_standardRenderer->ResetAndRenderingIfRequired();
 	m_vertexStride = 0;
 
 	return true;
@@ -551,7 +554,7 @@ bool Renderer::BeginRendering()
 //----------------------------------------------------------------------------------
 bool Renderer::EndRendering()
 {
-	// レンダラーリセット
+	// reset a renderer
 	m_standardRenderer->ResetAndRenderingIfRequired();
 
 	if (m_vertexTextureOffset > 0)
@@ -677,17 +680,13 @@ void Renderer::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 
 	auto rs = godot::RenderingServer::get_singleton();
 
-	const auto& state = m_standardRenderer->GetState();
 	godot::Object* godotObj = reinterpret_cast<godot::Object*>(GetImpl()->CurrentHandleUserData);
 	
 	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter3D>(godotObj))
 	{
 		if (m_renderCount3D >= m_renderCommands3D.size()) return;
 
-		const bool softparticleEnabled = !(
-			state.SoftParticleDistanceFar == 0.0f &&
-			state.SoftParticleDistanceNear == 0.0f &&
-			state.SoftParticleDistanceNearOffset == 0.0f);
+		const bool softparticleEnabled = IsSoftParticleEnabled();
 		const Shader::RenderType renderType = (softparticleEnabled) ? 
 			Shader::RenderType::SpatialDepthFade : Shader::RenderType::SpatialLightweight;
 
@@ -728,11 +727,11 @@ void Renderer::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 		{
 			rs->material_set_param(command.GetMaterial(), "TangentTexture", m_tangentTexture.GetRID());
 		}
-		if (state.CustomData1Count > 0)
+		if (m_currentShader->GetCustomData1Count() > 0)
 		{
 			rs->material_set_param(command.GetMaterial(), "CustomData1", m_customData1Texture.GetRID());
 		}
-		if (state.CustomData2Count > 0)
+		if (m_currentShader->GetCustomData2Count() > 0)
 		{
 			rs->material_set_param(command.GetMaterial(), "CustomData2", m_customData2Texture.GetRID());
 		}
@@ -930,7 +929,26 @@ void Renderer::DeleteProxyTexture(Effekseer::Backend::TextureRef& texture)
 	texture = nullptr;
 }
 
-void Renderer::TransferVertexToMesh(godot::RID mesh, 
+bool Renderer::IsSoftParticleEnabled() const
+{
+	if (m_currentShader->GetShaderType() == EffekseerRenderer::RendererShaderType::Material)
+	{
+		return false;
+	}
+	if (m_currentShader->GetShaderType() == EffekseerRenderer::RendererShaderType::BackDistortion ||
+		m_currentShader->GetShaderType() == EffekseerRenderer::RendererShaderType::AdvancedBackDistortion)
+	{
+		auto pcb = (EffekseerRenderer::PixelConstantBufferDistortion*)m_currentShader->GetPixelConstantBuffer();
+		return pcb->SoftParticleParam.softParticleParams[3] != 0.0f;
+	}
+	else
+	{
+		auto pcb = (EffekseerRenderer::PixelConstantBuffer*)m_currentShader->GetPixelConstantBuffer();
+		return pcb->SoftParticleParam.softParticleParams[3] != 0.0f;
+	}
+}
+
+void Renderer::TransferVertexToMesh(godot::RID mesh,
 	const void* vertexData, size_t spriteCount)
 {
 	using namespace Effekseer::SIMD;

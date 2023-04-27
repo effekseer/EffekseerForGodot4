@@ -13,10 +13,8 @@ float atan2(float y, float x) {
 )";
 
 static const char* g_material_src_common_calcdepthfade = R"(
-float CalcDepthFade(sampler2D depthTex, vec2 screenUV, float meshZ, float softParticleParam)
+float CalcDepthFade(float backgroundZ, float meshZ, float softParticleParam)
 {
-	float backgroundZ = texture(depthTex, screenUV).x;
-
 	float distance = softParticleParam * PredefinedData.y;
 	vec2 rescale = ReconstructionParam1.xy;
 	vec4 params = ReconstructionParam2;
@@ -667,7 +665,7 @@ std::string ShaderGenerator::GenerateShaderCode(const Effekseer::MaterialFile& m
 		std::string fragCode = baseCode;
 		
 		Replace(fragCode, g_material_src_common_calcdepthfade_caller, 
-			"CalcDepthFade(DepthTexture, screenUV, meshZ, temp_0)");
+			"CalcDepthFade(texture(DepthTexture, screenUV).x, meshZ, temp_0)");
 		
 		maincode << fragCode;
 
