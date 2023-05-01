@@ -110,12 +110,16 @@ void EffekseerEmitter3D::_update_paused()
 	}
 }
 
-void EffekseerEmitter3D::remove_handle(Effekseer::Handle handle)
+void EffekseerEmitter3D::_remove_handle(Effekseer::Handle handle)
 {
 	m_handles.erase(handle);
 
-	if (m_autofree && m_handles.size() == 0) {
-		queue_free();
+	if (m_handles.size() == 0) {
+		emit_signal("finished");
+
+		if (m_autofree) {
+			queue_free();
+		}
 	}
 }
 
@@ -134,8 +138,7 @@ void EffekseerEmitter3D::play()
 				if (!isRemovingManager) {
 					EffekseerEmitter3D* emitter = static_cast<EffekseerEmitter3D*>(manager->GetUserData(handle));
 					if (emitter) {
-						emitter->emit_signal("finished");
-						emitter->remove_handle(handle);
+						emitter->_remove_handle(handle);
 					}
 				}
 			});

@@ -115,12 +115,16 @@ void EffekseerEmitter2D::_update_paused()
 	}
 }
 
-void EffekseerEmitter2D::remove_handle(Effekseer::Handle handle)
+void EffekseerEmitter2D::_remove_handle(Effekseer::Handle handle)
 {
 	m_handles.erase(handle);
-	
-	if (m_autofree && m_handles.size() == 0) {
-		queue_free();
+
+	if (m_handles.size() == 0) {
+		emit_signal("finished");
+
+		if (m_autofree) {
+			queue_free();
+		}
 	}
 }
 
@@ -140,8 +144,7 @@ void EffekseerEmitter2D::play()
 				if (!isRemovingManager) {
 					EffekseerEmitter2D* emitter = static_cast<EffekseerEmitter2D*>(manager->GetUserData(handle));
 					if (emitter) {
-						emitter->emit_signal("finished");
-						emitter->remove_handle(handle);
+						emitter->_remove_handle(handle);
 					}
 				}
 			});
