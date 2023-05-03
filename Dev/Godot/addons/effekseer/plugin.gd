@@ -37,7 +37,9 @@ func _exit_tree():
 	remove_import_plugin(resource_import_plugin)
 	remove_inspector_plugin(effect_inspector_plugin)
 	remove_import_plugin(effect_import_plugin)
+
 	
+func _disable_plugin():
 	remove_editor_setting("effekseer/editor_path")
 	remove_editor_setting("effekseer/preview_mode")
 	remove_project_setting("effekseer/sound_script")
@@ -47,8 +49,8 @@ func _exit_tree():
 
 
 func add_project_setting(name: String, initial_value, type: int, hint: int, hint_string: String) -> void:
-	if ProjectSettings.has_setting(name):
-		return
+	if not ProjectSettings.has_setting(name):
+		ProjectSettings.set_setting(name, initial_value)
 
 	var property_info: Dictionary = {
 		"name": name,
@@ -56,8 +58,6 @@ func add_project_setting(name: String, initial_value, type: int, hint: int, hint
 		"hint": hint,
 		"hint_string": hint_string
 	}
-
-	ProjectSettings.set_setting(name, initial_value)
 	ProjectSettings.add_property_info(property_info)
 	ProjectSettings.set_initial_value(name, initial_value)
 
@@ -68,8 +68,8 @@ func remove_project_setting(name: String):
 
 func add_editor_setting(name: String, initial_value, type: int, hint: int, hint_string: String) -> void:
 	var editor_settings := get_editor_interface().get_editor_settings()
-	if editor_settings.has_setting(name):
-		return
+	if not editor_settings.has_setting(name):
+		editor_settings.set_setting(name, initial_value)
 
 	var property_info: Dictionary = {
 		"name": name,
@@ -77,8 +77,6 @@ func add_editor_setting(name: String, initial_value, type: int, hint: int, hint_
 		"hint": hint,
 		"hint_string": hint_string
 	}
-
-	editor_settings.set_setting(name, initial_value)
 	editor_settings.add_property_info(property_info)
 	editor_settings.set_initial_value(name, initial_value, false)
 
