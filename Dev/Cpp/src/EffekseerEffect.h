@@ -48,6 +48,7 @@ public:
 private:
 	void setup_node_render(Effekseer::EffectNode* node, TargetLayer targetLayer);
 
+private:
 	PackedByteArray m_data_bytes;
 	Dictionary m_subresources;
 	float m_scale = 1.0f;

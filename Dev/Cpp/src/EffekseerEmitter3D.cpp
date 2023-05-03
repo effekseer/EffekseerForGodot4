@@ -258,10 +258,6 @@ Vector3 EffekseerEmitter3D::get_target_position() const
 void EffekseerEmitter3D::set_effect(Ref<EffekseerEffect> effect)
 {
 	m_effect = effect;
-
-	if (m_effect.is_valid()) {
-		m_effect->load();
-	}
 }
 
 void EffekseerEmitter3D::set_dynamic_input(int index, float value)

@@ -24,6 +24,7 @@ void EffekseerEffect::_bind_methods()
 
 EffekseerEffect::EffekseerEffect()
 {
+	call_deferred("load");
 }
 
 EffekseerEffect::~EffekseerEffect()
