@@ -60,11 +60,10 @@ func _open_button_pressed():
 			printerr("Effekseer editor path is not specified.")
 			printerr("Please specify editor path at Editor -> Editor settings -> Effekseer.")
 		else:
-			pass
-			#var result = OS.execute(editor_path, [file_path], false)
-			#if result < 0:
-			#	printerr("Failed to execute Effekseer editor")
-			#	printerr("Please correct specify editor path at Editor -> Editor settings -> Effekseer.")
+			var result = OS.execute(editor_path, [file_path])
+			if result < 0:
+				printerr("Failed to execute Effekseer editor")
+				printerr("Please correct specify editor path at Editor -> Editor settings -> Effekseer.")
 
 func _play_button_pressed():
 	if view_mode == 0:
