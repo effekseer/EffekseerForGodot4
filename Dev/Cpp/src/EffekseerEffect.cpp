@@ -98,7 +98,7 @@ void EffekseerEffect::load()
 	}
 
 	String path = get_path();
-	String basePath = path.substr(0, path.rfind("/"));
+	String basePath = path.substr(0, path.rfind("/") + 1);
 	char16_t materialPath[1024];
 	EffekseerGodot::ToEfkString(materialPath, basePath, sizeof(materialPath) / sizeof(materialPath[0]));
 
