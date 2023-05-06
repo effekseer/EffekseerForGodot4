@@ -2963,4 +2963,7 @@
       <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="godot.natvis" />
+  </ItemGroup>
 </Project>
