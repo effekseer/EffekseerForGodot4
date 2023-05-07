@@ -1,12 +1,14 @@
 @tool
 extends EditorPlugin
 
+const plugin_path = "res://addons/effekseer"
+const plugin_source_path = "res://addons/effekseer/src"
+
 var effect_import_plugin
 var effect_inspector_plugin
 var resource_import_plugin
 var emitter3d_gizmo_plugin
-const plugin_path = "res://addons/effekseer"
-const plugin_source_path = "res://addons/effekseer/src"
+var editor_menu: Node
 
 func _enter_tree():
 	add_project_setting("effekseer/instance_max_count", 2000, TYPE_INT, PROPERTY_HINT_RANGE, "40,8000")
@@ -23,19 +25,27 @@ func _enter_tree():
 	theme.set_icon("EffekseerEffect", "EditorIcons", icon)
 
 	effect_import_plugin = load(plugin_source_path + "/EffekseerEffectImportPlugin.gd").new()
-	effect_inspector_plugin = load(plugin_source_path + "/EffekseerEffectInspectorPlugin.gd").new(get_editor_interface())
-	resource_import_plugin = load(plugin_source_path + "/EffekseerResourceImportPlugin.gd").new()
-	emitter3d_gizmo_plugin = load(plugin_source_path + "/EffekseerEmitter3DGizmoPlugin.gd").new()
 	add_import_plugin(effect_import_plugin)
-	add_inspector_plugin(effect_inspector_plugin)
+	resource_import_plugin = load(plugin_source_path + "/EffekseerResourceImportPlugin.gd").new()
 	add_import_plugin(resource_import_plugin)
-	add_node_3d_gizmo_plugin(emitter3d_gizmo_plugin)
-	
+
+	if Engine.is_editor_hint():
+		effect_inspector_plugin = load(plugin_source_path + "/EffekseerEffectInspectorPlugin.gd").new(get_editor_interface())
+		add_inspector_plugin(effect_inspector_plugin)
+		emitter3d_gizmo_plugin = load(plugin_source_path + "/EffekseerEmitter3DGizmoPlugin.gd").new()
+		add_node_3d_gizmo_plugin(emitter3d_gizmo_plugin)
+		
+		editor_menu = load(plugin_source_path + "/EffekseerEditorMenu.gd").new()
+		editor_menu.set_editor(self)
+		add_child(editor_menu)
+
 
 func _exit_tree():
-	remove_node_3d_gizmo_plugin(emitter3d_gizmo_plugin)
+	if Engine.is_editor_hint():
+		remove_node_3d_gizmo_plugin(emitter3d_gizmo_plugin)
+		remove_inspector_plugin(effect_inspector_plugin)
+
 	remove_import_plugin(resource_import_plugin)
-	remove_inspector_plugin(effect_inspector_plugin)
 	remove_import_plugin(effect_import_plugin)
 
 	
@@ -92,3 +102,21 @@ func get_editor_file_name() -> String:
 		"OSX": return "Effekseer.app"
 		"X11": return "Effekseer"
 	return ""
+
+
+func _handles(object: Object) -> bool:
+	if editor_menu.handles(object):
+		return true
+	return false
+
+
+func _edit(object: Object) -> void:
+	editor_menu.edit(object)
+
+
+func _clear() -> void:
+	editor_menu.clear()
+
+
+func _make_visible(visible: bool) -> void:
+	editor_menu.make_visible(visible)

@@ -86,6 +86,8 @@ public:
 
 	void send_trigger(int index);
 
+	void set_editor_mode(bool enabled);
+
 private:
 	Ref<EffekseerEffect> m_effect;
 	int32_t m_layer = -1;
@@ -99,6 +101,7 @@ private:
 	bool m_flip_h = false;
 	bool m_flip_v = true;
 	Vector2 m_target_position = {};
+	bool m_editor_mode = false;
 };
 
 }

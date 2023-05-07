@@ -1,4 +1,8 @@
 #include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/scene_tree.hpp>
+#include <godot_cpp/classes/window.hpp>
+#include <godot_cpp/classes/editor_script.hpp>
+#include <godot_cpp/classes/editor_interface.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 #include "GDLibrary.h"
 #include "EffekseerSystem.h"
@@ -14,8 +18,9 @@ void EffekseerEmitter3D::_bind_methods()
 	GDBIND_METHOD(EffekseerEmitter3D, stop);
 	GDBIND_METHOD(EffekseerEmitter3D, stop_root);
 	GDBIND_METHOD(EffekseerEmitter3D, is_playing);
-	GDBIND_METHOD(EffekseerEmitter3D, set_dynamic_input);
-	GDBIND_METHOD(EffekseerEmitter3D, send_trigger);
+	GDBIND_METHOD(EffekseerEmitter3D, set_dynamic_input, "input_index", "value");
+	GDBIND_METHOD(EffekseerEmitter3D, send_trigger, "trigger_index");
+	GDBIND_METHOD(EffekseerEmitter3D, set_editor_mode);
 
 	GDBIND_PROPERTY_SET_GET(EffekseerEmitter3D, effect, Variant::OBJECT);
 	GDBIND_PROPERTY_SET_IS(EffekseerEmitter3D, autoplay, Variant::BOOL);
@@ -49,7 +54,7 @@ void EffekseerEmitter3D::_enter_tree()
 {
 	if (auto system = EffekseerSystem::get_singleton()) {
 		system->_init_modules();
-		m_layer = system->attach_layer(get_viewport(), EffekseerSystem::LayerType::_3D);
+		m_layer = system->attach_layer(get_viewport(), EffekseerSystem::LayerType::Render3D);
 	}
 }
 
@@ -58,7 +63,8 @@ void EffekseerEmitter3D::_exit_tree()
 	stop();
 
 	if (auto system = EffekseerSystem::get_singleton()) {
-		system->detach_layer(get_viewport(), EffekseerSystem::LayerType::_3D);
+		system->detach_layer(get_viewport(), EffekseerSystem::LayerType::Render3D);
+		m_layer = -1;
 	}
 }
 
@@ -117,7 +123,7 @@ void EffekseerEmitter3D::_remove_handle(Effekseer::Handle handle)
 	if (m_handles.size() == 0) {
 		emit_signal("finished");
 
-		if (m_autofree) {
+		if (m_autofree && !Engine::get_singleton()->is_editor_hint()) {
 			queue_free();
 		}
 	}
@@ -131,7 +137,7 @@ void EffekseerEmitter3D::play()
 	if (m_effect.is_valid() && m_layer >= 0) {
 		Effekseer::Handle handle = manager->Play(m_effect->get_native(), Effekseer::Vector3D(0, 0, 0));
 		if (handle >= 0) {
-			manager->SetLayer(handle, m_layer);
+			manager->SetLayer(handle, m_editor_mode ? EffekseerSystem::LAYER_EDITOR_3D : m_layer);
 			manager->SetMatrix(handle, EffekseerGodot::ToEfkMatrix43(get_global_transform()));
 			manager->SetUserData(handle, this);
 			manager->SetRemovingCallback(handle, [](Effekseer::Manager* manager, Effekseer::Handle handle, bool isRemovingManager){
@@ -290,6 +296,25 @@ void EffekseerEmitter3D::send_trigger(int index)
 
 	for (int i = 0; i < m_handles.size(); i++) {
 		manager->SendTrigger(m_handles[i], index);
+	}
+}
+
+void _find_viewports(Node* n, Array& viewports)
+{
+	if (n->get_class() == "SubViewport") {
+		viewports.append(n);
+	}
+	auto children = n->get_children(true);
+	while (children.size() > 0) {
+		auto c = Object::cast_to<Node>(children.pop_front());
+		_find_viewports(c, viewports);
+	}
+}
+
+void EffekseerEmitter3D::set_editor_mode(bool enabled)
+{
+	if (Engine::get_singleton()->is_editor_hint()) {
+		m_editor_mode = enabled;
 	}
 }
 

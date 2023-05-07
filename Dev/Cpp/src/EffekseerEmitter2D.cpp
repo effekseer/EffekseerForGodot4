@@ -14,8 +14,9 @@ void EffekseerEmitter2D::_bind_methods()
 	GDBIND_METHOD(EffekseerEmitter2D, stop);
 	GDBIND_METHOD(EffekseerEmitter2D, stop_root);
 	GDBIND_METHOD(EffekseerEmitter2D, is_playing);
-	GDBIND_METHOD(EffekseerEmitter2D, set_dynamic_input);
-	GDBIND_METHOD(EffekseerEmitter2D, send_trigger);
+	GDBIND_METHOD(EffekseerEmitter2D, set_dynamic_input, "input_index", "value");
+	GDBIND_METHOD(EffekseerEmitter2D, send_trigger, "trigger_index");
+	GDBIND_METHOD(EffekseerEmitter2D, set_editor_mode);
 
 	GDBIND_PROPERTY_SET_GET(EffekseerEmitter2D, effect, Variant::OBJECT);
 	GDBIND_PROPERTY_SET_IS(EffekseerEmitter2D, autoplay, Variant::BOOL);
@@ -52,7 +53,7 @@ void EffekseerEmitter2D::_enter_tree()
 {
 	if (auto system = EffekseerSystem::get_singleton()) {
 		system->_init_modules();
-		m_layer = system->attach_layer(get_viewport(), EffekseerSystem::LayerType::_2D);
+		m_layer = system->attach_layer(get_viewport(), EffekseerSystem::LayerType::Render2D);
 	}
 }
 
@@ -61,7 +62,7 @@ void EffekseerEmitter2D::_exit_tree()
 	stop();
 
 	if (auto system = EffekseerSystem::get_singleton()) {
-		system->detach_layer(get_viewport(), EffekseerSystem::LayerType::_2D);
+		system->detach_layer(get_viewport(), EffekseerSystem::LayerType::Render2D);
 		m_layer = -1;
 	}
 }
@@ -122,7 +123,7 @@ void EffekseerEmitter2D::_remove_handle(Effekseer::Handle handle)
 	if (m_handles.size() == 0) {
 		emit_signal("finished");
 
-		if (m_autofree) {
+		if (m_autofree && !Engine::get_singleton()->is_editor_hint()) {
 			queue_free();
 		}
 	}
@@ -136,7 +137,7 @@ void EffekseerEmitter2D::play()
 	if (m_effect.is_valid() && m_layer >= 0) {
 		Effekseer::Handle handle = manager->Play(m_effect->get_native(), Effekseer::Vector3D(0, 0, 0));
 		if (handle >= 0) {
-			manager->SetLayer(handle, m_layer);
+			manager->SetLayer(handle, m_editor_mode ? EffekseerSystem::LAYER_EDITOR_2D : m_layer);
 			manager->SetMatrix(handle, EffekseerGodot::ToEfkMatrix43(get_global_transform(), 
 				m_orientation * (3.141592f / 180.0f), m_flip_h, m_flip_v));
 			manager->SetUserData(handle, this);
@@ -296,6 +297,13 @@ void EffekseerEmitter2D::send_trigger(int index)
 
 	for (int i = 0; i < m_handles.size(); i++) {
 		manager->SendTrigger(m_handles[i], index);
+	}
+}
+
+void EffekseerEmitter2D::set_editor_mode(bool enabled)
+{
+	if (Engine::get_singleton()->is_editor_hint()) {
+		m_editor_mode = enabled;
 	}
 }
 

@@ -45,6 +45,8 @@ void EffekseerSystem::_bind_methods()
 	GDBIND_METHOD(EffekseerSystem, get_total_instance_count);
 	GDBIND_METHOD(EffekseerSystem, get_total_draw_call_count);
 	GDBIND_METHOD(EffekseerSystem, get_total_draw_vertex_count);
+	GDBIND_METHOD(EffekseerSystem, set_editor3d_camera_transform, "transform");
+	GDBIND_METHOD(EffekseerSystem, set_editor2d_camera_transform, "transform");
 }
 
 EffekseerSystem::EffekseerSystem()
@@ -176,7 +178,7 @@ void EffekseerSystem::_process(double delta)
 			continue;
 		}
 
-		if (layer.layer_type == LayerType::_3D) {
+		if (layer.layer_type == LayerType::Render3D) {
 			if (auto camera = layer.viewport->get_camera_3d()) {
 				Effekseer::Manager::LayerParameter layerParams;
 				layerParams.ViewerPosition = EffekseerGodot::ToEfkVector3(camera->get_camera_transform().get_origin());
@@ -204,24 +206,36 @@ void EffekseerSystem::_update_draw()
 	m_renderer->ResetDrawCallCount();
 	m_renderer->ResetDrawVertexCount();
 
-	for (size_t i = 0; i < m_render_layers.size(); i++) {
-		auto& layer = m_render_layers[i];
-		if (layer.viewport == nullptr) {
-			continue;
-		}
-
+	for (size_t i = 0; i < MAX_LAYERS; i++) {
 		Effekseer::Manager::DrawParameter params{};
 		params.CameraCullingMask = (int32_t)(1 << i);
 
-		if (layer.layer_type == LayerType::_3D) {
-			if (auto camera = layer.viewport->get_camera_3d()) {
-				Transform3D camera_transform = camera->get_camera_transform();
-				Effekseer:: Matrix44 matrix = EffekseerGodot::ToEfkMatrix44(camera_transform.inverse());
+		if (i < m_render_layers.size()) {
+			auto& layer = m_render_layers[i];
+			if (layer.viewport == nullptr) {
+				continue;
+			}
+
+			if (layer.layer_type == LayerType::Render3D) {
+				if (auto camera = layer.viewport->get_camera_3d()) {
+					Transform3D camera_transform = camera->get_camera_transform();
+					Effekseer::Matrix44 matrix = EffekseerGodot::ToEfkMatrix44(camera_transform.inverse());
+					m_renderer->SetCameraMatrix(matrix);
+				}
+			}
+			else if (layer.layer_type == LayerType::Render2D) {
+				Transform2D camera_transform = layer.viewport->get_canvas_transform();
+				Effekseer::Matrix44 matrix = EffekseerGodot::ToEfkMatrix44(camera_transform.inverse());
+				matrix.Values[3][2] = -1.0f; // Z offset
 				m_renderer->SetCameraMatrix(matrix);
 			}
-		} else if (layer.layer_type == LayerType::_2D) {
-			Transform2D camera_transform = layer.viewport->get_canvas_transform();
-			Effekseer:: Matrix44 matrix = EffekseerGodot::ToEfkMatrix44(camera_transform.inverse());
+		}
+		else if (i == LAYER_EDITOR_3D) {
+			Effekseer::Matrix44 matrix = EffekseerGodot::ToEfkMatrix44(m_editor3d_camera_transform.inverse());
+			m_renderer->SetCameraMatrix(matrix);
+		}
+		else if (i == LAYER_EDITOR_2D) {
+			Effekseer::Matrix44 matrix = EffekseerGodot::ToEfkMatrix44(m_editor2d_camera_transform.inverse());
 			matrix.Values[3][2] = -1.0f; // Z offset
 			m_renderer->SetCameraMatrix(matrix);
 		}
@@ -234,6 +248,12 @@ void EffekseerSystem::_update_draw()
 
 int32_t EffekseerSystem::attach_layer(Viewport* viewport, LayerType layer_type)
 {
+	if (viewport == nullptr) {
+		if (layer_type == LayerType::Render3D || layer_type == LayerType::Render2D) {
+			return -1;
+		}
+	}
+
 	auto it = std::find_if(m_render_layers.begin(), m_render_layers.end(), 
 		[viewport, layer_type](const RenderLayer& layer){ return layer.viewport == viewport && layer.layer_type == layer_type; });
 	if (it != m_render_layers.end()) {
@@ -263,6 +283,7 @@ void EffekseerSystem::detach_layer(Viewport* viewport, LayerType layer_type)
 		if (--it->ref_count <= 0) {
 			// Delete the layer
 			it->viewport = nullptr;
+			it->layer_type = LayerType::Invalid;
 			it->ref_count = 0;
 		}
 	}
@@ -321,6 +342,16 @@ int EffekseerSystem::get_total_draw_call_count() const
 int EffekseerSystem::get_total_draw_vertex_count() const
 {
 	return m_renderer->GetDrawVertexCount();
+}
+
+void EffekseerSystem::set_editor3d_camera_transform(Transform3D transform)
+{
+	m_editor3d_camera_transform = transform;
+}
+
+void EffekseerSystem::set_editor2d_camera_transform(Transform2D transform)
+{
+	m_editor2d_camera_transform = transform;
 }
 
 EffekseerGodot::Shader* EffekseerSystem::get_builtin_shader(bool is_model, EffekseerRenderer::RendererShaderType shader_type)
