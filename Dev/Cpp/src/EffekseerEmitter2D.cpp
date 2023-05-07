@@ -263,6 +263,9 @@ Vector2 EffekseerEmitter2D::get_target_position() const
 
 void EffekseerEmitter2D::set_effect(Ref<EffekseerEffect> effect)
 {
+	if (!effect->is_ready()) {
+		effect->load();
+	}
 	m_effect = effect;
 }
 

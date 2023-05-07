@@ -86,7 +86,7 @@ void EffekseerEffect::import(String path, bool shrink_binary)
 
 void EffekseerEffect::load()
 {
-	if (m_native != nullptr) return;
+	if (is_ready()) return;
 
 	auto system = EffekseerSystem::get_singleton();
 	if (system == nullptr) return;

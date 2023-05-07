@@ -257,6 +257,9 @@ Vector3 EffekseerEmitter3D::get_target_position() const
 
 void EffekseerEmitter3D::set_effect(Ref<EffekseerEffect> effect)
 {
+	if (!effect->is_ready()) {
+		effect->load();
+	}
 	m_effect = effect;
 }
 

@@ -45,6 +45,8 @@ public:
 
 	Effekseer::EffectRef& get_native() { return m_native; }
 
+	bool is_ready() const { return m_native != nullptr; }
+
 private:
 	void setup_node_render(Effekseer::EffectNode* node, TargetLayer targetLayer);
 
