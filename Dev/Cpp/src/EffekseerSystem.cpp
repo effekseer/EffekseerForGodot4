@@ -75,9 +75,9 @@ void EffekseerSystem::_init_modules()
 		return;
 	}
 
-	int32_t instanceMaxCount = 2000;
-	int32_t squareMaxCount = 8000;
-	int32_t drawMaxCount = 128;
+	int32_t instanceMaxCount = 4000;
+	int32_t squareMaxCount = 16000;
+	int32_t drawMaxCount = 256;
 	Ref<Script> soundScript;
 
 	auto settings = ProjectSettings::get_singleton();
