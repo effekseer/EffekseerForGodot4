@@ -3,6 +3,8 @@ extends Node
 var _editor_plugin: EditorPlugin = null
 var _editing_emitter_2d: EffekseerEmitter2D
 var _editing_emitter_3d: EffekseerEmitter3D
+var _playing_emitter_2d: Array[EffekseerEmitter2D] = []
+var _playing_emitter_3d: Array[EffekseerEmitter3D] = []
 var _editor_viewport_2d: Array[SubViewport] = []
 var _editor_viewport_3d: Array[SubViewport] = []
 var _editor_play_button: Button = null
@@ -20,13 +22,21 @@ func set_editor(editor_plugin: EditorPlugin):
 
 
 func _process(delta: float) -> void:
-	EffekseerSystem.set_editor2d_camera_transform(_editor_viewport_2d[0].get_canvas_transform())
-	EffekseerSystem.set_editor3d_camera_transform(_editor_viewport_3d[0].get_camera_3d().get_camera_transform())
+	if not _playing_emitter_2d.is_empty():
+		EffekseerSystem.set_editor2d_camera_transform(_editor_viewport_2d[0].get_canvas_transform())
+	for emitter_2d in _playing_emitter_2d:
+		if emitter_2d.is_playing():
+			emitter_2d.queue_redraw()
+		else:
+			_playing_emitter_2d.erase(emitter_2d)
 
-	if _editing_emitter_2d and _editing_emitter_2d.is_playing():
-		_editing_emitter_2d.queue_redraw()
-	if _editing_emitter_3d and _editing_emitter_3d.is_playing():
-		_editing_emitter_3d.position = _editing_emitter_3d.position  # request redraw
+	if not _playing_emitter_3d.is_empty():
+		EffekseerSystem.set_editor3d_camera_transform(_editor_viewport_3d[0].get_camera_3d().get_camera_transform())
+	for emitter_3d in _playing_emitter_3d:
+		if emitter_3d.is_playing():
+			emitter_3d.position = emitter_3d.position  # request redraw
+		else:
+			_playing_emitter_3d.erase(emitter_3d)
 
 
 func handles(object: Object) -> bool:
@@ -71,11 +81,15 @@ func _on_editor_play_button_pressed() -> void:
 			_editing_emitter_2d.stop()
 		else:
 			_editing_emitter_2d.play()
+			if _editing_emitter_2d not in _playing_emitter_2d:
+				_playing_emitter_2d.append(_editing_emitter_2d)
 	if _editing_emitter_3d:
 		if _editing_emitter_3d.is_playing():
 			_editing_emitter_3d.stop()
 		else:
 			_editing_emitter_3d.play()
+			if _editing_emitter_3d not in _playing_emitter_3d:
+				_playing_emitter_3d.append(_editing_emitter_3d)
 	_update_editor_play_button_state()
 
 
