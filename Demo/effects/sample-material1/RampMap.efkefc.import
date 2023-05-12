@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://kbnk526o6n5h"
+path="res://.godot/imported/RampMap.efkefc-83f114a8b152fce4e147add069aac8a2.res"
+
+[deps]
+
+source_file="res://effects/sample-material1/RampMap.efkefc"
+dest_files=["res://.godot/imported/RampMap.efkefc-83f114a8b152fce4e147add069aac8a2.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

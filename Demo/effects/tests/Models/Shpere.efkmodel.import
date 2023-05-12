@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://civpq2yb0fyyg"
+path="res://.godot/imported/Shpere.efkmodel-cb379c530c883edbfed6d54b78e6ad38.res"
+
+[deps]
+
+source_file="res://effects/tests/Models/Shpere.efkmodel"
+dest_files=["res://.godot/imported/Shpere.efkmodel-cb379c530c883edbfed6d54b78e6ad38.res"]
+
+[params]
+
+compress=true

@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://draxfjq26tnvx"
+path="res://.godot/imported/Refraction.efkmat-ec08d3413c45408d870c539a0e673cb1.res"
+
+[deps]
+
+source_file="res://effects/tests/Materials/Refraction.efkmat"
+dest_files=["res://.godot/imported/Refraction.efkmat-ec08d3413c45408d870c539a0e673cb1.res"]
+
+[params]
+
+compress=true

@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://bdk56an3aod76"
+path="res://.godot/imported/ImageDistortion.efkmat-9e4014928f37fcd8668fe6b70b1a9793.res"
+
+[deps]
+
+source_file="res://effects/sample-material1/Materials/ImageDistortion.efkmat"
+dest_files=["res://.godot/imported/ImageDistortion.efkmat-9e4014928f37fcd8668fe6b70b1a9793.res"]
+
+[params]
+
+compress=true

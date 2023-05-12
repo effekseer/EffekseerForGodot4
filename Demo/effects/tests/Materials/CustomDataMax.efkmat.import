@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://cjkrmk8dm4nhs"
+path="res://.godot/imported/CustomDataMax.efkmat-24b11a299d3208688733112175a02b28.res"
+
+[deps]
+
+source_file="res://effects/tests/Materials/CustomDataMax.efkmat"
+dest_files=["res://.godot/imported/CustomDataMax.efkmat-24b11a299d3208688733112175a02b28.res"]
+
+[params]
+
+compress=true

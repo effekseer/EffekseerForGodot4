@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://ddys1l35g2l66"
+path="res://.godot/imported/Material_Math.efkefc-8d785ad5e12bbf62e0e49757544d03a9.res"
+
+[deps]
+
+source_file="res://effects/tests/15/Material_Math.efkefc"
+dest_files=["res://.godot/imported/Material_Math.efkefc-8d785ad5e12bbf62e0e49757544d03a9.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

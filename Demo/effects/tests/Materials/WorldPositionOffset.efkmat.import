@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://caw7pw8ey76ml"
+path="res://.godot/imported/WorldPositionOffset.efkmat-122c4cc6215df1c1a1081c6df4d0e512.res"
+
+[deps]
+
+source_file="res://effects/tests/Materials/WorldPositionOffset.efkmat"
+dest_files=["res://.godot/imported/WorldPositionOffset.efkmat-122c4cc6215df1c1a1081c6df4d0e512.res"]
+
+[params]
+
+compress=true

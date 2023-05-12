@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://chnqtwugoj0qh"
+path="res://.godot/imported/Particles.efkefc-16354d47e08697fb5925a60446848c88.res"
+
+[deps]
+
+source_file="res://effects/samples/Particles.efkefc"
+dest_files=["res://.godot/imported/Particles.efkefc-16354d47e08697fb5925a60446848c88.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

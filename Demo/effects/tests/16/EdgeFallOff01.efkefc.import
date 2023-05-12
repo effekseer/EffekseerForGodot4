@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://cigakk7je0h8v"
+path="res://.godot/imported/EdgeFallOff01.efkefc-07dae53daa598424ba79d300e49ed44a.res"
+
+[deps]
+
+source_file="res://effects/tests/16/EdgeFallOff01.efkefc"
+dest_files=["res://.godot/imported/EdgeFallOff01.efkefc-07dae53daa598424ba79d300e49ed44a.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

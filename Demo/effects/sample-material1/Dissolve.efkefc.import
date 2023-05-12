@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://bvy4ea3payb31"
+path="res://.godot/imported/Dissolve.efkefc-34f6214e83ea88268a6bcbf021ada932.res"
+
+[deps]
+
+source_file="res://effects/sample-material1/Dissolve.efkefc"
+dest_files=["res://.godot/imported/Dissolve.efkefc-34f6214e83ea88268a6bcbf021ada932.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

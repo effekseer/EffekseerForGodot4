@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://dbbqe6hyst1hw"
+path="res://.godot/imported/ToonWaterTube.efkmat-2ed9737b5f093f348ad7f6070368ae00.res"
+
+[deps]
+
+source_file="res://effects/sample-material2/Parts/ToonWaterTube.efkmat"
+dest_files=["res://.godot/imported/ToonWaterTube.efkmat-2ed9737b5f093f348ad7f6070368ae00.res"]
+
+[params]
+
+compress=true

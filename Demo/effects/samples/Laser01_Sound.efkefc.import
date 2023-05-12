@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://dttrceq0f4cn3"
+path="res://.godot/imported/Laser01_Sound.efkefc-7465d2ac6482ea502912069dedfbaa4a.res"
+
+[deps]
+
+source_file="res://effects/samples/Laser01_Sound.efkefc"
+dest_files=["res://.godot/imported/Laser01_Sound.efkefc-7465d2ac6482ea502912069dedfbaa4a.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

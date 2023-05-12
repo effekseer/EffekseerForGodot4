@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://d3ivubfy8pl55"
+path="res://.godot/imported/ToonWater.efkefc-f3d1866e7dccec7012b40457d03ceef3.res"
+
+[deps]
+
+source_file="res://effects/sample-material2/ToonWater.efkefc"
+dest_files=["res://.godot/imported/ToonWater.efkefc-f3d1866e7dccec7012b40457d03ceef3.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

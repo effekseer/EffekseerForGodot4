@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://b4yur26egqau0"
+path="res://.godot/imported/Unlit.efkefc-ad66651dd979ba425247846d62f1fc2e.res"
+
+[deps]
+
+source_file="res://effects/sample-material1/Unlit.efkefc"
+dest_files=["res://.godot/imported/Unlit.efkefc-ad66651dd979ba425247846d62f1fc2e.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

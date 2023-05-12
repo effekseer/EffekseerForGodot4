@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://dbbi7sv5owhmc"
+path="res://.godot/imported/Simple_Ring_Shape2.efkefc-b82051e76b4d7d3ca345aa06efaa3e28.res"
+
+[deps]
+
+source_file="res://effects/samples/Simple_Ring_Shape2.efkefc"
+dest_files=["res://.godot/imported/Simple_Ring_Shape2.efkefc-b82051e76b4d7d3ca345aa06efaa3e28.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

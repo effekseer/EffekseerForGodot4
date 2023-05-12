@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://dy208fe2y107i"
+path="res://.godot/imported/Simple_Ribbon_Sword.efkefc-dc0ffaf6d373028beb78e6f2207abce4.res"
+
+[deps]
+
+source_file="res://effects/samples/Simple_Ribbon_Sword.efkefc"
+dest_files=["res://.godot/imported/Simple_Ribbon_Sword.efkefc-dc0ffaf6d373028beb78e6f2207abce4.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

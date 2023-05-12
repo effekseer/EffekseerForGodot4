@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://solnbt6b121k"
+path="res://.godot/imported/Noise_Distortion.efkmat-4458a85d2075c9d40d28e6474029ed6e.res"
+
+[deps]
+
+source_file="res://effects/sample-material2/Parts/Noise_Distortion.efkmat"
+dest_files=["res://.godot/imported/Noise_Distortion.efkmat-4458a85d2075c9d40d28e6474029ed6e.res"]
+
+[params]
+
+compress=true

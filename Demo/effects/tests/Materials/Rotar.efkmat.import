@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://chqxva2tkknv8"
+path="res://.godot/imported/Rotar.efkmat-232c6abd72369b1969eb5b2acdcb0dc7.res"
+
+[deps]
+
+source_file="res://effects/tests/Materials/Rotar.efkmat"
+dest_files=["res://.godot/imported/Rotar.efkmat-232c6abd72369b1969eb5b2acdcb0dc7.res"]
+
+[params]
+
+compress=true

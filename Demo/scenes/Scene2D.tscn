@@ -1,0 +1,72 @@
+[gd_scene load_steps=8 format=3 uid="uid://30enxyxxrg2i"]
+
+[ext_resource type="Texture2D" uid="uid://7qnlb6vc3vxh" path="res://icon.png" id="2"]
+[ext_resource type="PackedScene" uid="uid://3yy8se2knnd6" path="res://shared/gui.tscn" id="4"]
+[ext_resource type="EffekseerEffect" uid="uid://bkbmaq2e1kq0e" path="res://effects/samples/Simple_Distortion.efkefc" id="4_7j7l7"]
+[ext_resource type="Texture2D" uid="uid://dod84ervtfcm1" path="res://effects/tests/Textures/Particle02.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://cq0rnvcuc6xwp" path="res://shared/grid.png" id="7"]
+[ext_resource type="Script" path="res://scripts/Scene2D.gd" id="8"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_3vo4w"]
+
+[node name="Scene2D" type="Node2D"]
+script = ExtResource("8")
+
+[node name="Background" type="TextureRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1280.0
+offset_bottom = 720.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("7")
+stretch_mode = 1
+metadata/_edit_lock_ = true
+
+[node name="ColorRect" type="ColorRect" parent="."]
+modulate = Color(1, 1, 1, 0.384314)
+
+[node name="Sprite" type="Sprite2D" parent="."]
+position = Vector2(171.514, 105.967)
+texture = ExtResource("2")
+
+[node name="Effect" type="EffekseerEmitter2D" parent="."]
+effect = ExtResource("4_7j7l7")
+position = Vector2(229.379, 184.932)
+scale = Vector2(30, 30)
+
+[node name="MeshInstance2D" type="MeshInstance2D" parent="Effect"]
+modulate = Color(0.796078, 0.6, 0.431373, 1)
+mesh = SubResource("BoxMesh_3vo4w")
+
+[node name="Sprite2" type="Sprite2D" parent="."]
+position = Vector2(275.172, 107.026)
+texture = ExtResource("2")
+
+[node name="Light2D" type="PointLight2D" parent="."]
+position = Vector2(577, 296)
+scale = Vector2(3.10167, 3.1723)
+texture = ExtResource("5")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+offset = Vector2(640, 360)
+
+[node name="Header" type="HBoxContainer" parent="."]
+
+[node name="Title" type="Label" parent="Header"]
+layout_mode = 2
+text = "Effekseer 2D Effect Example"
+
+[node name="Description" type="Label" parent="Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "W/A/S/D: Move the Emitter.  Q/E: Rotate the Emitter."
+
+[node name="GUI" parent="." instance=ExtResource("4")]
+offset_right = 1280.0
+offset_bottom = 720.0
+metadata/_edit_lock_ = true
+
+[node name="DirectionalLight2D" type="DirectionalLight2D" parent="."]
+visible = false

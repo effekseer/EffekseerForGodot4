@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://pocevkaxjbpi"
+path="res://.godot/imported/ForceFieldLocal_Turbulence1.efkefc-4a6eaea1fded55cb5b839ae86e51bdf4.res"
+
+[deps]
+
+source_file="res://effects/tests/15/ForceFieldLocal_Turbulence1.efkefc"
+dest_files=["res://.godot/imported/ForceFieldLocal_Turbulence1.efkefc-4a6eaea1fded55cb5b839ae86e51bdf4.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

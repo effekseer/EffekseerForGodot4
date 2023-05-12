@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://nvsid1bxx4ft"
+path="res://.godot/imported/SimpleLODs.efkefc-51b475628f4e95d0818af7f023e60834.res"
+
+[deps]
+
+source_file="res://effects/tests/17/SimpleLODs.efkefc"
+dest_files=["res://.godot/imported/SimpleLODs.efkefc-51b475628f4e95d0818af7f023e60834.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://bnev1niqy6ls3"
+path="res://.godot/imported/Fresnel.efkmat-aec9ef062e1620f69421431d60aacb84.res"
+
+[deps]
+
+source_file="res://effects/tests/Materials/Fresnel.efkmat"
+dest_files=["res://.godot/imported/Fresnel.efkmat-aec9ef062e1620f69421431d60aacb84.res"]
+
+[params]
+
+compress=true

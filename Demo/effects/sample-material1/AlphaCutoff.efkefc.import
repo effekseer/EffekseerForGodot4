@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://cf75ymrvt3aoc"
+path="res://.godot/imported/AlphaCutoff.efkefc-db3ba725929d3b9f4e2303563f8d5a6c.res"
+
+[deps]
+
+source_file="res://effects/sample-material1/AlphaCutoff.efkefc"
+dest_files=["res://.godot/imported/AlphaCutoff.efkefc-db3ba725929d3b9f4e2303563f8d5a6c.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

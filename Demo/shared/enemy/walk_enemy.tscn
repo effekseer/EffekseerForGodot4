@@ -1,0 +1,38 @@
+[gd_scene load_steps=5 format=3 uid="uid://ddvisui326ulx"]
+
+[ext_resource type="Script" path="res://shared/enemy/enemy_controller.gd" id="1_ae1n4"]
+[ext_resource type="PackedScene" uid="uid://dlirj7ow4mcvr" path="res://shared/models/beetle_bot/beetlebot_skin.tscn" id="2_o2b6t"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_4it54"]
+radius = 0.35
+height = 1.1
+
+[sub_resource type="SeparationRayShape3D" id="SeparationRayShape3D_0gixm"]
+length = 0.3
+
+[node name="Enemy" type="CharacterBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 0)
+collision_layer = 4
+collision_mask = 7
+script = ExtResource("1_ae1n4")
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0.3, 0)
+shape = SubResource("CapsuleShape3D_4it54")
+
+[node name="RayCollisionShape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0.3, 0)
+shape = SubResource("SeparationRayShape3D_0gixm")
+
+[node name="GroundCast" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+target_position = Vector3(0, -0.8, 0)
+
+[node name="CharacterRotationRoot" type="Node3D" parent="."]
+
+[node name="CharacterSkin" parent="CharacterRotationRoot" instance=ExtResource("2_o2b6t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.15)
+
+[node name="Effect" type="EffekseerEmitter3D" parent="."]
+autoplay = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)

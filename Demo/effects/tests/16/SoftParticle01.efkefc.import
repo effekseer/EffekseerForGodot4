@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://wwmy0d0j8yog"
+path="res://.godot/imported/SoftParticle01.efkefc-2977efbbce867f82d31984e40df97f66.res"
+
+[deps]
+
+source_file="res://effects/tests/16/SoftParticle01.efkefc"
+dest_files=["res://.godot/imported/SoftParticle01.efkefc-2977efbbce867f82d31984e40df97f66.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

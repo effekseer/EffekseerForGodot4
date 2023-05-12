@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://jxsry4uixu3l"
+path="res://.godot/imported/Lighing_Parameters1.efkefc-c16d59e6ce5cb82ea1a4425234a2275c.res"
+
+[deps]
+
+source_file="res://effects/tests/15/Lighing_Parameters1.efkefc"
+dest_files=["res://.godot/imported/Lighing_Parameters1.efkefc-c16d59e6ce5cb82ea1a4425234a2275c.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

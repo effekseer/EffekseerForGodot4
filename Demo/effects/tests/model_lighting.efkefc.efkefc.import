@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://cgt1h2ynts5h3"
+path="res://.godot/imported/model_lighting.efkefc.efkefc-2a216b5132d612f30e01076f2265bd43.res"
+
+[deps]
+
+source_file="res://effects/tests/model_lighting.efkefc.efkefc"
+dest_files=["res://.godot/imported/model_lighting.efkefc.efkefc-2a216b5132d612f30e01076f2265bd43.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

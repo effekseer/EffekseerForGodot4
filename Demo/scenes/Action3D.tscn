@@ -1,0 +1,325 @@
+[gd_scene load_steps=26 format=3 uid="uid://3d7kunu3aewa"]
+
+[ext_resource type="Script" path="res://shared/brush_mesh.gd" id="2_8sywx"]
+[ext_resource type="Texture2D" uid="uid://cq0rnvcuc6xwp" path="res://shared/grid.png" id="2_qsys7"]
+[ext_resource type="Script" path="res://shared/moving_platform.gd" id="3_k68fg"]
+[ext_resource type="EffekseerEffect" uid="uid://bkbmaq2e1kq0e" path="res://effects/samples/Simple_Distortion.efkefc" id="4_qq8ly"]
+[ext_resource type="PackedScene" uid="uid://ddvisui326ulx" path="res://shared/enemy/walk_enemy.tscn" id="6_ce03d"]
+[ext_resource type="PackedScene" uid="uid://b1hhg61e4pgc" path="res://shared/player/player.tscn" id="6_k6snb"]
+[ext_resource type="Script" path="res://scripts/Stats.gd" id="7_jsj5c"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_kecvr"]
+size = Vector3(10, 1, 10)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_12xne"]
+albedo_texture = ExtResource("2_qsys7")
+
+[sub_resource type="PrimitiveMesh" id="PrimitiveMesh_c88il"]
+resource_local_to_scene = false
+resource_name = ""
+lightmap_size_hint = Vector2i(0, 0)
+custom_aabb = AABB(0, 0, 0, 0, 0, 0)
+flip_faces = false
+add_uv2 = false
+uv2_padding = 2.0
+script = ExtResource("2_8sywx")
+size = Vector3(10, 1, 10)
+uv_offset = Vector2(0, 0)
+uv_scale = Vector2(0.125, 0.125)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8lcsi"]
+size = Vector3(10, 5, 1)
+
+[sub_resource type="PrimitiveMesh" id="PrimitiveMesh_r417x"]
+resource_local_to_scene = false
+resource_name = ""
+lightmap_size_hint = Vector2i(0, 0)
+custom_aabb = AABB(0, 0, 0, 0, 0, 0)
+flip_faces = false
+add_uv2 = false
+uv2_padding = 2.0
+script = ExtResource("2_8sywx")
+size = Vector3(10, 5, 1)
+uv_offset = Vector2(0, 0)
+uv_scale = Vector2(0.125, 0.125)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_6c2vs"]
+size = Vector3(10, 1, 2)
+
+[sub_resource type="PrimitiveMesh" id="PrimitiveMesh_wbl5s"]
+resource_local_to_scene = false
+resource_name = ""
+lightmap_size_hint = Vector2i(0, 0)
+custom_aabb = AABB(0, 0, 0, 0, 0, 0)
+flip_faces = false
+add_uv2 = false
+uv2_padding = 2.0
+script = ExtResource("2_8sywx")
+size = Vector3(10, 1, 2)
+uv_offset = Vector2(0, 0)
+uv_scale = Vector2(0.125, 0.125)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_i6xtw"]
+size = Vector3(2, 2, 2)
+
+[sub_resource type="PrimitiveMesh" id="PrimitiveMesh_gao6k"]
+resource_local_to_scene = false
+resource_name = ""
+lightmap_size_hint = Vector2i(0, 0)
+custom_aabb = AABB(0, 0, 0, 0, 0, 0)
+flip_faces = false
+add_uv2 = false
+uv2_padding = 2.0
+script = ExtResource("2_8sywx")
+size = Vector3(2, 2, 2)
+uv_offset = Vector2(0, 0)
+uv_scale = Vector2(0.125, 0.125)
+
+[sub_resource type="PrimitiveMesh" id="PrimitiveMesh_nh1yg"]
+resource_local_to_scene = false
+resource_name = ""
+lightmap_size_hint = Vector2i(0, 0)
+custom_aabb = AABB(0, 0, 0, 0, 0, 0)
+flip_faces = false
+add_uv2 = false
+uv2_padding = 2.0
+script = ExtResource("2_8sywx")
+size = Vector3(2, 2, 2)
+uv_offset = Vector2(0, 0.063)
+uv_scale = Vector2(0.125, 0.125)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qj6sj"]
+size = Vector3(2, 2, 2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_3dc40"]
+size = Vector3(2, 1, 4)
+
+[sub_resource type="PrimitiveMesh" id="PrimitiveMesh_12g5a"]
+resource_local_to_scene = false
+resource_name = ""
+lightmap_size_hint = Vector2i(0, 0)
+custom_aabb = AABB(0, 0, 0, 0, 0, 0)
+flip_faces = false
+add_uv2 = false
+uv2_padding = 2.0
+script = ExtResource("2_8sywx")
+size = Vector3(2, 1, 4)
+uv_offset = Vector2(0, 0)
+uv_scale = Vector2(0.125, 0.125)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_eqbyn"]
+size = Vector3(10, 1, 10)
+
+[sub_resource type="PrimitiveMesh" id="PrimitiveMesh_civ3u"]
+resource_local_to_scene = false
+resource_name = ""
+lightmap_size_hint = Vector2i(0, 0)
+custom_aabb = AABB(0, 0, 0, 0, 0, 0)
+flip_faces = false
+add_uv2 = false
+uv2_padding = 2.0
+script = ExtResource("2_8sywx")
+size = Vector3(10, 1, 10)
+uv_offset = Vector2(0, 0)
+uv_scale = Vector2(0.125, 0.125)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_yjvqg"]
+size = Vector3(2, 1, 2)
+
+[sub_resource type="PrimitiveMesh" id="PrimitiveMesh_hgrbl"]
+resource_local_to_scene = false
+resource_name = ""
+lightmap_size_hint = Vector2i(0, 0)
+custom_aabb = AABB(0, 0, 0, 0, 0, 0)
+flip_faces = false
+add_uv2 = false
+uv2_padding = 2.0
+script = ExtResource("2_8sywx")
+size = Vector3(2, 1, 2)
+uv_offset = Vector2(0, 0)
+uv_scale = Vector2(0.125, 0.125)
+
+[sub_resource type="Environment" id="3"]
+glow_enabled = true
+
+[node name="Action3D" type="Node3D"]
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+collision_mask = 7
+
+[node name="Collision" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("BoxShape3D_kecvr")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground/Collision"]
+material_override = SubResource("StandardMaterial3D_12xne")
+mesh = SubResource("PrimitiveMesh_c88il")
+skeleton = NodePath("../../..")
+
+[node name="Collision1" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -5.5)
+shape = SubResource("BoxShape3D_8lcsi")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground/Collision1"]
+material_override = SubResource("StandardMaterial3D_12xne")
+mesh = SubResource("PrimitiveMesh_r417x")
+skeleton = NodePath("../../..")
+
+[node name="Collision2" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 0)
+shape = SubResource("BoxShape3D_6c2vs")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground/Collision2"]
+material_override = SubResource("StandardMaterial3D_12xne")
+mesh = SubResource("PrimitiveMesh_wbl5s")
+skeleton = NodePath("../../..")
+
+[node name="Collision3" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0.5, 0)
+shape = SubResource("BoxShape3D_i6xtw")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground/Collision3"]
+material_override = SubResource("StandardMaterial3D_12xne")
+mesh = SubResource("PrimitiveMesh_gao6k")
+skeleton = NodePath("../../..")
+
+[node name="Collision4" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 1.5, 0)
+shape = SubResource("BoxShape3D_i6xtw")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground/Collision4"]
+material_override = SubResource("StandardMaterial3D_12xne")
+mesh = SubResource("PrimitiveMesh_nh1yg")
+skeleton = NodePath("../../..")
+
+[node name="Collision5" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 2.5, 0)
+shape = SubResource("BoxShape3D_qj6sj")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground/Collision5"]
+material_override = SubResource("StandardMaterial3D_12xne")
+mesh = SubResource("PrimitiveMesh_gao6k")
+skeleton = NodePath("../../..")
+
+[node name="Collision6" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 3.5, 0)
+shape = SubResource("BoxShape3D_i6xtw")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground/Collision6"]
+material_override = SubResource("StandardMaterial3D_12xne")
+mesh = SubResource("PrimitiveMesh_nh1yg")
+skeleton = NodePath("../../..")
+
+[node name="Collision7" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 4, -3)
+shape = SubResource("BoxShape3D_3dc40")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground/Collision7"]
+material_override = SubResource("StandardMaterial3D_12xne")
+mesh = SubResource("PrimitiveMesh_12g5a")
+skeleton = NodePath("../../..")
+
+[node name="Collision8" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 4, -10)
+shape = SubResource("BoxShape3D_kecvr")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground/Collision8"]
+material_override = SubResource("StandardMaterial3D_12xne")
+mesh = SubResource("PrimitiveMesh_c88il")
+skeleton = NodePath("../../..")
+
+[node name="Collision10" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 4, -10)
+shape = SubResource("BoxShape3D_kecvr")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground/Collision10"]
+material_override = SubResource("StandardMaterial3D_12xne")
+mesh = SubResource("PrimitiveMesh_c88il")
+skeleton = NodePath("../../..")
+
+[node name="Collision11" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -11)
+shape = SubResource("BoxShape3D_eqbyn")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground/Collision11"]
+material_override = SubResource("StandardMaterial3D_12xne")
+mesh = SubResource("PrimitiveMesh_civ3u")
+skeleton = NodePath("../../..")
+
+[node name="Collision9" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 6, -15.5)
+shape = SubResource("BoxShape3D_8lcsi")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground/Collision9"]
+material_override = SubResource("StandardMaterial3D_12xne")
+mesh = SubResource("PrimitiveMesh_r417x")
+skeleton = NodePath("../../..")
+
+[node name="MovingPlatform" type="AnimatableBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 3.5, -10)
+script = ExtResource("3_k68fg")
+move_offset = Vector3(-10, 0, 0)
+
+[node name="Collision10" type="CollisionShape3D" parent="MovingPlatform"]
+shape = SubResource("BoxShape3D_yjvqg")
+
+[node name="Mesh" type="MeshInstance3D" parent="MovingPlatform/Collision10"]
+material_override = SubResource("StandardMaterial3D_12xne")
+mesh = SubResource("PrimitiveMesh_hgrbl")
+skeleton = NodePath("../../..")
+
+[node name="DirectionalLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.504, 0.863703, 0, -0.863703, 0.504, 0, 6.95046, -4.86754e-07)
+shadow_enabled = true
+
+[node name="Effect" type="EffekseerEmitter3D" parent="."]
+effect = ExtResource("4_qq8ly")
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0.001, 3)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("3")
+
+[node name="Player" parent="." instance=ExtResource("6_k6snb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 0)
+
+[node name="WalkEnemy" parent="." instance=ExtResource("6_ce03d")]
+
+[node name="WalkEnemy4" parent="." instance=ExtResource("6_ce03d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 3, 0)
+
+[node name="WalkEnemy2" parent="." instance=ExtResource("6_ce03d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 4, -12)
+
+[node name="WalkEnemy3" parent="." instance=ExtResource("6_ce03d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -7)
+
+[node name="GUI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Header" type="HBoxContainer" parent="GUI"]
+layout_mode = 0
+offset_right = 616.0
+offset_bottom = 26.0
+
+[node name="Title" type="Label" parent="GUI/Header"]
+layout_mode = 2
+text = "Effekseer 3D Action Game Example"
+
+[node name="Description" type="Label" parent="GUI/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "W/A/S/D: Move,  Space: Jump, LeftClick: Shot"
+
+[node name="Stats" type="VBoxContainer" parent="GUI"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.85
+anchor_right = 1.0
+anchor_bottom = 0.2
+grow_horizontal = 0
+script = ExtResource("7_jsj5c")

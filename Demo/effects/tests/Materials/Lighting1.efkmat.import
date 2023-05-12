@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://b15lpranyixyc"
+path="res://.godot/imported/Lighting1.efkmat-f230d04d1eab958ff4985d0895c7910b.res"
+
+[deps]
+
+source_file="res://effects/tests/Materials/Lighting1.efkmat"
+dest_files=["res://.godot/imported/Lighting1.efkmat-f230d04d1eab958ff4985d0895c7910b.res"]
+
+[params]
+
+compress=true

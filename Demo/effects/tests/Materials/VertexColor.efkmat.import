@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://bupocr50hlfk8"
+path="res://.godot/imported/VertexColor.efkmat-b5130fac2726aed4b0510561cae395bb.res"
+
+[deps]
+
+source_file="res://effects/tests/Materials/VertexColor.efkmat"
+dest_files=["res://.godot/imported/VertexColor.efkmat-b5130fac2726aed4b0510561cae395bb.res"]
+
+[params]
+
+compress=true

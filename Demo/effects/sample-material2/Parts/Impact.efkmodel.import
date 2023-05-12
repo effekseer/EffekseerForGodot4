@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://b4hejvx4tafhi"
+path="res://.godot/imported/Impact.efkmodel-040212ef40932ee545efdbb01dbc5658.res"
+
+[deps]
+
+source_file="res://effects/sample-material2/Parts/Impact.efkmodel"
+dest_files=["res://.godot/imported/Impact.efkmodel-040212ef40932ee545efdbb01dbc5658.res"]
+
+[params]
+
+compress=true

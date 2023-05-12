@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://cplenk23gpeil"
+path="res://.godot/imported/TGA01.efkefc-420c7d2de344d8858a9fe52224ad8ca0.res"
+
+[deps]
+
+source_file="res://effects/tests/16/TGA01.efkefc"
+dest_files=["res://.godot/imported/TGA01.efkefc-420c7d2de344d8858a9fe52224ad8ca0.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

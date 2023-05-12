@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://dyxx2eotooa3j"
+path="res://.godot/imported/MergedSphere.efkmodel-197225fa1a2a5f046f9fd9d5a0ca90f4.res"
+
+[deps]
+
+source_file="res://effects/sample-material1/Models/MergedSphere.efkmodel"
+dest_files=["res://.godot/imported/MergedSphere.efkmodel-197225fa1a2a5f046f9fd9d5a0ca90f4.res"]
+
+[params]
+
+compress=true

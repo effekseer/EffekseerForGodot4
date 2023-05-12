@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://wfxcvxjsq3sc"
+path="res://.godot/imported/Gradient.efkefc-32fde3b107a070ed90c7fe9d905c0ded.res"
+
+[deps]
+
+source_file="res://effects/sample-material3/Gradient.efkefc"
+dest_files=["res://.godot/imported/Gradient.efkefc-32fde3b107a070ed90c7fe9d905c0ded.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

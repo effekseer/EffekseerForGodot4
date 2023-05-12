@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://bgf5vj2o0gmx5"
+path="res://.godot/imported/UV1.efkmat-2e36d7a2443cb9e999d3f6834c041071.res"
+
+[deps]
+
+source_file="res://effects/tests/Materials/UV1.efkmat"
+dest_files=["res://.godot/imported/UV1.efkmat-2e36d7a2443cb9e999d3f6834c041071.res"]
+
+[params]
+
+compress=true

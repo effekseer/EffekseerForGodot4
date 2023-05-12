@@ -1,0 +1,29 @@
+[gd_scene load_steps=5 format=3 uid="uid://cdg12flv4kj7g"]
+
+[ext_resource type="EffekseerEffect" uid="uid://b3wm2n13noxus" path="res://effects/sample-material3/ef_fire01_throw.efkefc" id="1_8gcco"]
+[ext_resource type="Script" path="res://shared/player/fireball.gd" id="1_smq6c"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_moa1b"]
+radius = 0.2
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_iu6iv"]
+
+[node name="FireBall" type="CharacterBody3D"]
+collision_layer = 8
+collision_mask = 5
+motion_mode = 1
+platform_on_leave = 2
+script = ExtResource("1_smq6c")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_moa1b")
+
+[node name="Effect" type="EffekseerEmitter3D" parent="."]
+effect = ExtResource("1_8gcco")
+
+[node name="BurstArea" type="Area3D" parent="."]
+collision_layer = 8
+collision_mask = 4
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="BurstArea"]
+shape = SubResource("SphereShape3D_iu6iv")

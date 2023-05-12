@@ -1,0 +1,40 @@
+[gd_scene load_steps=2 format=3 uid="uid://d1saahy22ijww"]
+
+[ext_resource type="PackedScene" uid="uid://co3uv7mhnemqy" path="res://scenes/Scene3D.tscn" id="1_tuel3"]
+
+[node name="MultiViewports" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Scene3D" parent="." instance=ExtResource("1_tuel3")]
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="SubViewport" type="SubViewport" parent="SubViewportContainer"]
+handle_input_locally = false
+size = Vector2i(640, 720)
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="SubViewportContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 4.86603, 7.5)
+
+[node name="SubViewportContainer2" type="SubViewportContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 640.0
+
+[node name="SubViewport" type="SubViewport" parent="SubViewportContainer2"]
+handle_input_locally = false
+size = Vector2i(640, 720)
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="SubViewportContainer2/SubViewport"]
+transform = Transform3D(1, 3.98365e-07, 3.84424e-07, -4.84288e-07, 0.965926, 0.258819, -2.68221e-07, -0.258819, 0.965926, 5, 5.96593, 8.74118)

@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://bthw7fgqt6cih"
+path="res://.godot/imported/LocalTime.efkmat-41c573efb797c13b9ab8d2e6cbc1c925.res"
+
+[deps]
+
+source_file="res://effects/sample-material3/LocalTime.efkmat"
+dest_files=["res://.godot/imported/LocalTime.efkmat-41c573efb797c13b9ab8d2e6cbc1c925.res"]
+
+[params]
+
+compress=true

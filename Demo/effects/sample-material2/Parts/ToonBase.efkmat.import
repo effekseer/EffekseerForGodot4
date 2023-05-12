@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://be7c7if5xh45h"
+path="res://.godot/imported/ToonBase.efkmat-b334440277001f427862129757e97e1a.res"
+
+[deps]
+
+source_file="res://effects/sample-material2/Parts/ToonBase.efkmat"
+dest_files=["res://.godot/imported/ToonBase.efkmat-b334440277001f427862129757e97e1a.res"]
+
+[params]
+
+compress=true

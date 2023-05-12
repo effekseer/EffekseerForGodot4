@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://cxjecdgj3er5o"
+path="res://.godot/imported/Material_FresnelLike.efkefc-f4a056b4b829ea0757e8699c084b4e19.res"
+
+[deps]
+
+source_file="res://effects/tests/15/Material_FresnelLike.efkefc"
+dest_files=["res://.godot/imported/Material_FresnelLike.efkefc-f4a056b4b829ea0757e8699c084b4e19.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

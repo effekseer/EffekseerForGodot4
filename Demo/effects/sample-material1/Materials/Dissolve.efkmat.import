@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://d4gjd1slf0n1u"
+path="res://.godot/imported/Dissolve.efkmat-52855b248f33ed9f65ee5eeb97c67951.res"
+
+[deps]
+
+source_file="res://effects/sample-material1/Materials/Dissolve.efkmat"
+dest_files=["res://.godot/imported/Dissolve.efkmat-52855b248f33ed9f65ee5eeb97c67951.res"]
+
+[params]
+
+compress=true

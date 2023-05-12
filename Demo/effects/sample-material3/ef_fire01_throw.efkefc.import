@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://b3wm2n13noxus"
+path="res://.godot/imported/ef_fire01_throw.efkefc-3e3794b09d16530009d64e9a36919646.res"
+
+[deps]
+
+source_file="res://effects/sample-material3/ef_fire01_throw.efkefc"
+dest_files=["res://.godot/imported/ef_fire01_throw.efkefc-3e3794b09d16530009d64e9a36919646.res"]
+
+[params]
+
+scale=0.3
+data_type=0
+compress=true

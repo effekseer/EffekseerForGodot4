@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://bk85u1tj8585u"
+path="res://.godot/imported/Model_Culling.efkefc-8cfea347515976fef284b111ba48a37f.res"
+
+[deps]
+
+source_file="res://effects/tests/15/Model_Culling.efkefc"
+dest_files=["res://.godot/imported/Model_Culling.efkefc-8cfea347515976fef284b111ba48a37f.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

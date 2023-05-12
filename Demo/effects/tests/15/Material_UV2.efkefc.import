@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://dmscra5pxk56a"
+path="res://.godot/imported/Material_UV2.efkefc-71e3e77b6d898da34e1036331d9cad90.res"
+
+[deps]
+
+source_file="res://effects/tests/15/Material_UV2.efkefc"
+dest_files=["res://.godot/imported/Material_UV2.efkefc-71e3e77b6d898da34e1036331d9cad90.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://fl0oq61y08hy"
+path="res://.godot/imported/Simple_GeneratingPosition1.efkefc-40ee5c60fa20610d9147098d81b64d60.res"
+
+[deps]
+
+source_file="res://effects/samples/Simple_GeneratingPosition1.efkefc"
+dest_files=["res://.godot/imported/Simple_GeneratingPosition1.efkefc-40ee5c60fa20610d9147098d81b64d60.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

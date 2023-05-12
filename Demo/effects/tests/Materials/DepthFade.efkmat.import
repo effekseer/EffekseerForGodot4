@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://q5kpw1hxo88e"
+path="res://.godot/imported/DepthFade.efkmat-fc0bebbc9ea7c40e55407c7d51d3738a.res"
+
+[deps]
+
+source_file="res://effects/tests/Materials/DepthFade.efkmat"
+dest_files=["res://.godot/imported/DepthFade.efkmat-fc0bebbc9ea7c40e55407c7d51d3738a.res"]
+
+[params]
+
+compress=true

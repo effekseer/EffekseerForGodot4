@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://djgb34bf5q8uh"
+path="res://.godot/imported/Material_FresnelRotatorPolarCoords.efkefc-e58056c64b2b99cede2c33695bd91f7f.res"
+
+[deps]
+
+source_file="res://effects/tests/15/Material_FresnelRotatorPolarCoords.efkefc"
+dest_files=["res://.godot/imported/Material_FresnelRotatorPolarCoords.efkefc-e58056c64b2b99cede2c33695bd91f7f.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://cwpfe2i0onw1u"
+path="res://.godot/imported/texture_clamped.efkefc-4aa830279e9184694c7bdf8d4e9859f5.res"
+
+[deps]
+
+source_file="res://effects/tests/texture_clamped.efkefc"
+dest_files=["res://.godot/imported/texture_clamped.efkefc-4aa830279e9184694c7bdf8d4e9859f5.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

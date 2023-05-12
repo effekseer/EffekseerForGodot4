@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://bao47qsjnebqy"
+path="res://.godot/imported/Material_WorldPositionOffset.efkefc-97f70d11440b81ddbc8de11bc98b85d2.res"
+
+[deps]
+
+source_file="res://effects/tests/15/Material_WorldPositionOffset.efkefc"
+dest_files=["res://.godot/imported/Material_WorldPositionOffset.efkefc-97f70d11440b81ddbc8de11bc98b85d2.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

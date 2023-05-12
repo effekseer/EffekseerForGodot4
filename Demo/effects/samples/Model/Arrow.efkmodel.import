@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://cuipvmnfjw5e2"
+path="res://.godot/imported/Arrow.efkmodel-0e491e0583de7a268ac33b3a76d4f6fc.res"
+
+[deps]
+
+source_file="res://effects/samples/Model/Arrow.efkmodel"
+dest_files=["res://.godot/imported/Arrow.efkmodel-0e491e0583de7a268ac33b3a76d4f6fc.res"]
+
+[params]
+
+compress=true

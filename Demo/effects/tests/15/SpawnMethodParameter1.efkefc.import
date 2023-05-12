@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://r4hnrxs4q0x"
+path="res://.godot/imported/SpawnMethodParameter1.efkefc-769f88722b35df702288333dd4c57c87.res"
+
+[deps]
+
+source_file="res://effects/tests/15/SpawnMethodParameter1.efkefc"
+dest_files=["res://.godot/imported/SpawnMethodParameter1.efkefc-769f88722b35df702288333dd4c57c87.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

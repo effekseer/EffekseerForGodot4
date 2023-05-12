@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://nxu6xx8txl8f"
+path="res://.godot/imported/Material_CustomDataMax.efkefc-511f6613ba362e4fb52e933444907fe6.res"
+
+[deps]
+
+source_file="res://effects/tests/15/Material_CustomDataMax.efkefc"
+dest_files=["res://.godot/imported/Material_CustomDataMax.efkefc-511f6613ba362e4fb52e933444907fe6.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

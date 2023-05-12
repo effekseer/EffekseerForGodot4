@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://c02ysvbwbpkv6"
+path="res://.godot/imported/PolarCoords.efkmat-33bea77e5277f5f5a22b73eb4ce6cb6c.res"
+
+[deps]
+
+source_file="res://effects/tests/Materials/PolarCoords.efkmat"
+dest_files=["res://.godot/imported/PolarCoords.efkmat-33bea77e5277f5f5a22b73eb4ce6cb6c.res"]
+
+[params]
+
+compress=true

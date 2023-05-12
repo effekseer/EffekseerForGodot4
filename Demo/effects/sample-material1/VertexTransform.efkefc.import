@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://dliwwtnkd33tk"
+path="res://.godot/imported/VertexTransform.efkefc-cb873f761a81443f5bb1c1db03d239e9.res"
+
+[deps]
+
+source_file="res://effects/sample-material1/VertexTransform.efkefc"
+dest_files=["res://.godot/imported/VertexTransform.efkefc-cb873f761a81443f5bb1c1db03d239e9.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://pb5lcwye3f73"
+path="res://.godot/imported/Normal.efkmat-9eabd7f611ba49180e134797f5e51dd5.res"
+
+[deps]
+
+source_file="res://effects/tests/Materials/Normal.efkmat"
+dest_files=["res://.godot/imported/Normal.efkmat-9eabd7f611ba49180e134797f5e51dd5.res"]
+
+[params]
+
+compress=true

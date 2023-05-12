@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://cvwiiphfcwerd"
+path="res://.godot/imported/Sphare_Resized.efkmodel-31e273d3e6579ca9251096bff9eef95e.res"
+
+[deps]
+
+source_file="res://effects/tests/Models/Sphare_Resized.efkmodel"
+dest_files=["res://.godot/imported/Sphare_Resized.efkmodel-31e273d3e6579ca9251096bff9eef95e.res"]
+
+[params]
+
+compress=true

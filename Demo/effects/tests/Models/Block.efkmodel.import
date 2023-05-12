@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://datiki2dtq3ru"
+path="res://.godot/imported/Block.efkmodel-1ae4d39163c9e959f3923209ffed2a81.res"
+
+[deps]
+
+source_file="res://effects/tests/Models/Block.efkmodel"
+dest_files=["res://.godot/imported/Block.efkmodel-1ae4d39163c9e959f3923209ffed2a81.res"]
+
+[params]
+
+compress=true

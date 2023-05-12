@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://dw12p7ktrinfl"
+path="res://.godot/imported/FresnelNormal.efkmat-f0b11c0cc21ed17189083ab1745eebfd.res"
+
+[deps]
+
+source_file="res://effects/tests/Materials/FresnelNormal.efkmat"
+dest_files=["res://.godot/imported/FresnelNormal.efkmat-f0b11c0cc21ed17189083ab1745eebfd.res"]
+
+[params]
+
+compress=true

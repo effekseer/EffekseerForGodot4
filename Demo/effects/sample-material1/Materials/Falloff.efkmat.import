@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://d2vbm8mkbn41n"
+path="res://.godot/imported/Falloff.efkmat-efa63b131f4c1b6c5547ac53047416c9.res"
+
+[deps]
+
+source_file="res://effects/sample-material1/Materials/Falloff.efkmat"
+dest_files=["res://.godot/imported/Falloff.efkmat-efa63b131f4c1b6c5547ac53047416c9.res"]
+
+[params]
+
+compress=true
