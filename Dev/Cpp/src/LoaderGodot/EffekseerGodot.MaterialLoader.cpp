@@ -44,8 +44,8 @@ namespace EffekseerGodot
 		auto shader = Shader::Create("Sprite_Material", RendererShaderType::Material);
 		shader->SetVertexConstantBufferSize(std::max(shaderList[(size_t)ShaderType::Sprite2D].VertexConstantBufferSize, shaderList[(size_t)ShaderType::Sprite3D].VertexConstantBufferSize));
 		shader->SetPixelConstantBufferSize(std::max(shaderList[(size_t)ShaderType::Sprite2D].PixelConstantBufferSize, shaderList[(size_t)ShaderType::Sprite3D].PixelConstantBufferSize));
-		shader->SetCode(Shader::RenderType::SpatialLightweight, shaderList[(size_t)ShaderType::Sprite3D].ShaderCode.c_str(), std::move(shaderList[(size_t)ShaderType::Sprite3D].ParamDecls));
-		shader->SetCode(Shader::RenderType::CanvasItem, shaderList[(size_t)ShaderType::Sprite2D].ShaderCode.c_str(), std::vector<Shader::ParamDecl>(shaderList[0].ParamDecls));
+		//shader->SetCode(Shader::RenderType::SpatialLightweight, shaderList[(size_t)ShaderType::Sprite3D].ShaderCode.c_str(), std::move(shaderList[(size_t)ShaderType::Sprite3D].ParamDecls));
+		//shader->SetCode(Shader::RenderType::CanvasItem, shaderList[(size_t)ShaderType::Sprite2D].ShaderCode.c_str(), std::vector<Shader::ParamDecl>(shaderList[0].ParamDecls));
 		shader->SetCustomData1Count(materialFile.GetCustomData1Count());
 		shader->SetCustomData2Count(materialFile.GetCustomData2Count());
 		material->UserPtr = shader.release();
@@ -54,8 +54,8 @@ namespace EffekseerGodot
 		auto shader = Shader::Create("Model_Material", RendererShaderType::Material);
 		shader->SetVertexConstantBufferSize(std::max(shaderList[(size_t)ShaderType::Model2D].VertexConstantBufferSize, shaderList[(size_t)ShaderType::Model3D].VertexConstantBufferSize));
 		shader->SetPixelConstantBufferSize(std::max(shaderList[(size_t)ShaderType::Model2D].PixelConstantBufferSize, shaderList[(size_t)ShaderType::Model3D].PixelConstantBufferSize));
-		shader->SetCode(Shader::RenderType::SpatialLightweight, shaderList[(size_t)ShaderType::Model3D].ShaderCode.c_str(), std::move(shaderList[(size_t)ShaderType::Model3D].ParamDecls));
-		shader->SetCode(Shader::RenderType::CanvasItem, shaderList[(size_t)ShaderType::Model2D].ShaderCode.c_str(), std::move(shaderList[(size_t)ShaderType::Model2D].ParamDecls));
+		//shader->SetCode(Shader::RenderType::SpatialLightweight, shaderList[(size_t)ShaderType::Model3D].ShaderCode.c_str(), std::move(shaderList[(size_t)ShaderType::Model3D].ParamDecls));
+		//shader->SetCode(Shader::RenderType::CanvasItem, shaderList[(size_t)ShaderType::Model2D].ShaderCode.c_str(), std::move(shaderList[(size_t)ShaderType::Model2D].ParamDecls));
 		shader->SetCustomData1Count(materialFile.GetCustomData1Count());
 		shader->SetCustomData2Count(materialFile.GetCustomData2Count());
 		material->ModelUserPtr = shader.release();

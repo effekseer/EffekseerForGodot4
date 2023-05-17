@@ -2808,6 +2808,12 @@
     <ClCompile Include="godot-cpp\src\variant\vector4i.cpp">
       <Filter>godot-cpp\src\variant</Filter>
     </ClCompile>
+    <ClCompile Include="src\RendererGodot\Shaders\BuiltinShaders.cpp">
+      <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RendererGodot\Shaders\ShaderCommon.cpp">
+      <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GDLibrary.h">
@@ -2939,29 +2945,15 @@
     <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.TGATextureLoader.h">
       <Filter>EffekseerRendererCommon</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src\RendererGodot\Shaders\Sprite2D.inl">
+    <ClInclude Include="src\RendererGodot\Shaders\ShaderCommon.h">
       <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
-    </None>
-    <None Include="src\RendererGodot\Shaders\Common2D.inl">
+    </ClInclude>
+    <ClInclude Include="src\RendererGodot\Shaders\BuiltinShaders.h">
       <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
-    </None>
-    <None Include="src\RendererGodot\Shaders\Common3D.inl">
-      <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
-    </None>
-    <None Include="src\RendererGodot\Shaders\Model2D.inl">
-      <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
-    </None>
-    <None Include="src\RendererGodot\Shaders\Model3D.inl">
-      <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
-    </None>
-    <None Include="src\RendererGodot\Shaders\Sprite3D.inl">
-      <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
-    </None>
-    <None Include="src\RendererGodot\Shaders\Advanced.inl">
-      <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
-    </None>
+    </ClInclude>
+    <ClInclude Include="src\RendererGodot\EffekseerGodot.RenderingHandle.h">
+      <Filter>EffekseerGodot\RendererGodot</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="godot.natvis" />

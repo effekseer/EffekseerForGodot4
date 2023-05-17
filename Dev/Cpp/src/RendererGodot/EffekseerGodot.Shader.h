@@ -48,9 +48,13 @@ public:
 		uint16_t offset;
 	};
 
-	virtual ~Shader();
-
 	static std::unique_ptr<Shader> Create(const char* name, EffekseerRenderer::RendererShaderType shaderType);
+
+	Shader() = default;
+
+	Shader(const char* name, EffekseerRenderer::RendererShaderType shaderType);
+
+	virtual ~Shader();
 
 	template <size_t N>
 	void SetCode(RenderType renderType, const char* code, const ParamDecl (&paramDecls)[N])
@@ -60,11 +64,11 @@ public:
 		SetCode(renderType, code, std::move(v));
 	}
 
-	void SetCode(RenderType renderType, const char* code, std::vector<ParamDecl>&& paramDecls);
+	void SetCode(const char* code, std::vector<ParamDecl>&& paramDecls);
 
-	bool HasRID(RenderType renderType, bool depthTest, bool depthWrite, ::Effekseer::AlphaBlendType blendType, ::Effekseer::CullingType cullingType);
+	godot::RID GetRID() const { return m_rid; }
 
-	godot::RID GetRID(RenderType renderType, bool depthTest, bool depthWrite, ::Effekseer::AlphaBlendType blendType, ::Effekseer::CullingType cullingType);
+	const std::vector<ParamDecl>& GetParamDecls() const { return m_paramDecls; }
 
 	void SetVertexConstantBufferSize(int32_t size)
 	{
@@ -92,14 +96,17 @@ public:
 		return m_constantBuffers[1].data();
 	}
 
+	std::vector<uint8_t>* GetConstantBuffers()
+	{
+		return m_constantBuffers;
+	}
+
 	void SetConstantBuffer() {}
 
 	void SetCustomData1Count(int32_t count) { m_customData1 = (int8_t)count; }
 	void SetCustomData2Count(int32_t count) { m_customData2 = (int8_t)count; }
 	int32_t GetCustomData1Count() const { return m_customData1; }
 	int32_t GetCustomData2Count() const { return m_customData2; }
-
-	void ApplyToMaterial(RenderType renderType, godot::RID material, EffekseerRenderer::RenderStateBase::State& state);
 
 	EffekseerRenderer::RendererShaderType GetShaderType() { return m_shaderType; }
 
@@ -109,16 +116,11 @@ private:
 	std::string m_name;
 	EffekseerRenderer::RendererShaderType m_shaderType = EffekseerRenderer::RendererShaderType::Unlit;
 
-	struct InternalShader {
-		godot::String baseCode;
-		godot::RID rid[2][2][3][5];
-		std::vector<ParamDecl> paramDecls;
-	};
-	InternalShader m_internals[(size_t)RenderType::Max];
 	int8_t m_customData1 = 0;
 	int8_t m_customData2 = 0;
 
-	Shader(const char* name, EffekseerRenderer::RendererShaderType shaderType);
+	godot::RID m_rid;
+	std::vector<ParamDecl> m_paramDecls;
 };
 
 //----------------------------------------------------------------------------------

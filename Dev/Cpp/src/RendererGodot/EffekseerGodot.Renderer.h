@@ -106,9 +106,8 @@ private:
 	int32_t m_squareMaxCount = 0;
 	int32_t m_vertexStride = 0;
 
-	std::array<std::unique_ptr<Shader>, 6> m_shaders;
-
-	Shader* m_currentShader = nullptr;
+	std::unique_ptr<Shader> m_standardRenderersShaderBuffer;
+	Shader* m_shaderBuffer = nullptr;
 
 	std::vector<RenderCommand3D> m_renderCommands3D;
 	size_t m_renderCount3D = 0;
@@ -208,6 +207,9 @@ public:
 	void BeginShader(Shader* shader);
 	void EndShader(Shader* shader);
 
+	Shader* GetCurrentShader();
+	::EffekseerRenderer::RendererShaderType GetCurrentShaderType();
+
 	void SetVertexBufferToShader(const void* data, int32_t size, int32_t dstOffset);
 	void SetPixelBufferToShader(const void* data, int32_t size, int32_t dstOffset);
 	void SetTextures(Shader* shader, Effekseer::Backend::TextureRef* textures, int32_t count);
@@ -222,7 +224,7 @@ public:
 	virtual int Release() override { return Effekseer::ReferenceObject::Release(); }
 
 private:
-	bool IsSoftParticleEnabled() const;
+	bool IsSoftParticleEnabled();
 
 	void TransferVertexToMesh(godot::RID immediate,
 		const void* vertexData, size_t spriteCount);
@@ -232,6 +234,8 @@ private:
 
 	void TransferModelToCanvasItem2D(godot::RID canvas_item, Effekseer::Model* model,
 		godot::Vector2 baseScale, bool flipPolygon, Effekseer::CullingType cullingType);
+
+	void ApplyParametersToMaterial(godot::RID material);
 };
 
 } // namespace EffekseerGodot

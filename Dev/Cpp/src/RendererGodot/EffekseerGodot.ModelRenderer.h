@@ -28,7 +28,7 @@ public:
 
 private:
 	Renderer* m_renderer = nullptr;
-	std::array<std::unique_ptr<Shader>, 6> m_shaders;
+	std::unique_ptr<Shader> m_shaderBuffer;
 
 	ModelRenderer(Renderer* renderer);
 
