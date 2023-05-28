@@ -80,7 +80,7 @@ public:
 
 	void set_editor2d_camera_transform(Transform2D transform);
 
-	EffekseerGodot::Shader* get_builtin_shader(bool is_model, EffekseerRenderer::RendererShaderType shader_type);
+	EffekseerGodot::BuiltinShader* get_builtin_shader(bool is_model, EffekseerRenderer::RendererShaderType shader_type);
 	
 	const Effekseer::ManagerRef& get_manager() { return m_manager; }
 

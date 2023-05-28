@@ -135,6 +135,8 @@ void EffekseerEmitter2D::play()
 	if (manager == nullptr) return;
 
 	if (m_effect.is_valid() && m_layer >= 0) {
+		m_effect->load();
+
 		Effekseer::Handle handle = manager->Play(m_effect->get_native(), Effekseer::Vector3D(0, 0, 0));
 		if (handle >= 0) {
 			manager->SetLayer(handle, m_editor_mode ? EffekseerSystem::LAYER_EDITOR_2D : m_layer);
@@ -264,9 +266,6 @@ Vector2 EffekseerEmitter2D::get_target_position() const
 
 void EffekseerEmitter2D::set_effect(Ref<EffekseerEffect> effect)
 {
-	if (effect.is_valid()) {
-		effect->load();
-	}
 	m_effect = effect;
 }
 

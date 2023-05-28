@@ -13,8 +13,8 @@ class EffekseerEffect : public Resource
 public:
 	enum class TargetLayer : int32_t {
 		Both,
-		_2D,
-		_3D,
+		World2D,
+		World3D,
 	};
 
 protected:
@@ -37,11 +37,11 @@ public:
 
 	PackedByteArray get_data_bytes() const { return m_data_bytes; }
 
-	void set_data_bytes(PackedByteArray bytes) { m_data_bytes = bytes; }
+	void set_data_bytes(PackedByteArray bytes);
 
 	float get_scale() const { return m_scale; }
 
-	void set_scale(float scale) { m_scale = scale; }
+	void set_scale(float scale);
 
 	Effekseer::EffectRef& get_native() { return m_native; }
 

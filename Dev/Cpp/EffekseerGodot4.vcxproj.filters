@@ -108,12 +108,6 @@
     <ClCompile Include="src\RendererGodot\EffekseerGodot.RenderState.cpp">
       <Filter>EffekseerGodot\RendererGodot</Filter>
     </ClCompile>
-    <ClCompile Include="src\RendererGodot\EffekseerGodot.Shader.cpp">
-      <Filter>EffekseerGodot\RendererGodot</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RendererGodot\EffekseerGodot.ShaderGenerator.cpp">
-      <Filter>EffekseerGodot\RendererGodot</Filter>
-    </ClCompile>
     <ClCompile Include="src\RendererGodot\EffekseerGodot.VertexBuffer.cpp">
       <Filter>EffekseerGodot\RendererGodot</Filter>
     </ClCompile>
@@ -2808,6 +2802,15 @@
     <ClCompile Include="godot-cpp\src\variant\vector4i.cpp">
       <Filter>godot-cpp\src\variant</Filter>
     </ClCompile>
+    <ClCompile Include="src\RendererGodot\Shaders\ShaderBase.cpp">
+      <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RendererGodot\Shaders\MaterialShader.cpp">
+      <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RendererGodot\Shaders\BuiltinShader.cpp">
+      <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GDLibrary.h">
@@ -2876,12 +2879,6 @@
     <ClInclude Include="src\RendererGodot\EffekseerGodot.RenderState.h">
       <Filter>EffekseerGodot\RendererGodot</Filter>
     </ClInclude>
-    <ClInclude Include="src\RendererGodot\EffekseerGodot.Shader.h">
-      <Filter>EffekseerGodot\RendererGodot</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RendererGodot\EffekseerGodot.ShaderGenerator.h">
-      <Filter>EffekseerGodot\RendererGodot</Filter>
-    </ClInclude>
     <ClInclude Include="src\RendererGodot\EffekseerGodot.VertexBuffer.h">
       <Filter>EffekseerGodot\RendererGodot</Filter>
     </ClInclude>
@@ -2939,29 +2936,18 @@
     <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.TGATextureLoader.h">
       <Filter>EffekseerRendererCommon</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src\RendererGodot\Shaders\Sprite2D.inl">
+    <ClInclude Include="src\RendererGodot\EffekseerGodot.RenderingHandle.h">
+      <Filter>EffekseerGodot\RendererGodot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RendererGodot\Shaders\ShaderBase.h">
       <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
-    </None>
-    <None Include="src\RendererGodot\Shaders\Common2D.inl">
+    </ClInclude>
+    <ClInclude Include="src\RendererGodot\Shaders\BuiltinShader.h">
       <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
-    </None>
-    <None Include="src\RendererGodot\Shaders\Common3D.inl">
+    </ClInclude>
+    <ClInclude Include="src\RendererGodot\Shaders\MaterialShader.h">
       <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
-    </None>
-    <None Include="src\RendererGodot\Shaders\Model2D.inl">
-      <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
-    </None>
-    <None Include="src\RendererGodot\Shaders\Model3D.inl">
-      <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
-    </None>
-    <None Include="src\RendererGodot\Shaders\Sprite3D.inl">
-      <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
-    </None>
-    <None Include="src\RendererGodot\Shaders\Advanced.inl">
-      <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
-    </None>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="godot.natvis" />

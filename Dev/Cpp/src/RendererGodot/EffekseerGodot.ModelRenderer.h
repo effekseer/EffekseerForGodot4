@@ -28,7 +28,7 @@ public:
 
 private:
 	Renderer* m_renderer = nullptr;
-	std::array<std::unique_ptr<Shader>, 6> m_shaders;
+	std::array<std::unique_ptr<BuiltinShader>, 6> m_shaders;
 
 	ModelRenderer(Renderer* renderer);
 
@@ -44,7 +44,7 @@ public:
 
 	void EndRendering(const efkModelNodeParam& parameter, void* userData) override;
 
-	Shader* GetShader(::EffekseerRenderer::RendererShaderType type);
+	BuiltinShader* GetShader(::EffekseerRenderer::RendererShaderType type);
 };
 //----------------------------------------------------------------------------------
 //
