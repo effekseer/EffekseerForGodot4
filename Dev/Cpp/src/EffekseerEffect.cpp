@@ -124,6 +124,18 @@ void EffekseerEffect::release()
 	m_native.Reset();
 }
 
+void EffekseerEffect::set_data_bytes(PackedByteArray bytes)
+{
+	m_data_bytes = bytes;
+	release();
+}
+
+void EffekseerEffect::set_scale(float scale)
+{
+	m_scale = scale;
+	release();
+}
+
 void EffekseerEffect::setup_node_render(Effekseer::EffectNode* node, TargetLayer targetLayer)
 {
 	auto system = EffekseerSystem::get_singleton();
