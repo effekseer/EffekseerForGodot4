@@ -1,12 +1,11 @@
-#include <godot_cpp/variant/utility_functions.hpp>
-#include "BuiltinShaders.h"
-#include "EffekseerRenderer.StandardRenderer.h"
+#include "BuiltinShader.h"
+#include "../EffekseerGodot.Renderer.h"
 #include "../EffekseerGodot.ModelRenderer.h"
 
 namespace EffekseerGodot
 {
 
-namespace BuiltinShaders
+namespace
 {
 
 static const char* GdTextureFilter[] = {
@@ -453,19 +452,8 @@ R"(
 	ALBEDO = mix(EdgeColor.rgb * EdgeParam.y, ALBEDO, ceil((ALPHA - UV2.y) - EdgeParam.x));
 )";
 
-template <typename ... Args>
-void AppendFormat(std::string& str, const char* fmt, Args ... args)
+void GeneratePredefined(std::string& code, BuiltinShader::Settings settings)
 {
-	size_t offset = str.size();
-	size_t len = snprintf(nullptr, 0, fmt, args ...);
-	str.resize(offset + len + 1);
-	snprintf(&str[offset], len + 1, fmt, args ...);
-	str.resize(offset + len);
-}
-
-void GeneratePredefined(std::string& code, Settings settings)
-{
-	using namespace Shaders;
 	using namespace EffekseerRenderer;
 
 	if (settings.IsNode3D()) {
@@ -477,7 +465,7 @@ void GeneratePredefined(std::string& code, Settings settings)
 		}
 	}
 	else if (settings.IsNode2D()) {
-		if (settings.IsSprite() && settings.shaderType != ShaderType::Unlit) {
+		if (settings.IsSprite() && settings.shaderType != BuiltinShaderType::Unlit) {
 			code += uniform_Tangent_Sprite2D;
 		}
 		else if (settings.IsModel()) {
@@ -485,40 +473,40 @@ void GeneratePredefined(std::string& code, Settings settings)
 		}
 	}
 
-	if (settings.shaderType == ShaderType::Unlit) {
+	if (settings.shaderType == BuiltinShaderType::Unlit) {
 		AppendFormat(code, uniform_ColorMap,
-			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(Textures::Color))],
-			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(Textures::Color))]);
+			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(BuiltinTextures::Color))],
+			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(BuiltinTextures::Color))]);
 	}
-	else if (settings.shaderType == ShaderType::Lighting) {
+	else if (settings.shaderType == BuiltinShaderType::Lighting) {
 		AppendFormat(code, uniform_ColorMap,
-			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(Textures::Color))],
-			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(Textures::Color))]);
+			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(BuiltinTextures::Color))],
+			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(BuiltinTextures::Color))]);
 		AppendFormat(code, uniform_NormalMap,
-			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(Textures::Normal))],
-			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(Textures::Normal))]);
+			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(BuiltinTextures::Normal))],
+			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(BuiltinTextures::Normal))]);
 	}
-	else if (settings.shaderType == ShaderType::Distortion) {
+	else if (settings.shaderType == BuiltinShaderType::Distortion) {
 		AppendFormat(code, uniform_DistortionMap,
-			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(Textures::Distortion))],
-			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(Textures::Distortion))]);
+			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(BuiltinTextures::Distortion))],
+			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(BuiltinTextures::Distortion))]);
 
 		code += settings.IsNode3D() ? func_DistortionMap_3D : func_DistortionMap_2D;
 	}
 
 	if (settings.IsUsingAdvanced()) {
 		AppendFormat(code, uniform_Advanced,
-			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(Textures::Alpha))],
-			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(Textures::Alpha))],
-			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(Textures::UVDist))],
-			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(Textures::UVDist))],
-			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(Textures::Blend))],
-			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(Textures::Blend))],
-			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(Textures::BlendAlpha))],
-			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(Textures::BlendAlpha))],
-			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(Textures::BlendUVDist))],
-			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(Textures::BlendUVDist))]);
-		if (settings.shaderType != ShaderType::Distortion) {
+			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(BuiltinTextures::Alpha))],
+			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(BuiltinTextures::Alpha))],
+			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(BuiltinTextures::UVDist))],
+			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(BuiltinTextures::UVDist))],
+			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(BuiltinTextures::Blend))],
+			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(BuiltinTextures::Blend))],
+			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(BuiltinTextures::BlendAlpha))],
+			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(BuiltinTextures::BlendAlpha))],
+			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(BuiltinTextures::BlendUVDist))],
+			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(BuiltinTextures::BlendUVDist))]);
+		if (settings.shaderType != BuiltinShaderType::Distortion) {
 			code += uniform_Advanced_NotDistortion;
 		}
 		if (settings.IsModel()) {
@@ -537,7 +525,7 @@ void GeneratePredefined(std::string& code, Settings settings)
 		code += func_Model3D;
 	}
 
-	if (settings.IsNode2D() && settings.shaderType != ShaderType::Unlit) {
+	if (settings.IsNode2D() && settings.shaderType != BuiltinShaderType::Unlit) {
 		code += varying_Tangent_2D;
 	}
 
@@ -546,9 +534,8 @@ void GeneratePredefined(std::string& code, Settings settings)
 	}
 }
 
-void GenerateVertexCode(std::string& code, Settings settings)
+void GenerateVertexCode(std::string& code, BuiltinShader::Settings settings)
 {
-	using namespace Shaders;
 	using namespace EffekseerRenderer;
 
 	code += "\nvoid vertex() {";
@@ -566,7 +553,7 @@ void GenerateVertexCode(std::string& code, Settings settings)
 		}
 	}
 	else if (settings.IsNode2D()) {
-		if (settings.shaderType != ShaderType::Unlit) {
+		if (settings.shaderType != BuiltinShaderType::Unlit) {
 			code += settings.IsSprite() ? vertex_Tangent_Sprite2D : vertex_Tangent_Model2D;
 		}
 		if (settings.IsModel()) {
@@ -577,14 +564,13 @@ void GenerateVertexCode(std::string& code, Settings settings)
 	code += "}\n";
 }
 
-void GenerateFragmentCode(std::string& code, Settings settings)
+void GenerateFragmentCode(std::string& code, BuiltinShader::Settings settings)
 {
-	using namespace Shaders;
 	using namespace EffekseerRenderer;
 
 	code += "\nvoid fragment() {";
 
-	if (settings.shaderType == ShaderType::Distortion) {
+	if (settings.shaderType == BuiltinShaderType::Distortion) {
 		if (settings.IsUsingAdvanced()) {
 			code += fragment_Advanced_Distortion;
 		}
@@ -600,7 +586,7 @@ void GenerateFragmentCode(std::string& code, Settings settings)
 			code += settings.IsNode3D() ? fragment_ColorMap_3D : fragment_ColorMap_2D;
 		}
 
-		if (settings.shaderType == ShaderType::Lighting) {
+		if (settings.shaderType == BuiltinShaderType::Lighting) {
 			code += settings.IsNode3D() ? fragment_NormalMap_3D : fragment_NormalMap_2D;
 		}
 
@@ -622,9 +608,8 @@ void GenerateFragmentCode(std::string& code, Settings settings)
 	code += "}\n";
 }
 
-void GenerateParamDecls(std::vector<Shader::ParamDecl>& paramDecls, Settings settings)
+void GenerateParamDecls(std::vector<ParamDecl>& paramDecls, NodeType nodeType, GeometryType geometryType, BuiltinShaderType shaderType, bool isAdvanced)
 {
-	using namespace Shaders;
 	using namespace EffekseerRenderer;
 
 	using VCBModelAdvanced = ModelRendererAdvancedVertexConstantBuffer<ModelRenderer::InstanceCount>;
@@ -633,116 +618,167 @@ void GenerateParamDecls(std::vector<Shader::ParamDecl>& paramDecls, Settings set
 	using PCBDistortion = PixelConstantBufferDistortion;
 	using PCBNormal = PixelConstantBuffer;
 
-	if (settings.IsNode3D()) {
-		paramDecls.push_back({ "ViewMatrix", Shader::ParamType::Matrix44, 0, 0, 0 });
+	if (nodeType == NodeType::Node3D) {
+		paramDecls.push_back({ "ViewMatrix", ParamType::Matrix44, 0, 0, 0 });
 	}
-	else if (settings.IsNode2D() && settings.IsModel()) {
-		paramDecls.push_back({ "ModelUV", Shader::ParamType::Vector4, 0, 0, 128 });
-		paramDecls.push_back({ "ModelColor",  Shader::ParamType::Vector4,  0, 0, 144 });
+	else if (nodeType == NodeType::Node2D && geometryType == GeometryType::Model) {
+		paramDecls.push_back({ "ModelUV", ParamType::Vector4, 0, 0, 128 });
+		paramDecls.push_back({ "ModelColor",  ParamType::Vector4,  0, 0, 144 });
 	}
 
-	if (settings.shaderType == ShaderType::Distortion) {
-		paramDecls.push_back({ "DistortionIntensity", Shader::ParamType::Float, 0, 1, 48 });
-		paramDecls.push_back({ "DistortionTexture", Shader::ParamType::Texture, 0, 0, 0 });
+	if (shaderType == BuiltinShaderType::Distortion) {
+		paramDecls.push_back({ "DistortionIntensity", ParamType::Float, 0, 1, 48 });
+		paramDecls.push_back({ "DistortionTexture", ParamType::Texture, 0, 0, 0 });
 	}
 	else {
-		paramDecls.push_back({ "ColorTexture", Shader::ParamType::Texture, 0, 0, 0 });
-		if (settings.shaderType == ShaderType::Lighting) {
-			paramDecls.push_back({ "NormalTexture", Shader::ParamType::Texture, 0, 1, 0 });
+		paramDecls.push_back({ "ColorTexture", ParamType::Texture, 0, 0, 0 });
+		if (shaderType == BuiltinShaderType::Lighting) {
+			paramDecls.push_back({ "NormalTexture", ParamType::Texture, 0, 1, 0 });
 		}
-		paramDecls.push_back({ "EmissiveScale", Shader::ParamType::Float, 0, 1, offsetof(PCBNormal, EmmisiveParam) });
+		paramDecls.push_back({ "EmissiveScale", ParamType::Float, 0, 1, offsetof(PCBNormal, EmmisiveParam) });
 	}
 
-	if (settings.IsUsingAdvanced()) {
-		if (settings.IsModel()) {
-			paramDecls.push_back({ "ModelAlphaUV", Shader::ParamType::Vector4, ModelRenderer::InstanceCount, 0, offsetof(VCBModelAdvanced, ModelAlphaUV) });
-			paramDecls.push_back({ "ModelDistUV", Shader::ParamType::Vector4,  ModelRenderer::InstanceCount, 0, offsetof(VCBModelAdvanced, ModelUVDistortionUV) });
-			paramDecls.push_back({ "ModelBlendUV", Shader::ParamType::Vector4,  ModelRenderer::InstanceCount, 0, offsetof(VCBModelAdvanced, ModelBlendUV) });
-			paramDecls.push_back({ "ModelBlendAlphaUV", Shader::ParamType::Vector4,  ModelRenderer::InstanceCount, 0, offsetof(VCBModelAdvanced, ModelBlendAlphaUV) });
-			paramDecls.push_back({ "ModelBlendDistUV", Shader::ParamType::Vector4,  ModelRenderer::InstanceCount, 0, offsetof(VCBModelAdvanced, ModelBlendUVDistortionUV) });
-			paramDecls.push_back({ "FlipbookIndexNextRate", Shader::ParamType::Vector4,  ModelRenderer::InstanceCount, 0, offsetof(VCBModelAdvanced, ModelFlipbookIndexAndNextRate) });
-			paramDecls.push_back({ "AlphaThreshold", Shader::ParamType::Vector4,  ModelRenderer::InstanceCount, 0, offsetof(VCBModelAdvanced, ModelAlphaThreshold) });
-			paramDecls.push_back({ "FlipbookParameter1", Shader::ParamType::Vector4, 0, 0, offsetof(VCBModelAdvanced, ModelFlipbookParameter) + 0 });
-			paramDecls.push_back({ "FlipbookParameter2", Shader::ParamType::Vector4, 0, 0, offsetof(VCBModelAdvanced, ModelFlipbookParameter) + 16 });
+	if (nodeType == NodeType::Node3D && isAdvanced) {
+		if (geometryType == GeometryType::Model) {
+			paramDecls.push_back({ "ModelAlphaUV", ParamType::Vector4, ModelRenderer::InstanceCount, 0, offsetof(VCBModelAdvanced, ModelAlphaUV) });
+			paramDecls.push_back({ "ModelDistUV", ParamType::Vector4,  ModelRenderer::InstanceCount, 0, offsetof(VCBModelAdvanced, ModelUVDistortionUV) });
+			paramDecls.push_back({ "ModelBlendUV", ParamType::Vector4,  ModelRenderer::InstanceCount, 0, offsetof(VCBModelAdvanced, ModelBlendUV) });
+			paramDecls.push_back({ "ModelBlendAlphaUV", ParamType::Vector4,  ModelRenderer::InstanceCount, 0, offsetof(VCBModelAdvanced, ModelBlendAlphaUV) });
+			paramDecls.push_back({ "ModelBlendDistUV", ParamType::Vector4,  ModelRenderer::InstanceCount, 0, offsetof(VCBModelAdvanced, ModelBlendUVDistortionUV) });
+			paramDecls.push_back({ "FlipbookIndexNextRate", ParamType::Vector4,  ModelRenderer::InstanceCount, 0, offsetof(VCBModelAdvanced, ModelFlipbookIndexAndNextRate) });
+			paramDecls.push_back({ "AlphaThreshold", ParamType::Vector4,  ModelRenderer::InstanceCount, 0, offsetof(VCBModelAdvanced, ModelAlphaThreshold) });
+			paramDecls.push_back({ "FlipbookParameter1", ParamType::Vector4, 0, 0, offsetof(VCBModelAdvanced, ModelFlipbookParameter) + 0 });
+			paramDecls.push_back({ "FlipbookParameter2", ParamType::Vector4, 0, 0, offsetof(VCBModelAdvanced, ModelFlipbookParameter) + 16 });
 		}
 		else {
-			paramDecls.push_back({ "FlipbookParameter1", Shader::ParamType::Vector4, 0, 0, offsetof(VCBSprite, flipbookParameter) + 0 });
-			paramDecls.push_back({ "FlipbookParameter2", Shader::ParamType::Vector4, 0, 0, offsetof(VCBSprite, flipbookParameter) + 16 });
+			paramDecls.push_back({ "FlipbookParameter1", ParamType::Vector4, 0, 0, offsetof(VCBSprite, flipbookParameter) + 0 });
+			paramDecls.push_back({ "FlipbookParameter2", ParamType::Vector4, 0, 0, offsetof(VCBSprite, flipbookParameter) + 16 });
 		}
 
-		paramDecls.push_back({ "EdgeColor", Shader::ParamType::Vector4, 0, 1, offsetof(PCBNormal, EdgeParam) + 0 });
-		paramDecls.push_back({ "EdgeParam", Shader::ParamType::Vector2, 0, 1, offsetof(PCBNormal, EdgeParam) + 16 });
-
-		if (settings.shaderType == ShaderType::Distortion) {
-			paramDecls.push_back({ "UVDistortionParam", Shader::ParamType::Vector4, 0, 1, offsetof(PCBDistortion, UVDistortionParam) + 0 });
-			paramDecls.push_back({ "BlendTextureParam", Shader::ParamType::Vector4, 0, 1, offsetof(PCBDistortion, BlendTextureParam) + 0 });
+		if (shaderType == BuiltinShaderType::Distortion) {
+			paramDecls.push_back({ "UVDistortionParam", ParamType::Vector4, 0, 1, offsetof(PCBDistortion, UVDistortionParam) + 0 });
+			paramDecls.push_back({ "BlendTextureParam", ParamType::Vector4, 0, 1, offsetof(PCBDistortion, BlendTextureParam) + 0 });
 		}
 		else {
-			paramDecls.push_back({ "UVDistortionParam", Shader::ParamType::Vector4, 0, 1, offsetof(PCBNormal, UVDistortionParam) + 0 });
-			paramDecls.push_back({ "BlendTextureParam", Shader::ParamType::Vector4, 0, 1, offsetof(PCBNormal, BlendTextureParam) + 0 });
+			paramDecls.push_back({ "UVDistortionParam", ParamType::Vector4, 0, 1, offsetof(PCBNormal, UVDistortionParam) + 0 });
+			paramDecls.push_back({ "BlendTextureParam", ParamType::Vector4, 0, 1, offsetof(PCBNormal, BlendTextureParam) + 0 });
 
-			if (settings.IsModel()) {
-				paramDecls.push_back({ "FalloffParam", Shader::ParamType::Vector3, 0, 1, offsetof(PCBNormal, FalloffParam) + 0 });
-				paramDecls.push_back({ "FalloffBeginColor", Shader::ParamType::Vector4, 0, 1, offsetof(PCBNormal, FalloffParam) + 16 });
-				paramDecls.push_back({ "FalloffEndColor", Shader::ParamType::Vector4, 0, 1, offsetof(PCBNormal, FalloffParam) + 32 });
+			paramDecls.push_back({ "EdgeColor", ParamType::Vector4, 0, 1, offsetof(PCBNormal, EdgeParam) + 0 });
+			paramDecls.push_back({ "EdgeParam", ParamType::Vector2, 0, 1, offsetof(PCBNormal, EdgeParam) + 16 });
+
+			if (geometryType == GeometryType::Model) {
+				paramDecls.push_back({ "FalloffParam", ParamType::Vector3, 0, 1, offsetof(PCBNormal, FalloffParam) + 0 });
+				paramDecls.push_back({ "FalloffBeginColor", ParamType::Vector4, 0, 1, offsetof(PCBNormal, FalloffParam) + 16 });
+				paramDecls.push_back({ "FalloffEndColor", ParamType::Vector4, 0, 1, offsetof(PCBNormal, FalloffParam) + 32 });
 			}
 		}
 		
-		size_t textureOffset = (settings.shaderType == ShaderType::Lighting) ? 1 : 0;
-		paramDecls.push_back({ "AlphaTexture", Shader::ParamType::Texture, 0, uint8_t(1 + textureOffset), 0 });
-		paramDecls.push_back({ "UVDistTexture", Shader::ParamType::Texture, 0, uint8_t(2 + textureOffset), 0 });
-		paramDecls.push_back({ "BlendTexture", Shader::ParamType::Texture, 0, uint8_t(3 + textureOffset), 0 });
-		paramDecls.push_back({ "BlendAlphaTexture", Shader::ParamType::Texture, 0, uint8_t(4 + textureOffset), 0 });
-		paramDecls.push_back({ "BlendUVDistTexture", Shader::ParamType::Texture, 0, uint8_t(5 + textureOffset), 0 });
+		size_t textureOffset = (shaderType == BuiltinShaderType::Lighting) ? 1 : 0;
+		paramDecls.push_back({ "AlphaTexture", ParamType::Texture, 0, uint8_t(1 + textureOffset), 0 });
+		paramDecls.push_back({ "UVDistTexture", ParamType::Texture, 0, uint8_t(2 + textureOffset), 0 });
+		paramDecls.push_back({ "BlendTexture", ParamType::Texture, 0, uint8_t(3 + textureOffset), 0 });
+		paramDecls.push_back({ "BlendAlphaTexture", ParamType::Texture, 0, uint8_t(4 + textureOffset), 0 });
+		paramDecls.push_back({ "BlendUVDistTexture", ParamType::Texture, 0, uint8_t(5 + textureOffset), 0 });
 	}
 
-	if (settings.IsUsingSoftParticle()) {
-		size_t bufferOffset = (settings.shaderType == ShaderType::Distortion) ?
+	if (nodeType == NodeType::Node3D) {
+		size_t bufferOffset = (shaderType == BuiltinShaderType::Distortion) ?
 			offsetof(PCBDistortion, SoftParticleParam) : offsetof(PCBNormal, SoftParticleParam);
 
-		paramDecls.push_back({ "SoftParticleParams", Shader::ParamType::Vector4, 0, 1, uint16_t(bufferOffset + 0) });
-		paramDecls.push_back({ "SoftParticleReco",   Shader::ParamType::Vector4, 0, 1, uint16_t(bufferOffset + 16) });
+		paramDecls.push_back({ "SoftParticleParams", ParamType::Vector4, 0, 1, uint16_t(bufferOffset + 0) });
+		paramDecls.push_back({ "SoftParticleReco",   ParamType::Vector4, 0, 1, uint16_t(bufferOffset + 16) });
 	}
 }
 
-std::shared_ptr<Shader> GenerateShader(Settings settings)
+}
+
+BuiltinShader::BuiltinShader(const char* name, EffekseerRenderer::RendererShaderType rendererShaderType, GeometryType geometryType)
+	: Shader(name, rendererShaderType)
 {
-	using namespace Shaders;
+	using namespace EffekseerRenderer;
+
+	bool isAdvanced{};
+	BuiltinShaderType shaderType{};
+	
+	switch (rendererShaderType) {
+	case RendererShaderType::Unlit:
+		shaderType = BuiltinShaderType::Unlit;
+		isAdvanced = false;
+		break;
+	case RendererShaderType::Lit:
+		shaderType = BuiltinShaderType::Lighting;
+		isAdvanced = false;
+		break;
+	case RendererShaderType::BackDistortion:
+		shaderType = BuiltinShaderType::Distortion;
+		isAdvanced = false;
+		break;
+	case RendererShaderType::AdvancedUnlit:
+		shaderType = BuiltinShaderType::Unlit;
+		isAdvanced = true;
+		break;
+	case RendererShaderType::AdvancedLit:
+		shaderType = BuiltinShaderType::Lighting;
+		isAdvanced = true;
+		break;
+	case RendererShaderType::AdvancedBackDistortion:
+		shaderType = BuiltinShaderType::Distortion;
+		isAdvanced = true;
+		break;
+	}
+
+	GenerateParamDecls(m_paramDecls3D, NodeType::Node3D, geometryType, shaderType, isAdvanced);
+	GenerateParamDecls(m_paramDecls2D, NodeType::Node2D, geometryType, shaderType, isAdvanced);
+
+	if (geometryType == GeometryType::Sprite) {
+		SetVertexConstantBufferSize(sizeof(StandardRendererVertexBuffer));
+	}
+	else {
+		if (isAdvanced) {
+			SetVertexConstantBufferSize(sizeof(ModelRendererAdvancedVertexConstantBuffer<ModelRenderer::InstanceCount>));
+		}
+		else {
+			SetVertexConstantBufferSize(sizeof(ModelRendererVertexConstantBuffer<ModelRenderer::InstanceCount>));
+		}
+	}
+	if (shaderType != BuiltinShaderType::Distortion) {
+		SetPixelConstantBufferSize(sizeof(PixelConstantBuffer));
+	}
+	else {
+		SetPixelConstantBufferSize(sizeof(PixelConstantBufferDistortion));
+	}
+}
+
+BuiltinShader::~BuiltinShader()
+{
+}
+
+godot::RID BuiltinShader::GetRID(Settings settings)
+{
+	auto it = m_cachedRID.find(settings.value);
+	if (it != m_cachedRID.end()) {
+		return it->second;
+	}
+
+	godot::RID rid = GenerateShader(settings);
+	m_cachedRID.emplace(settings.value, rid);
+	return rid;
+}
+
+godot::RID BuiltinShader::GenerateShader(Settings settings)
+{
 	using namespace EffekseerRenderer;
 
 	std::string code;
 
-	bool unshaded = settings.shaderType != ShaderType::Lighting;
+	bool unshaded = settings.shaderType != BuiltinShaderType::Lighting;
 
-	GenerateHeaader(code, settings.nodeType, settings.renderSettings, unshaded);
+	GenerateHeader(code, settings.nodeType, settings.renderSettings, unshaded);
 	GeneratePredefined(code, settings);
 	GenerateVertexCode(code, settings);
 	GenerateFragmentCode(code, settings);
 
-	std::vector<Shader::ParamDecl> paramDecls;
-	GenerateParamDecls(paramDecls, settings);
-
-	RendererShaderType rendererShaderType{};
-	if (settings.shaderType == ShaderType::Unlit) {
-		rendererShaderType = settings.advancedShader ? RendererShaderType::AdvancedUnlit : RendererShaderType::Unlit;
-	}
-	else if (settings.shaderType == ShaderType::Lighting) {
-		rendererShaderType = settings.advancedShader ? RendererShaderType::AdvancedLit : RendererShaderType::Lit;
-	}
-	else if (settings.shaderType == ShaderType::Distortion) {
-		rendererShaderType = settings.advancedShader ? RendererShaderType::AdvancedBackDistortion : RendererShaderType::BackDistortion;
-	}
-
-	//for (auto& line : godot::String(code.c_str()).split("\n")) {
-	//	godot::UtilityFunctions::print(line);
-	//}
-
-	std::unique_ptr<Shader> shader(Shader::Create("Builtin", rendererShaderType));
-	shader->SetCode(code.c_str(), std::move(paramDecls));
-
-	return shader;
-}
-
+	return CompileShader(code.c_str());
 }
 
 }

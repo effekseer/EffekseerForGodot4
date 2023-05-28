@@ -7,8 +7,8 @@
 
 #include "EffekseerGodot.IndexBuffer.h"
 #include "EffekseerGodot.ModelRenderer.h"
-#include "EffekseerGodot.Shader.h"
 #include "EffekseerGodot.VertexBuffer.h"
+#include "Shaders/BuiltinShader.h"
 
 #include "../EffekseerEmitter3D.h"
 #include "../EffekseerEmitter2D.h"
@@ -22,15 +22,13 @@ ModelRenderer::ModelRenderer(Renderer* renderer)
 {
 	using namespace EffekseerRenderer;
 
-	m_shaderBuffer = Shader::Create("Model_Buffer", RendererShaderType::Unlit);
-	m_shaderBuffer->SetVertexConstantBufferSize(std::max(
-		sizeof(ModelRendererVertexConstantBuffer<InstanceCount>), 
-		sizeof(ModelRendererAdvancedVertexConstantBuffer<InstanceCount>)
-	));
-	m_shaderBuffer->SetPixelConstantBufferSize(std::max(
-		sizeof(PixelConstantBuffer), 
-		sizeof(PixelConstantBufferDistortion)
-	));
+	// Create builtin shaders
+	m_shaders[(size_t)RendererShaderType::Unlit].reset(new BuiltinShader("Basic_Unlit_Model", RendererShaderType::Unlit, GeometryType::Model));
+	m_shaders[(size_t)RendererShaderType::Lit].reset(new BuiltinShader("Basic_Lighting_Model", RendererShaderType::Lit, GeometryType::Model));
+	m_shaders[(size_t)RendererShaderType::BackDistortion].reset(new BuiltinShader("Basic_Distortion_Model", RendererShaderType::BackDistortion, GeometryType::Model));
+	m_shaders[(size_t)RendererShaderType::AdvancedUnlit].reset(new BuiltinShader("Advanced_Unlit_Model", RendererShaderType::AdvancedUnlit, GeometryType::Model));
+	m_shaders[(size_t)RendererShaderType::AdvancedLit].reset(new BuiltinShader("Advanced_Lighting_Model", RendererShaderType::AdvancedLit, GeometryType::Model));
+	m_shaders[(size_t)RendererShaderType::AdvancedBackDistortion].reset(new BuiltinShader("Advanced_Distortion_Model", RendererShaderType::AdvancedBackDistortion, GeometryType::Model));
 }
 
 //----------------------------------------------------------------------------------
@@ -98,13 +96,7 @@ void ModelRenderer::EndRendering(const efkModelNodeParam& parameter, void* userD
 		return;
 	}
 
-	const bool softparticleEnabled = 
-		!(parameter.BasicParameterPtr->SoftParticleDistanceFar == 0.0f &&
-		parameter.BasicParameterPtr->SoftParticleDistanceNear == 0.0f &&
-		parameter.BasicParameterPtr->SoftParticleDistanceNearOffset == 0.0f) &&
-		parameter.BasicParameterPtr->MaterialType != Effekseer::RendererMaterialType::File;
-
-	m_renderer->BeginModelRendering(model, softparticleEnabled);
+	m_renderer->BeginModelRendering(model);
 
 	using namespace EffekseerRenderer;
 
@@ -112,33 +104,34 @@ void ModelRenderer::EndRendering(const efkModelNodeParam& parameter, void* userD
 	{
 		EndRendering_<Renderer, Shader, Effekseer::Model, true, InstanceCount>(
 			m_renderer,
-			m_shaderBuffer.get(),
-			m_shaderBuffer.get(),
-			m_shaderBuffer.get(),
-			m_shaderBuffer.get(),
-			m_shaderBuffer.get(),
-			m_shaderBuffer.get(),
+			m_shaders[(size_t)RendererShaderType::AdvancedLit].get(),
+			m_shaders[(size_t)RendererShaderType::AdvancedUnlit].get(),
+			m_shaders[(size_t)RendererShaderType::AdvancedBackDistortion].get(),
+			m_shaders[(size_t)RendererShaderType::Lit].get(),
+			m_shaders[(size_t)RendererShaderType::Unlit].get(),
+			m_shaders[(size_t)RendererShaderType::BackDistortion].get(),
 			parameter, userData);
 	}
 	else
 	{
 		EndRendering_<Renderer, Shader, Effekseer::Model, false, 1>(
 			m_renderer,
-			m_shaderBuffer.get(),
-			m_shaderBuffer.get(),
-			m_shaderBuffer.get(),
-			m_shaderBuffer.get(),
-			m_shaderBuffer.get(),
-			m_shaderBuffer.get(),
+			m_shaders[(size_t)RendererShaderType::AdvancedLit].get(),
+			m_shaders[(size_t)RendererShaderType::AdvancedUnlit].get(),
+			m_shaders[(size_t)RendererShaderType::AdvancedBackDistortion].get(),
+			m_shaders[(size_t)RendererShaderType::Lit].get(),
+			m_shaders[(size_t)RendererShaderType::Unlit].get(),
+			m_shaders[(size_t)RendererShaderType::BackDistortion].get(),
 			parameter, userData);
 	}
 
 	m_renderer->EndModelRendering();
 }
 
-Shader* ModelRenderer::GetShader(::EffekseerRenderer::RendererShaderType type)
+BuiltinShader* ModelRenderer::GetShader(::EffekseerRenderer::RendererShaderType type)
 {
-	return m_shaderBuffer.get();
+	size_t index = static_cast<size_t>(type);
+	return (index < m_shaders.size()) ? m_shaders[index].get() : nullptr;
 }
 
 //----------------------------------------------------------------------------------

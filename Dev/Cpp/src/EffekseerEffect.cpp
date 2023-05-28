@@ -6,9 +6,9 @@
 #include "EffekseerSystem.h"
 #include "EffekseerEffect.h"
 #include "Utils/EffekseerGodot.Utils.h"
-#include "RendererGodot/EffekseerGodot.Shader.h"
 #include "RendererGodot/EffekseerGodot.RenderingHandle.h"
-#include "RendererGodot/Shaders/BuiltinShaders.h"
+#include "RendererGodot/Shaders/BuiltinShader.h"
+#include "RendererGodot/Shaders/MaterialShader.h"
 #include "../Effekseer/Effekseer/IO/Effekseer.EfkEfcFactory.h"
 
 namespace godot {
@@ -111,12 +111,7 @@ void EffekseerEffect::load()
 		return;
 	}
 
-	if (m_targetLayer == TargetLayer::Both) {
-		setup_node_render(m_native->GetRoot(), TargetLayer::_3D);
-		setup_node_render(m_native->GetRoot(), TargetLayer::_2D);
-	} else {
-		setup_node_render(m_native->GetRoot(), m_targetLayer);
-	}
+	setup_node_render(m_native->GetRoot(), m_targetLayer);
 
 	if (!Engine::get_singleton()->is_editor_hint()) {
 		// Release data bytes memory
@@ -144,32 +139,56 @@ void EffekseerEffect::setup_node_render(Effekseer::EffectNode* node, TargetLayer
 		nodeType == Effekseer::EffectNodeType::Model;
 
 	if (isRenderable) {
+		using namespace EffekseerGodot;
+
 		const auto renderParams = node->GetBasicRenderParameter();
 		const auto modelParams = node->GetEffectModelParameter();
 		const bool isModel = nodeType == Effekseer::EffectNodeType::Model;
 
-		if (renderParams.MaterialType != Effekseer::RendererMaterialType::File) {
-			using namespace EffekseerGodot::Shaders;
-			using namespace EffekseerGodot::BuiltinShaders;
-			
-			Settings settings{};
-			settings.renderSettings.blendType = (uint8_t)renderParams.AlphaBlend;
-			settings.renderSettings.cullType = (uint8_t)((isModel) ? modelParams.Culling : Effekseer::CullingType::Double);
-			settings.renderSettings.depthTest = renderParams.ZTest;
-			settings.renderSettings.depthWrite = renderParams.ZWrite;
+		RenderSettings renderSettings{};
+		renderSettings.blendType = (uint8_t)renderParams.AlphaBlend;
+		renderSettings.cullType = (uint8_t)((isModel) ? modelParams.Culling : Effekseer::CullingType::Double);
+		renderSettings.depthTest = renderParams.ZTest;
+		renderSettings.depthWrite = renderParams.ZWrite;
 
-			settings.nodeType = (targetLayer == TargetLayer::_3D) ? NodeType::Node3D : NodeType::Node2D;
+		if (renderParams.MaterialType == Effekseer::RendererMaterialType::File) {
+			MaterialShader::Settings settings{};
+			settings.renderSettings = renderSettings;
+			settings.geometryType = (isModel) ? GeometryType::Model : GeometryType::Sprite;
+
+			auto material = m_native->GetMaterial(renderParams.MaterialIndex);
+			auto shader = static_cast<MaterialShader*>(isModel ? material->ModelUserPtr : material->UserPtr);
+
+			auto renderingHandle = node->GetRenderingUserData().DownCast<EffekseerGodot::RenderingHandle>();
+			if (renderingHandle.Get() == nullptr) {
+				renderingHandle = Effekseer::MakeRefPtr<EffekseerGodot::RenderingHandle>();
+
+				if (targetLayer == TargetLayer::Both || targetLayer == TargetLayer::World3D) {
+					settings.nodeType = NodeType::Node3D;
+					renderingHandle->SetShader3D(shader->GetRID(settings));
+				}
+				if (targetLayer == TargetLayer::Both || targetLayer == TargetLayer::World2D) {
+					settings.nodeType = NodeType::Node2D;
+					renderingHandle->SetShader2D(shader->GetRID(settings));
+				}
+
+				node->SetRenderingUserData(renderingHandle);
+			}
+		}
+		else {
+			BuiltinShader::Settings settings{};
+			settings.renderSettings = renderSettings;
 			settings.geometryType = (isModel) ? GeometryType::Model : GeometryType::Sprite;
 
 			switch (renderParams.MaterialType) {
 			case Effekseer::RendererMaterialType::Default:
-				settings.shaderType = ShaderType::Unlit;
+				settings.shaderType = BuiltinShaderType::Unlit;
 				break;
 			case Effekseer::RendererMaterialType::Lighting:
-				settings.shaderType = ShaderType::Lighting;
+				settings.shaderType = BuiltinShaderType::Lighting;
 				break;
 			case Effekseer::RendererMaterialType::BackDistortion:
-				settings.shaderType = ShaderType::Distortion;
+				settings.shaderType = BuiltinShaderType::Distortion;
 				break;
 			}
 
@@ -190,25 +209,31 @@ void EffekseerEffect::setup_node_render(Effekseer::EffectNode* node, TargetLayer
 				renderParams.SoftParticleDistanceNearOffset != 0.0f;
 			
 			for (size_t i = 0; i < renderParams.FilterTypes.size(); i++) {
-				settings.SetTextureFilter(static_cast<Textures>(i), renderParams.FilterTypes[i]);
+				settings.SetTextureFilter(static_cast<BuiltinTextures>(i), renderParams.FilterTypes[i]);
 			}
 			for (size_t i = 0; i < renderParams.FilterTypes.size(); i++) {
-				settings.SetTextureWrap(static_cast<Textures>(i), renderParams.WrapTypes[i]);
+				settings.SetTextureWrap(static_cast<BuiltinTextures>(i), renderParams.WrapTypes[i]);
 			}
 
-			auto shaderPtr = GenerateShader(settings);
+			EffekseerRenderer::RendererShaderType rendererShaderType =
+				(EffekseerRenderer::RendererShaderType)((int)settings.shaderType + (int)settings.advancedShader * 3);
+			auto shader = system->get_builtin_shader(isModel, rendererShaderType);
 
 			auto renderingHandle = node->GetRenderingUserData().DownCast<EffekseerGodot::RenderingHandle>();
 			if (renderingHandle.Get() == nullptr) {
 				renderingHandle = Effekseer::MakeRefPtr<EffekseerGodot::RenderingHandle>();
+				
+				if (targetLayer == TargetLayer::Both || targetLayer == TargetLayer::World3D) {
+					settings.nodeType = NodeType::Node3D;
+					renderingHandle->SetShader3D(shader->GetRID(settings));
+				}
+				if (targetLayer == TargetLayer::Both || targetLayer == TargetLayer::World2D) {
+					settings.nodeType = NodeType::Node2D;
+					renderingHandle->SetShader2D(shader->GetRID(settings));
+				}
+
+				node->SetRenderingUserData(renderingHandle);
 			}
-			if (targetLayer == TargetLayer::_3D) {
-				renderingHandle->SetShader3D(shaderPtr);
-			}
-			else if (targetLayer == TargetLayer::_2D) {
-				renderingHandle->SetShader2D(shaderPtr);
-			}
-			node->SetRenderingUserData(renderingHandle);
 		}
 	}
 

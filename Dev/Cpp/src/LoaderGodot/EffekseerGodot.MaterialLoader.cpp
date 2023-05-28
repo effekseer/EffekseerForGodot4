@@ -1,8 +1,7 @@
 ﻿#include <godot_cpp/classes/resource_loader.hpp>
 #include "EffekseerGodot.MaterialLoader.h"
-#include "../RendererGodot/EffekseerGodot.ShaderGenerator.h"
-#include "../RendererGodot/EffekseerGodot.Shader.h"
 #include "../RendererGodot/EffekseerGodot.RenderResources.h"
+#include "../RendererGodot/Shaders/MaterialShader.h"
 #include "../Utils/EffekseerGodot.Utils.h"
 #include "../EffekseerResource.h"
 
@@ -37,34 +36,12 @@ namespace EffekseerGodot
 	material->IsSimpleVertex = materialFile.GetIsSimpleVertex();
 	material->IsRefractionRequired = materialFile.GetHasRefraction();
 
-	ShaderGenerator shaderGenerator;
-	auto shaderList = shaderGenerator.Generate(materialFile);
-
-	{
-		auto shader = Shader::Create("Sprite_Material", RendererShaderType::Material);
-		shader->SetVertexConstantBufferSize(std::max(shaderList[(size_t)ShaderType::Sprite2D].VertexConstantBufferSize, shaderList[(size_t)ShaderType::Sprite3D].VertexConstantBufferSize));
-		shader->SetPixelConstantBufferSize(std::max(shaderList[(size_t)ShaderType::Sprite2D].PixelConstantBufferSize, shaderList[(size_t)ShaderType::Sprite3D].PixelConstantBufferSize));
-		//shader->SetCode(Shader::RenderType::SpatialLightweight, shaderList[(size_t)ShaderType::Sprite3D].ShaderCode.c_str(), std::move(shaderList[(size_t)ShaderType::Sprite3D].ParamDecls));
-		//shader->SetCode(Shader::RenderType::CanvasItem, shaderList[(size_t)ShaderType::Sprite2D].ShaderCode.c_str(), std::vector<Shader::ParamDecl>(shaderList[0].ParamDecls));
-		shader->SetCustomData1Count(materialFile.GetCustomData1Count());
-		shader->SetCustomData2Count(materialFile.GetCustomData2Count());
-		material->UserPtr = shader.release();
-	}
-	{
-		auto shader = Shader::Create("Model_Material", RendererShaderType::Material);
-		shader->SetVertexConstantBufferSize(std::max(shaderList[(size_t)ShaderType::Model2D].VertexConstantBufferSize, shaderList[(size_t)ShaderType::Model3D].VertexConstantBufferSize));
-		shader->SetPixelConstantBufferSize(std::max(shaderList[(size_t)ShaderType::Model2D].PixelConstantBufferSize, shaderList[(size_t)ShaderType::Model3D].PixelConstantBufferSize));
-		//shader->SetCode(Shader::RenderType::SpatialLightweight, shaderList[(size_t)ShaderType::Model3D].ShaderCode.c_str(), std::move(shaderList[(size_t)ShaderType::Model3D].ParamDecls));
-		//shader->SetCode(Shader::RenderType::CanvasItem, shaderList[(size_t)ShaderType::Model2D].ShaderCode.c_str(), std::move(shaderList[(size_t)ShaderType::Model2D].ParamDecls));
-		shader->SetCustomData1Count(materialFile.GetCustomData1Count());
-		shader->SetCustomData2Count(materialFile.GetCustomData2Count());
-		material->ModelUserPtr = shader.release();
-	}
-
-	if (materialFile.GetHasRefraction())
-	{
-	}
-
+	auto shader = new MaterialShader("Material_Sprite", materialFile, GeometryType::Sprite);
+	auto modelShader = new MaterialShader("Material_Model", materialFile, GeometryType::Model);
+	
+	material->UserPtr = shader;
+	material->ModelUserPtr = shader;
+	
 	material->CustomData1 = materialFile.GetCustomData1Count();
 	material->CustomData2 = materialFile.GetCustomData2Count();
 	material->TextureCount = std::min(materialFile.GetTextureCount(), Effekseer::UserTextureSlotMax);
@@ -73,7 +50,7 @@ namespace EffekseerGodot
 
 	for (int32_t i = 0; i < material->TextureCount; i++)
 	{
-		material->TextureWrapTypes.at(i) = materialFile.GetTextureWrap(i);
+		material->TextureWrapTypes[i] = materialFile.GetTextureWrap(i);
 	}
 
 	return material;

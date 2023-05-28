@@ -19,10 +19,10 @@
 #include "EffekseerGodot.RenderingHandle.h"
 
 #include "EffekseerGodot.IndexBuffer.h"
-#include "EffekseerGodot.Shader.h"
 #include "EffekseerGodot.VertexBuffer.h"
 #include "EffekseerGodot.ModelRenderer.h"
 #include "EffekseerGodot.RenderResources.h"
+#include "Shaders/BuiltinShader.h"
 
 #include "EffekseerRenderer.Renderer_Impl.h"
 #include "EffekseerRenderer.RibbonRendererBase.h"
@@ -49,7 +49,7 @@ DynamicTexture::~DynamicTexture()
 	rs->free_rid(m_texture2D);
 }
 
-void DynamicTexture::Init(int32_t width, int32_t height)
+void DynamicTexture::Init(size_t width, size_t height)
 {
 	m_textureWidth = width;
 	m_textureHeight = height;
@@ -57,16 +57,16 @@ void DynamicTexture::Init(int32_t width, int32_t height)
 	m_pixels.resize(width * height * sizeof(float) * 4);
 	
 	godot::Ref<godot::Image> image = godot::Image::create(
-		width, height, false, godot::Image::FORMAT_RGBAF);
+		(int32_t)width, (int32_t)height, false, godot::Image::FORMAT_RGBAF);
 
 	auto rs = godot::RenderingServer::get_singleton();
 	m_texture2D = rs->texture_2d_create(image);
 }
 
-float* DynamicTexture::Pixels(int32_t x, int32_t y)
+float* DynamicTexture::Pixels(size_t x, size_t y)
 {
 	m_dirty = true;
-	size_t offset = ((size_t)x + (size_t)y * (size_t)m_textureWidth) * sizeof(float) * 4;
+	size_t offset = (x + y * (size_t)m_textureWidth) * sizeof(float) * 4;
 	return (float*)(m_pixels.ptrw() + offset);
 }
 
@@ -281,12 +281,15 @@ bool Renderer::Initialize(int32_t drawMaxCount)
 	if (m_vertexBuffer == nullptr)
 		return false;
 
-	// Allocate shader constant buffers
-	m_standardRenderersShaderBuffer = Shader::Create("Standard_Buffers", RendererShaderType::Unlit);
-	m_standardRenderersShaderBuffer->SetVertexConstantBufferSize(sizeof(StandardRendererVertexBuffer));
-	m_standardRenderersShaderBuffer->SetPixelConstantBufferSize(std::max(sizeof(PixelConstantBuffer), sizeof(PixelConstantBufferDistortion)));
+	// Create builtin shaders
+	m_shaders[(size_t)RendererShaderType::Unlit].reset(new BuiltinShader("Basic_Unlit_Sprite", RendererShaderType::Unlit, GeometryType::Sprite));
+	m_shaders[(size_t)RendererShaderType::Lit].reset(new BuiltinShader("Basic_Lighting_Sprite", RendererShaderType::Lit, GeometryType::Sprite));
+	m_shaders[(size_t)RendererShaderType::BackDistortion].reset(new BuiltinShader("Basic_Distortion_Sprite", RendererShaderType::BackDistortion, GeometryType::Sprite));
+	m_shaders[(size_t)RendererShaderType::AdvancedUnlit].reset(new BuiltinShader("Advanced_Unlit_Sprite", RendererShaderType::AdvancedUnlit, GeometryType::Sprite));
+	m_shaders[(size_t)RendererShaderType::AdvancedLit].reset(new BuiltinShader("Advanced_Lighting_Sprite", RendererShaderType::AdvancedLit, GeometryType::Sprite));
+	m_shaders[(size_t)RendererShaderType::AdvancedBackDistortion].reset(new BuiltinShader("Advanced_Distortion_Sprite", RendererShaderType::AdvancedBackDistortion, GeometryType::Sprite));
 
-	m_renderCommands3D.resize((size_t)drawMaxCount);
+	m_renderCommand3Ds.resize((size_t)drawMaxCount);
 	m_renderCommand2Ds.resize((size_t)drawMaxCount);
 
 	m_standardRenderer.reset(new StandardRenderer(this));
@@ -307,7 +310,7 @@ bool Renderer::Initialize(int32_t drawMaxCount)
 //----------------------------------------------------------------------------------
 void Renderer::Destroy()
 {
-	m_renderCommands3D.clear();
+	m_renderCommand3Ds.clear();
 	m_renderCommand2Ds.clear();
 
 	//GetImpl()->DeleteProxyTextures(this);
@@ -317,7 +320,7 @@ void Renderer::ResetState()
 {
 	for (size_t i = 0; i < m_renderCount3D; i++)
 	{
-		m_renderCommands3D[i].Reset();
+		m_renderCommand3Ds[i].Reset();
 	}
 	m_renderCount3D = 0;
 
@@ -473,37 +476,35 @@ void Renderer::SetLayout(Shader* shader)
 //----------------------------------------------------------------------------------
 void Renderer::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 {
-	assert(m_shaderBuffer != nullptr);
-
-	auto vertexDataPtr = GetVertexBuffer()->Refer() + vertexOffset * m_vertexStride;
+	assert(m_currentShader != nullptr);
 
 	auto rs = godot::RenderingServer::get_singleton();
 
-	godot::Object* godotObj = reinterpret_cast<godot::Object*>(GetImpl()->CurrentHandleUserData);
-	
-	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter3D>(godotObj))
+	auto& renderState = m_renderState->GetActiveState();
+	auto godotNode = reinterpret_cast<godot::Object*>(GetImpl()->CurrentHandleUserData);
+	auto renderingHandle = GetImpl()->CurrentRenderingUserData.DownCast<RenderingHandle>();
+
+	auto vertexDataPtr = GetVertexBuffer()->Refer() + vertexOffset * m_vertexStride;
+
+	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter3D>(godotNode))
 	{
-		if (m_renderCount3D >= m_renderCommands3D.size()) return;
+		if (m_renderCount3D >= m_renderCommand3Ds.size()) return;
 
-		const bool softparticleEnabled = IsSoftParticleEnabled();
-		const Shader::RenderType renderType = (softparticleEnabled) ? 
-			Shader::RenderType::SpatialDepthFade : Shader::RenderType::SpatialLightweight;
-
-		auto& command = m_renderCommands3D[m_renderCount3D];
+		auto& command = m_renderCommand3Ds[m_renderCount3D];
 		command.SetupSprites(emitter->get_world_3d().ptr(), (int32_t)m_renderCount3D);
 
 		// Transfer vertex data
 		TransferVertexToMesh(command.GetBase(), vertexDataPtr, spriteCount);
 
 		// Setup material
-		ApplyParametersToMaterial(command.GetMaterial());
+		ApplyParametersToMaterial(command.GetMaterial(), renderingHandle->GetShader3D(), m_currentShader->GetParamDecls3D());
 
 		m_renderCount3D++;
 		impl->drawcallCount++;
 		impl->drawvertexCount += spriteCount * 4;
 
 	}
-	else if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter2D>(godotObj))
+	else if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter2D>(godotNode))
 	{
 		if (m_renderCount2D >= m_renderCommand2Ds.size()) return;
 
@@ -518,20 +519,20 @@ void Renderer::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 			vertexDataPtr, spriteCount, srt.scale.abs());
 
 		// Setup material
-		ApplyParametersToMaterial(command.GetMaterial());
+		ApplyParametersToMaterial(command.GetMaterial(), renderingHandle->GetShader2D(), m_currentShader->GetParamDecls2D());
 
-		auto shaderType = GetCurrentShaderType();
+		auto shaderType = m_currentShader->GetRendererShaderType();
 		if (shaderType == EffekseerRenderer::RendererShaderType::Lit ||
 			shaderType == EffekseerRenderer::RendererShaderType::BackDistortion ||
 			shaderType == EffekseerRenderer::RendererShaderType::Material)
 		{
 			rs->material_set_param(command.GetMaterial(), "TangentTexture", m_tangentTexture.GetRID());
 		}
-		if (m_shaderBuffer->GetCustomData1Count() > 0)
+		if (m_currentShader->GetCustomData1Count() > 0)
 		{
 			rs->material_set_param(command.GetMaterial(), "CustomData1", m_customData1Texture.GetRID());
 		}
-		if (m_shaderBuffer->GetCustomData2Count() > 0)
+		if (m_currentShader->GetCustomData2Count() > 0)
 		{
 			rs->material_set_param(command.GetMaterial(), "CustomData2", m_customData2Texture.GetRID());
 		}
@@ -547,16 +548,16 @@ void Renderer::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 //----------------------------------------------------------------------------------
 void Renderer::DrawPolygon(int32_t vertexCount, int32_t indexCount)
 {
-	assert(m_shaderBuffer != nullptr);
+	assert(m_currentShader != nullptr);
 	assert(m_modelRenderState.model != nullptr);
 
 	auto rs = godot::RenderingServer::get_singleton();
 
 	auto& renderState = m_renderState->GetActiveState();
+	auto godotNode = reinterpret_cast<godot::Object*>(GetImpl()->CurrentHandleUserData);
+	auto renderingHandle = GetImpl()->CurrentRenderingUserData.DownCast<RenderingHandle>();
 
-	godot::Object* godotObj = reinterpret_cast<godot::Object*>(GetImpl()->CurrentHandleUserData);
-
-	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter2D>(godotObj))
+	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter2D>(godotNode))
 	{
 		if (m_renderCount2D >= m_renderCommand2Ds.size()) return;
 
@@ -572,7 +573,7 @@ void Renderer::DrawPolygon(int32_t vertexCount, int32_t indexCount)
 		TransferModelToCanvasItem2D(command.GetCanvasItem(), m_modelRenderState.model.Get(), srt.scale.abs(), flip, renderState.CullingType);
 
 		// Setup material
-		ApplyParametersToMaterial(command.GetMaterial());
+		ApplyParametersToMaterial(command.GetMaterial(), renderingHandle->GetShader2D(), m_currentShader->GetParamDecls2D());
 
 		m_renderCount2D++;
 		impl->drawcallCount++;
@@ -586,29 +587,26 @@ void Renderer::DrawPolygon(int32_t vertexCount, int32_t indexCount)
 
 void Renderer::DrawPolygonInstanced(int32_t vertexCount, int32_t indexCount, int32_t instanceCount)
 {
-	assert(m_shaderBuffer != nullptr);
+	assert(m_currentShader != nullptr);
 	assert(m_modelRenderState.model != nullptr);
 
 	auto rs = godot::RenderingServer::get_singleton();
 
 	auto& renderState = m_renderState->GetActiveState();
+	auto godotNode = reinterpret_cast<godot::Object*>(GetImpl()->CurrentHandleUserData);
+	auto renderingHandle = GetImpl()->CurrentRenderingUserData.DownCast<RenderingHandle>();
 
-	godot::Object* godotObj = reinterpret_cast<godot::Object*>(GetImpl()->CurrentHandleUserData);
-
-	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter3D>(godotObj))
+	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter3D>(godotNode))
 	{
-		if (m_renderCount3D >= m_renderCommands3D.size()) return;
+		if (m_renderCount3D >= m_renderCommand3Ds.size()) return;
 
-		const Shader::RenderType renderType = (m_modelRenderState.softparticleEnabled) ? 
-			Shader::RenderType::SpatialDepthFade : Shader::RenderType::SpatialLightweight;
-
-		auto& command = m_renderCommands3D[m_renderCount3D];
+		auto& command = m_renderCommand3Ds[m_renderCount3D];
 		auto meshRID = m_modelRenderState.model.DownCast<Model>()->GetRID();
 		command.SetupModels(emitter->get_world_3d().ptr(), (int32_t)m_renderCount3D, meshRID, instanceCount);
 		
 		auto multimeshRID = command.GetBase();
 
-		const EffekseerRenderer::RendererShaderType shaderType = GetCurrentShaderType();
+		const EffekseerRenderer::RendererShaderType shaderType = m_currentShader->GetRendererShaderType();
 		const bool isShaderAdvanced = 
 			shaderType == EffekseerRenderer::RendererShaderType::AdvancedUnlit ||
 			shaderType == EffekseerRenderer::RendererShaderType::AdvancedLit ||
@@ -616,7 +614,7 @@ void Renderer::DrawPolygonInstanced(int32_t vertexCount, int32_t indexCount, int
 		
 		if (isShaderAdvanced)
 		{
-			auto constantBuffer = (const EffekseerRenderer::ModelRendererAdvancedVertexConstantBuffer<ModelRenderer::InstanceCount>*)m_shaderBuffer->GetVertexConstantBuffer();
+			auto constantBuffer = (const EffekseerRenderer::ModelRendererAdvancedVertexConstantBuffer<ModelRenderer::InstanceCount>*)m_currentShader->GetVertexConstantBuffer();
 
 			for (int32_t i = 0; i < instanceCount; i++)
 			{
@@ -627,7 +625,7 @@ void Renderer::DrawPolygonInstanced(int32_t vertexCount, int32_t indexCount, int
 		}
 		else
 		{
-			auto constantBuffer = (const EffekseerRenderer::ModelRendererVertexConstantBuffer<ModelRenderer::InstanceCount>*)m_shaderBuffer->GetVertexConstantBuffer();
+			auto constantBuffer = (const EffekseerRenderer::ModelRendererVertexConstantBuffer<ModelRenderer::InstanceCount>*)m_currentShader->GetVertexConstantBuffer();
 
 			for (int32_t i = 0; i < instanceCount; i++)
 			{
@@ -638,7 +636,7 @@ void Renderer::DrawPolygonInstanced(int32_t vertexCount, int32_t indexCount, int
 		}
 		
 		// Setup material
-		ApplyParametersToMaterial(command.GetMaterial());
+		ApplyParametersToMaterial(command.GetMaterial(), renderingHandle->GetShader3D(), m_currentShader->GetParamDecls3D());
 
 		m_renderCount3D++;
 		impl->drawcallCount++;
@@ -650,86 +648,50 @@ void Renderer::DrawPolygonInstanced(int32_t vertexCount, int32_t indexCount, int
 	}
 }
 
-void Renderer::BeginModelRendering(Effekseer::ModelRef model, bool softparticleEnabled)
+void Renderer::BeginModelRendering(Effekseer::ModelRef model)
 {
 	m_modelRenderState.model = model;
-	m_modelRenderState.softparticleEnabled = softparticleEnabled;
 }
 
 void Renderer::EndModelRendering()
 {
 	m_modelRenderState.model = nullptr;
-	m_modelRenderState.softparticleEnabled = false;
 }
 
-Shader* Renderer::GetShader(::EffekseerRenderer::RendererShaderType type)
+BuiltinShader* Renderer::GetShader(::EffekseerRenderer::RendererShaderType type)
 {
-	return m_standardRenderersShaderBuffer.get();
+	size_t index = static_cast<size_t>(type);
+	return (index < m_shaders.size()) ? m_shaders[index].get() : nullptr;
 }
 
 void Renderer::BeginShader(Shader* shader)
 {
-	m_shaderBuffer = shader;
+	m_currentShader = shader;
 }
 
-//----------------------------------------------------------------------------------
-//
-//----------------------------------------------------------------------------------
 void Renderer::EndShader(Shader* shader)
 {
-	m_shaderBuffer = nullptr;
-}
-
-Shader* Renderer::GetCurrentShader()
-{
-	auto renderingHandle = GetImpl()->CurrentRenderingUserData.DownCast<RenderingHandle>();
-	if (renderingHandle == nullptr) {
-		return nullptr;
-	}
-	
-	godot::Object* godotObj = reinterpret_cast<godot::Object*>(GetImpl()->CurrentHandleUserData);
-	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter3D>(godotObj))
-	{
-		return renderingHandle->GetShader3D().get();
-	}
-	else if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter2D>(godotObj))
-	{
-		return renderingHandle->GetShader2D().get();
-	}
-	return nullptr;
-	
-}
-
-::EffekseerRenderer::RendererShaderType Renderer::GetCurrentShaderType()
-{
-	if (auto shader = GetCurrentShader())
-	{
-		return GetCurrentShader()->GetShaderType();
-	}
-	return EffekseerRenderer::RendererShaderType::Unlit;
+	m_currentShader = nullptr;
 }
 
 void Renderer::SetVertexBufferToShader(const void* data, int32_t size, int32_t dstOffset)
 {
-	assert(m_shaderBuffer != nullptr);
-	assert(m_shaderBuffer->GetVertexConstantBufferSize() >= size + dstOffset);
+	assert(m_currentShader != nullptr);
+	assert(m_currentShader->GetVertexConstantBufferSize() >= size + dstOffset);
 
-	auto p = static_cast<uint8_t*>(m_shaderBuffer->GetVertexConstantBuffer()) + dstOffset;
+	auto p = static_cast<uint8_t*>(m_currentShader->GetVertexConstantBuffer()) + dstOffset;
 	memcpy(p, data, size);
 }
 
 void Renderer::SetPixelBufferToShader(const void* data, int32_t size, int32_t dstOffset)
 {
-	assert(m_shaderBuffer != nullptr);
-	assert(m_shaderBuffer->GetPixelConstantBufferSize() >= size + dstOffset);
+	assert(m_currentShader != nullptr);
+	assert(m_currentShader->GetPixelConstantBufferSize() >= size + dstOffset);
 
-	auto p = static_cast<uint8_t*>(m_shaderBuffer->GetPixelConstantBuffer()) + dstOffset;
+	auto p = static_cast<uint8_t*>(m_currentShader->GetPixelConstantBuffer()) + dstOffset;
 	memcpy(p, data, size);
 }
 
-//----------------------------------------------------------------------------------
-//
-//----------------------------------------------------------------------------------
 void Renderer::SetTextures(Shader* shader, Effekseer::Backend::TextureRef* textures, int32_t count)
 {
 	auto& state = m_renderState->GetActiveState();
@@ -760,7 +722,7 @@ void Renderer::DeleteProxyTexture(Effekseer::Backend::TextureRef& texture)
 
 bool Renderer::IsSoftParticleEnabled()
 {
-	auto shaderType = GetCurrentShaderType();
+	auto shaderType = m_currentShader->GetRendererShaderType();
 	if (shaderType == EffekseerRenderer::RendererShaderType::Material)
 	{
 		return false;
@@ -768,12 +730,12 @@ bool Renderer::IsSoftParticleEnabled()
 	if (shaderType == EffekseerRenderer::RendererShaderType::BackDistortion ||
 		shaderType == EffekseerRenderer::RendererShaderType::AdvancedBackDistortion)
 	{
-		auto pcb = (EffekseerRenderer::PixelConstantBufferDistortion*)m_shaderBuffer->GetPixelConstantBuffer();
+		auto pcb = (EffekseerRenderer::PixelConstantBufferDistortion*)m_currentShader->GetPixelConstantBuffer();
 		return pcb->SoftParticleParam.softParticleParams[3] != 0.0f;
 	}
 	else
 	{
-		auto pcb = (EffekseerRenderer::PixelConstantBuffer*)m_shaderBuffer->GetPixelConstantBuffer();
+		auto pcb = (EffekseerRenderer::PixelConstantBuffer*)m_currentShader->GetPixelConstantBuffer();
 		return pcb->SoftParticleParam.softParticleParams[3] != 0.0f;
 	}
 }
@@ -789,7 +751,7 @@ void Renderer::TransferVertexToMesh(godot::RID mesh, const void* vertexData, siz
 
 	rs->mesh_clear(mesh);
 
-	RendererShaderType shaderType = GetCurrentShaderType();
+	RendererShaderType shaderType = m_currentShader->GetRendererShaderType();
 	
 	uint32_t format = 0;
 	const size_t vertexCount = spriteCount * 4;
@@ -913,8 +875,8 @@ void Renderer::TransferVertexToMesh(godot::RID mesh, const void* vertexData, siz
 	}
 	else if (shaderType == RendererShaderType::Material)
 	{
-		const size_t customData1Count = (size_t)m_shaderBuffer->GetCustomData1Count();
-		const size_t customData2Count = (size_t)m_shaderBuffer->GetCustomData2Count();
+		const size_t customData1Count = (size_t)m_currentShader->GetCustomData1Count();
+		const size_t customData2Count = (size_t)m_currentShader->GetCustomData2Count();
 		const size_t srcStride = sizeof(DynamicVertex) + (customData1Count + customData2Count) * sizeof(float);
 		const size_t dstVertexStride = sizeof(GdLitVertex);
 		const size_t dstAttributeStride = sizeof(GdAttribute) + (customData1Count + customData2Count) * sizeof(float);
@@ -1027,7 +989,7 @@ void Renderer::TransferVertexToCanvasItem2D(godot::RID canvas_item,
 		}
 	}
 
-	RendererShaderType shaderType = GetCurrentShaderType();
+	RendererShaderType shaderType = m_currentShader->GetRendererShaderType();
 
 	// Copy vertex data
 	if (shaderType == RendererShaderType::Unlit)
@@ -1076,8 +1038,8 @@ void Renderer::TransferVertexToCanvasItem2D(godot::RID canvas_item,
 	}
 	else if (shaderType == RendererShaderType::Material)
 	{
-		const int32_t customData1Count = m_shaderBuffer->GetCustomData1Count();
-		const int32_t customData2Count = m_shaderBuffer->GetCustomData2Count();
+		const int32_t customData1Count = m_currentShader->GetCustomData1Count();
+		const int32_t customData2Count = m_currentShader->GetCustomData2Count();
 		const int32_t stride = sizeof(DynamicVertex) + (customData1Count + customData2Count) * sizeof(float);
 
 		godot::Vector2* points = pointArray.ptrw();
@@ -1138,7 +1100,7 @@ void Renderer::TransferModelToCanvasItem2D(godot::RID canvas_item,
 	colorArray.resize(vertexCount);
 	uvArray.resize(vertexCount);
 
-	const uint8_t* constantBuffer = (const uint8_t*)m_shaderBuffer->GetVertexConstantBuffer();
+	const uint8_t* constantBuffer = (const uint8_t*)m_currentShader->GetVertexConstantBuffer();
 	const Effekseer::Matrix44 worldMatrix = *(Effekseer::Matrix44*)(constantBuffer + 64);
 
 	if (cullingType == Effekseer::CullingType::Double)
@@ -1226,28 +1188,27 @@ void Renderer::TransferModelToCanvasItem2D(godot::RID canvas_item,
 	rs->canvas_item_add_triangle_array(canvas_item, indexArray, pointArray, colorArray, uvArray);
 }
 
-void Renderer::ApplyParametersToMaterial(godot::RID material)
+void Renderer::ApplyParametersToMaterial(godot::RID material, godot::RID shaderRID, const std::vector<ParamDecl>& paramDecls)
 {
 	using namespace godot;
 	
 	auto& state = m_renderState->GetActiveState();
 
 	auto rs = RenderingServer::get_singleton();
-	Shader* shader = GetCurrentShader();
+	Shader* shader = m_currentShader;
 	if (shader == nullptr)
 	{
 		return;
 	}
 
-	rs->material_set_shader(material, shader->GetRID());
+	rs->material_set_shader(material, shaderRID);
 
-	auto& paramDecls = shader->GetParamDecls();
-	auto constantBuffers = m_shaderBuffer->GetConstantBuffers();
+	auto& constantBuffers = m_currentShader->GetConstantBuffers();
 	for (size_t i = 0; i < paramDecls.size(); i++)
 	{
 		const auto& decl = paramDecls[i];
 
-		if (decl.type == Shader::ParamType::Int)
+		if (decl.type == ParamType::Int)
 		{
 			if (decl.length == 0)
 			{
@@ -1262,7 +1223,7 @@ void Renderer::ApplyParametersToMaterial(godot::RID material)
 				rs->material_set_param(material, decl.name, array);
 			}
 		}
-		else if (decl.type == Shader::ParamType::Float)
+		else if (decl.type == ParamType::Float)
 		{
 			if (decl.length == 0)
 			{
@@ -1277,7 +1238,7 @@ void Renderer::ApplyParametersToMaterial(godot::RID material)
 				rs->material_set_param(material, decl.name, array);
 			}
 		}
-		else if (decl.type == Shader::ParamType::Vector2)
+		else if (decl.type == ParamType::Vector2)
 		{
 			if (decl.length == 0)
 			{
@@ -1292,7 +1253,7 @@ void Renderer::ApplyParametersToMaterial(godot::RID material)
 				rs->material_set_param(material, decl.name, array);
 			}
 		}
-		else if (decl.type == Shader::ParamType::Vector3)
+		else if (decl.type == ParamType::Vector3)
 		{
 			if (decl.length == 0)
 			{
@@ -1307,7 +1268,7 @@ void Renderer::ApplyParametersToMaterial(godot::RID material)
 				rs->material_set_param(material, decl.name, array);
 			}
 		}
-		else if (decl.type == Shader::ParamType::Vector4)
+		else if (decl.type == ParamType::Vector4)
 		{
 			if (decl.length == 0)
 			{
@@ -1322,7 +1283,7 @@ void Renderer::ApplyParametersToMaterial(godot::RID material)
 				rs->material_set_param(material, decl.name, array);
 			}
 		}
-		else if (decl.type == Shader::ParamType::Color)
+		else if (decl.type == ParamType::Color)
 		{
 			if (decl.length == 0)
 			{
@@ -1337,7 +1298,7 @@ void Renderer::ApplyParametersToMaterial(godot::RID material)
 				rs->material_set_param(material, decl.name, array);
 			}
 		}
-		else if (decl.type == Shader::ParamType::Matrix44)
+		else if (decl.type == ParamType::Matrix44)
 		{
 			if (decl.length == 0)
 			{
@@ -1357,14 +1318,11 @@ void Renderer::ApplyParametersToMaterial(godot::RID material)
 				rs->material_set_param(material, decl.name, array);
 			}
 		}
-		else if (decl.type == Shader::ParamType::Texture)
+		else if (decl.type == ParamType::Texture)
 		{
 			if (state.TextureIDs[decl.slot])
 			{
 				godot::RID texture = Int64ToRID((int64_t)state.TextureIDs[decl.slot]);
-				//rs->texture_set_flags(texture, godot::Texture::FLAG_MIPMAPS | 
-				//	((state.TextureFilterTypes[decl.slot] == Effekseer::TextureFilterType::Linear) ? godot::Texture::FLAG_FILTER : 0) | 
-				//	((state.TextureWrapTypes[decl.slot] == Effekseer::TextureWrapType::Repeat) ? godot::Texture::FLAG_REPEAT : 0));
 				rs->material_set_param(material, decl.name, texture);
 			}
 			else

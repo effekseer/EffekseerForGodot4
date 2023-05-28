@@ -1,9 +1,8 @@
-#include "ShaderCommon.h"
+﻿#include <godot_cpp/classes/rendering_server.hpp>
+#include <godot_cpp/classes/texture.hpp>
+#include "ShaderBase.h"
 
 namespace EffekseerGodot
-{
-
-namespace Shaders
 {
 
 static const char* GodotShaderType[] = {
@@ -35,7 +34,7 @@ static const char* GodotShading[] = {
 	"render_mode unshaded;\n",
 };
 
-void GenerateHeaader(std::string& code, NodeType nodeType, RenderSettings renderSettings, bool unshaded)
+void Shader::GenerateHeader(std::string& code, NodeType nodeType, RenderSettings renderSettings, bool unshaded)
 {
 	code += GodotShaderType[static_cast<size_t>(nodeType)];
 	if (nodeType == NodeType::Node3D) {
@@ -47,6 +46,22 @@ void GenerateHeaader(std::string& code, NodeType nodeType, RenderSettings render
 	code += GodotShading[static_cast<size_t>(unshaded)];
 }
 
+Shader::Shader(const char* name, EffekseerRenderer::RendererShaderType renderershaderType)
+{
+	m_name = name;
+	m_renderershaderType = renderershaderType;
 }
 
+Shader::~Shader()
+{
 }
+
+godot::RID Shader::CompileShader(const char* code)
+{
+	auto rs = godot::RenderingServer::get_singleton();
+	godot::RID rid = rs->shader_create();
+	rs->shader_set_code(rid, code);
+	return rid;
+}
+
+} // namespace EffekseerGodot

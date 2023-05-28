@@ -354,7 +354,7 @@ void EffekseerSystem::set_editor2d_camera_transform(Transform2D transform)
 	m_editor2d_camera_transform = transform;
 }
 
-EffekseerGodot::Shader* EffekseerSystem::get_builtin_shader(bool is_model, EffekseerRenderer::RendererShaderType shader_type)
+EffekseerGodot::BuiltinShader* EffekseerSystem::get_builtin_shader(bool is_model, EffekseerRenderer::RendererShaderType shader_type)
 {
 	if (is_model) {
 		return m_manager->GetModelRenderer().DownCast<EffekseerGodot::ModelRenderer>()->GetShader(shader_type);

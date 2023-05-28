@@ -8,14 +8,19 @@
 #include "EffekseerGodot.RenderState.h"
 #include "EffekseerGodot.VertexBuffer.h"
 #include "EffekseerGodot.IndexBuffer.h"
+#include "Shaders/ShaderBase.h"
 
 namespace godot
 {
 class Node2D;
+class Node3D;
 }
 
 namespace EffekseerGodot
 {
+
+class BuiltinShader;
+class MaterialShader;
 
 //----------------------------------------------------------------------------------
 //
@@ -73,8 +78,8 @@ class DynamicTexture
 public:
 	DynamicTexture();
 	~DynamicTexture();
-	void Init(int32_t width, int32_t height);
-	float* Pixels(int32_t x, int32_t y);
+	void Init(size_t width, size_t height);
+	float* Pixels(size_t x, size_t y);
 	void Update();
 
 	godot::RID GetRID() { return m_texture2D; }
@@ -82,8 +87,8 @@ public:
 private:
 	godot::RID m_texture2D;
 	godot::PackedByteArray m_pixels;
-	int32_t m_textureWidth;
-	int32_t m_textureHeight;
+	size_t m_textureWidth;
+	size_t m_textureHeight;
 	bool m_dirty = false;
 };
 
@@ -106,24 +111,23 @@ private:
 	int32_t m_squareMaxCount = 0;
 	int32_t m_vertexStride = 0;
 
-	std::unique_ptr<Shader> m_standardRenderersShaderBuffer;
-	Shader* m_shaderBuffer = nullptr;
+	std::array<std::unique_ptr<BuiltinShader>, 6> m_shaders;
+	Shader* m_currentShader = nullptr;
 
-	std::vector<RenderCommand3D> m_renderCommands3D;
+	std::vector<RenderCommand3D> m_renderCommand3Ds;
 	size_t m_renderCount3D = 0;
 	std::vector<RenderCommand2D> m_renderCommand2Ds;
 	size_t m_renderCount2D = 0;
 
 	struct ModelRenderState {
 		Effekseer::ModelRef model = nullptr;
-		bool softparticleEnabled = false;
 	};
 	ModelRenderState m_modelRenderState;
 
 	DynamicTexture m_tangentTexture;
 	DynamicTexture m_customData1Texture;
 	DynamicTexture m_customData2Texture;
-	int32_t m_vertexTextureOffset = 0;
+	size_t m_vertexTextureOffset = 0;
 
 	std::unique_ptr<StandardRenderer> m_standardRenderer;
 	std::unique_ptr<RenderState> m_renderState;
@@ -200,15 +204,12 @@ public:
 	void DrawSprites(int32_t spriteCount, int32_t vertexOffset);
 	void DrawPolygon(int32_t vertexCount, int32_t indexCount);
 	void DrawPolygonInstanced(int32_t vertexCount, int32_t indexCount, int32_t instanceCount);
-	void BeginModelRendering(Effekseer::ModelRef model, bool softparticleEnabled);
+	void BeginModelRendering(Effekseer::ModelRef model);
 	void EndModelRendering();
 
-	Shader* GetShader(::EffekseerRenderer::RendererShaderType type);
+	BuiltinShader* GetShader(::EffekseerRenderer::RendererShaderType type);
 	void BeginShader(Shader* shader);
 	void EndShader(Shader* shader);
-
-	Shader* GetCurrentShader();
-	::EffekseerRenderer::RendererShaderType GetCurrentShaderType();
 
 	void SetVertexBufferToShader(const void* data, int32_t size, int32_t dstOffset);
 	void SetPixelBufferToShader(const void* data, int32_t size, int32_t dstOffset);
@@ -235,7 +236,7 @@ private:
 	void TransferModelToCanvasItem2D(godot::RID canvas_item, Effekseer::Model* model,
 		godot::Vector2 baseScale, bool flipPolygon, Effekseer::CullingType cullingType);
 
-	void ApplyParametersToMaterial(godot::RID material);
+	void ApplyParametersToMaterial(godot::RID material, godot::RID shaderRID, const std::vector<ParamDecl>& paramDecls);
 };
 
 } // namespace EffekseerGodot
