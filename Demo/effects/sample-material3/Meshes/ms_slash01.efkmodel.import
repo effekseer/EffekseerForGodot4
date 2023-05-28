@@ -3,12 +3,12 @@
 importer="effekseer.resource"
 type="Resource"
 uid="uid://gebsrj3pp0jk"
-path="res://.godot/imported/ms_slash01.efkmodel-55449ff7b4ac79565099f6291c9879bb.res"
+path="res://.godot/imported/ms_slash01.efkmodel-acc2581461d7bab4ef52f197c0d59041.res"
 
 [deps]
 
 source_file="res://effects/sample-material3/Meshes/ms_slash01.efkmodel"
-dest_files=["res://.godot/imported/ms_slash01.efkmodel-55449ff7b4ac79565099f6291c9879bb.res"]
+dest_files=["res://.godot/imported/ms_slash01.efkmodel-acc2581461d7bab4ef52f197c0d59041.res"]
 
 [params]
 

@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b0tr36wt1ft1i"
-path.s3tc="res://.godot/imported/tx_glow01_128.png-351ee54a6177e65d676957bf83ef3bc4.s3tc.ctex"
-path.etc2="res://.godot/imported/tx_glow01_128.png-351ee54a6177e65d676957bf83ef3bc4.etc2.ctex"
+path.s3tc="res://.godot/imported/tx_glow01_128.png-92cd07fe8decfbb0d5d61657f9d8fb97.s3tc.ctex"
+path.etc2="res://.godot/imported/tx_glow01_128.png-92cd07fe8decfbb0d5d61657f9d8fb97.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -13,7 +13,7 @@ metadata={
 [deps]
 
 source_file="res://effects/sample-material3/Textures/tx_glow01_128.png"
-dest_files=["res://.godot/imported/tx_glow01_128.png-351ee54a6177e65d676957bf83ef3bc4.s3tc.ctex", "res://.godot/imported/tx_glow01_128.png-351ee54a6177e65d676957bf83ef3bc4.etc2.ctex"]
+dest_files=["res://.godot/imported/tx_glow01_128.png-92cd07fe8decfbb0d5d61657f9d8fb97.s3tc.ctex", "res://.godot/imported/tx_glow01_128.png-92cd07fe8decfbb0d5d61657f9d8fb97.etc2.ctex"]
 
 [params]
 

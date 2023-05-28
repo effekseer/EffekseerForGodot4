@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cg1p0vjhfu8vh"
-path.s3tc="res://.godot/imported/tx_smoke02_256.png-7a6a73ec18a76bd26d0587e50fa9882a.s3tc.ctex"
-path.etc2="res://.godot/imported/tx_smoke02_256.png-7a6a73ec18a76bd26d0587e50fa9882a.etc2.ctex"
+path.s3tc="res://.godot/imported/tx_smoke02_256.png-e4180abe03c0240d53509921c06c9982.s3tc.ctex"
+path.etc2="res://.godot/imported/tx_smoke02_256.png-e4180abe03c0240d53509921c06c9982.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -13,7 +13,7 @@ metadata={
 [deps]
 
 source_file="res://effects/sample-material3/Textures/tx_smoke02_256.png"
-dest_files=["res://.godot/imported/tx_smoke02_256.png-7a6a73ec18a76bd26d0587e50fa9882a.s3tc.ctex", "res://.godot/imported/tx_smoke02_256.png-7a6a73ec18a76bd26d0587e50fa9882a.etc2.ctex"]
+dest_files=["res://.godot/imported/tx_smoke02_256.png-e4180abe03c0240d53509921c06c9982.s3tc.ctex", "res://.godot/imported/tx_smoke02_256.png-e4180abe03c0240d53509921c06c9982.etc2.ctex"]
 
 [params]
 

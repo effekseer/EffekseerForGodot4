@@ -3,12 +3,12 @@
 importer="effekseer.resource"
 type="Resource"
 uid="uid://b4spmdq8xukdi"
-path="res://.godot/imported/mt_dissolve01.efkmat-b865a10bb8c4135be95105ae3f0ff444.res"
+path="res://.godot/imported/mt_dissolve01.efkmat-778483a6343e554d471dc0019bd5647a.res"
 
 [deps]
 
 source_file="res://effects/sample-material3/Materials/mt_dissolve01.efkmat"
-dest_files=["res://.godot/imported/mt_dissolve01.efkmat-b865a10bb8c4135be95105ae3f0ff444.res"]
+dest_files=["res://.godot/imported/mt_dissolve01.efkmat-778483a6343e554d471dc0019bd5647a.res"]
 
 [params]
 

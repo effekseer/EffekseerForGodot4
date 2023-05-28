@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c8p6vavr0jo01"
-path.s3tc="res://.godot/imported/tx_normal02_256.png-83b0388f21dd00d581501094afdfe754.s3tc.ctex"
-path.etc2="res://.godot/imported/tx_normal02_256.png-83b0388f21dd00d581501094afdfe754.etc2.ctex"
+path.s3tc="res://.godot/imported/tx_normal02_256.png-de461acf5d2bde5b9b31e63446751ce1.s3tc.ctex"
+path.etc2="res://.godot/imported/tx_normal02_256.png-de461acf5d2bde5b9b31e63446751ce1.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -13,7 +13,7 @@ metadata={
 [deps]
 
 source_file="res://effects/sample-material3/Textures/tx_normal02_256.png"
-dest_files=["res://.godot/imported/tx_normal02_256.png-83b0388f21dd00d581501094afdfe754.s3tc.ctex", "res://.godot/imported/tx_normal02_256.png-83b0388f21dd00d581501094afdfe754.etc2.ctex"]
+dest_files=["res://.godot/imported/tx_normal02_256.png-de461acf5d2bde5b9b31e63446751ce1.s3tc.ctex", "res://.godot/imported/tx_normal02_256.png-de461acf5d2bde5b9b31e63446751ce1.etc2.ctex"]
 
 [params]
 

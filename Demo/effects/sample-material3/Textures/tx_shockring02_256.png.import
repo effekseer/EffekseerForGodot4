@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://e5fs2xdevc7"
-path.s3tc="res://.godot/imported/tx_shockring02_256.png-82a8e2cddc6142f0c7d7eb532567ac5a.s3tc.ctex"
-path.etc2="res://.godot/imported/tx_shockring02_256.png-82a8e2cddc6142f0c7d7eb532567ac5a.etc2.ctex"
+path.s3tc="res://.godot/imported/tx_shockring02_256.png-3c51db4ca2fce47e1eda0caec082577c.s3tc.ctex"
+path.etc2="res://.godot/imported/tx_shockring02_256.png-3c51db4ca2fce47e1eda0caec082577c.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -13,7 +13,7 @@ metadata={
 [deps]
 
 source_file="res://effects/sample-material3/Textures/tx_shockring02_256.png"
-dest_files=["res://.godot/imported/tx_shockring02_256.png-82a8e2cddc6142f0c7d7eb532567ac5a.s3tc.ctex", "res://.godot/imported/tx_shockring02_256.png-82a8e2cddc6142f0c7d7eb532567ac5a.etc2.ctex"]
+dest_files=["res://.godot/imported/tx_shockring02_256.png-3c51db4ca2fce47e1eda0caec082577c.s3tc.ctex", "res://.godot/imported/tx_shockring02_256.png-3c51db4ca2fce47e1eda0caec082577c.etc2.ctex"]
 
 [params]
 

@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bme60042qo20q"
-path.s3tc="res://.godot/imported/tx_star02_256.png-cba495064b7bc59c7d9ef85f4e3f4d3d.s3tc.ctex"
-path.etc2="res://.godot/imported/tx_star02_256.png-cba495064b7bc59c7d9ef85f4e3f4d3d.etc2.ctex"
+path.s3tc="res://.godot/imported/tx_star02_256.png-d6101fe2d85a5ca08b1262698cd9c376.s3tc.ctex"
+path.etc2="res://.godot/imported/tx_star02_256.png-d6101fe2d85a5ca08b1262698cd9c376.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -13,7 +13,7 @@ metadata={
 [deps]
 
 source_file="res://effects/sample-material3/Textures/tx_star02_256.png"
-dest_files=["res://.godot/imported/tx_star02_256.png-cba495064b7bc59c7d9ef85f4e3f4d3d.s3tc.ctex", "res://.godot/imported/tx_star02_256.png-cba495064b7bc59c7d9ef85f4e3f4d3d.etc2.ctex"]
+dest_files=["res://.godot/imported/tx_star02_256.png-d6101fe2d85a5ca08b1262698cd9c376.s3tc.ctex", "res://.godot/imported/tx_star02_256.png-d6101fe2d85a5ca08b1262698cd9c376.etc2.ctex"]
 
 [params]
 

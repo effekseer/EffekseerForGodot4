@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://db4fpae38dmsp"
-path.s3tc="res://.godot/imported/tx_fire_flipbook01_1024.png-d63fc384db1ab8b0d95f7e8d6abf0aed.s3tc.ctex"
-path.etc2="res://.godot/imported/tx_fire_flipbook01_1024.png-d63fc384db1ab8b0d95f7e8d6abf0aed.etc2.ctex"
+path.s3tc="res://.godot/imported/tx_fire_flipbook01_1024.png-e9176446337618cc3597cb5b443c6b08.s3tc.ctex"
+path.etc2="res://.godot/imported/tx_fire_flipbook01_1024.png-e9176446337618cc3597cb5b443c6b08.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -13,7 +13,7 @@ metadata={
 [deps]
 
 source_file="res://effects/sample-material3/Textures/tx_fire_flipbook01_1024.png"
-dest_files=["res://.godot/imported/tx_fire_flipbook01_1024.png-d63fc384db1ab8b0d95f7e8d6abf0aed.s3tc.ctex", "res://.godot/imported/tx_fire_flipbook01_1024.png-d63fc384db1ab8b0d95f7e8d6abf0aed.etc2.ctex"]
+dest_files=["res://.godot/imported/tx_fire_flipbook01_1024.png-e9176446337618cc3597cb5b443c6b08.s3tc.ctex", "res://.godot/imported/tx_fire_flipbook01_1024.png-e9176446337618cc3597cb5b443c6b08.etc2.ctex"]
 
 [params]
 

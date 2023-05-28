@@ -3,12 +3,12 @@
 importer="effekseer.effect"
 type="Resource"
 uid="uid://dnjprdsgyglly"
-path="res://.godot/imported/ef_fire02.efkefc-89ff89b8166dc31d37ff5828722c7388.res"
+path="res://.godot/imported/ef_fire02.efkefc-b38c99a72d99c8e8298e4a25d4f85376.res"
 
 [deps]
 
 source_file="res://effects/sample-material3/ef_fire02.efkefc"
-dest_files=["res://.godot/imported/ef_fire02.efkefc-89ff89b8166dc31d37ff5828722c7388.res"]
+dest_files=["res://.godot/imported/ef_fire02.efkefc-b38c99a72d99c8e8298e4a25d4f85376.res"]
 
 [params]
 

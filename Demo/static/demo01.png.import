@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bimjgkbdbytgl"
-path="res://.godot/imported/tx_directional_aura02_256.png-5c31ec397a0e6d7795f99206d0409121.ctex"
+uid="uid://bttgigdwcnpyv"
+path="res://.godot/imported/demo01.png-e0e8c2fa49f0cb9b0f29c3e71394fd9b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://effects/sample-material3/Textures/tx_directional_aura02_256.png"
-dest_files=["res://.godot/imported/tx_directional_aura02_256.png-5c31ec397a0e6d7795f99206d0409121.ctex"]
+source_file="res://static/demo01.png"
+dest_files=["res://.godot/imported/demo01.png-e0e8c2fa49f0cb9b0f29c3e71394fd9b.ctex"]
 
 [params]
 

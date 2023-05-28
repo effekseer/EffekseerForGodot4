@@ -3,12 +3,12 @@
 importer="effekseer.resource"
 type="Resource"
 uid="uid://p5grmvp8fh0"
-path="res://.godot/imported/ms_ice01.efkmodel-3134ee2d322231165f88cfecab2ea453.res"
+path="res://.godot/imported/ms_ice01.efkmodel-7b72339e3925a9b4d7172e5e8ed5a92c.res"
 
 [deps]
 
 source_file="res://effects/sample-material3/Meshes/ms_ice01.efkmodel"
-dest_files=["res://.godot/imported/ms_ice01.efkmodel-3134ee2d322231165f88cfecab2ea453.res"]
+dest_files=["res://.godot/imported/ms_ice01.efkmodel-7b72339e3925a9b4d7172e5e8ed5a92c.res"]
 
 [params]
 

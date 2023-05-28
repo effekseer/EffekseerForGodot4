@@ -3,12 +3,12 @@
 importer="effekseer.effect"
 type="Resource"
 uid="uid://28upgfqfeeej"
-path="res://.godot/imported/LocalTime.efkefc-6b0db4afce82b22ac446078c624e08cf.res"
+path="res://.godot/imported/LocalTime.efkefc-7cad053585d8e7d7919b78fb799e8a07.res"
 
 [deps]
 
-source_file="res://effects/sample-material3/LocalTime.efkefc"
-dest_files=["res://.godot/imported/LocalTime.efkefc-6b0db4afce82b22ac446078c624e08cf.res"]
+source_file="res://effects/tests/17/LocalTime.efkefc"
+dest_files=["res://.godot/imported/LocalTime.efkefc-7cad053585d8e7d7919b78fb799e8a07.res"]
 
 [params]
 

@@ -3,12 +3,12 @@
 importer="effekseer.resource"
 type="Resource"
 uid="uid://tcxga4imlkw8"
-path="res://.godot/imported/Gradient.efkmat-3fb29491fd7591ca6f2681b70faf32b2.res"
+path="res://.godot/imported/Gradient.efkmat-a16c748c35fb44dee43f6e6f65d01188.res"
 
 [deps]
 
-source_file="res://effects/sample-material3/Gradient.efkmat"
-dest_files=["res://.godot/imported/Gradient.efkmat-3fb29491fd7591ca6f2681b70faf32b2.res"]
+source_file="res://effects/tests/17/Gradient.efkmat"
+dest_files=["res://.godot/imported/Gradient.efkmat-a16c748c35fb44dee43f6e6f65d01188.res"]
 
 [params]
 

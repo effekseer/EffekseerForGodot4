@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dvg08tpshgppx"
-path.s3tc="res://.godot/imported/tx_white01_8.png-cff4269128ad343b23ba33bb61936645.s3tc.ctex"
-path.etc2="res://.godot/imported/tx_white01_8.png-cff4269128ad343b23ba33bb61936645.etc2.ctex"
+path.s3tc="res://.godot/imported/tx_white01_8.png-a1fe37e90b5f88e6aa49018e0e8fae98.s3tc.ctex"
+path.etc2="res://.godot/imported/tx_white01_8.png-a1fe37e90b5f88e6aa49018e0e8fae98.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -13,7 +13,7 @@ metadata={
 [deps]
 
 source_file="res://effects/sample-material3/Textures/tx_white01_8.png"
-dest_files=["res://.godot/imported/tx_white01_8.png-cff4269128ad343b23ba33bb61936645.s3tc.ctex", "res://.godot/imported/tx_white01_8.png-cff4269128ad343b23ba33bb61936645.etc2.ctex"]
+dest_files=["res://.godot/imported/tx_white01_8.png-a1fe37e90b5f88e6aa49018e0e8fae98.s3tc.ctex", "res://.godot/imported/tx_white01_8.png-a1fe37e90b5f88e6aa49018e0e8fae98.etc2.ctex"]
 
 [params]
 

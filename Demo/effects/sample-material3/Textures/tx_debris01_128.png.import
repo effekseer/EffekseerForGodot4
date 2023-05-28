@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cfmokc36wjrm8"
-path.s3tc="res://.godot/imported/tx_debris01_128.png-bd72ddb5b99f5d1bf13d313977beb5bd.s3tc.ctex"
-path.etc2="res://.godot/imported/tx_debris01_128.png-bd72ddb5b99f5d1bf13d313977beb5bd.etc2.ctex"
+path.s3tc="res://.godot/imported/tx_debris01_128.png-72f9a90bc680e8664df720b9f06040d0.s3tc.ctex"
+path.etc2="res://.godot/imported/tx_debris01_128.png-72f9a90bc680e8664df720b9f06040d0.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -13,7 +13,7 @@ metadata={
 [deps]
 
 source_file="res://effects/sample-material3/Textures/tx_debris01_128.png"
-dest_files=["res://.godot/imported/tx_debris01_128.png-bd72ddb5b99f5d1bf13d313977beb5bd.s3tc.ctex", "res://.godot/imported/tx_debris01_128.png-bd72ddb5b99f5d1bf13d313977beb5bd.etc2.ctex"]
+dest_files=["res://.godot/imported/tx_debris01_128.png-72f9a90bc680e8664df720b9f06040d0.s3tc.ctex", "res://.godot/imported/tx_debris01_128.png-72f9a90bc680e8664df720b9f06040d0.etc2.ctex"]
 
 [params]
 

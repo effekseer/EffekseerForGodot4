@@ -3,12 +3,12 @@
 importer="effekseer.effect"
 type="Resource"
 uid="uid://bq5m7vecfdobq"
-path="res://.godot/imported/Lighting.efkefc-8f0a346bfb7614f82c6de89558cef548.res"
+path="res://.godot/imported/Lighting.efkefc-eea3be9f92b5e2bd5ac6a60a0fc102a9.res"
 
 [deps]
 
-source_file="res://effects/sample-material3/Lighting.efkefc"
-dest_files=["res://.godot/imported/Lighting.efkefc-8f0a346bfb7614f82c6de89558cef548.res"]
+source_file="res://effects/tests/17/Lighting.efkefc"
+dest_files=["res://.godot/imported/Lighting.efkefc-eea3be9f92b5e2bd5ac6a60a0fc102a9.res"]
 
 [params]
 

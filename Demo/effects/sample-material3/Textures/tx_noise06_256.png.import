@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://e5l54y420f8t"
-path.s3tc="res://.godot/imported/tx_noise06_256.png-f0f55e2e09b076030808c6d417e82523.s3tc.ctex"
-path.etc2="res://.godot/imported/tx_noise06_256.png-f0f55e2e09b076030808c6d417e82523.etc2.ctex"
+path.s3tc="res://.godot/imported/tx_noise06_256.png-5a4e461875d330ae4a35b8d2e85c6358.s3tc.ctex"
+path.etc2="res://.godot/imported/tx_noise06_256.png-5a4e461875d330ae4a35b8d2e85c6358.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -13,7 +13,7 @@ metadata={
 [deps]
 
 source_file="res://effects/sample-material3/Textures/tx_noise06_256.png"
-dest_files=["res://.godot/imported/tx_noise06_256.png-f0f55e2e09b076030808c6d417e82523.s3tc.ctex", "res://.godot/imported/tx_noise06_256.png-f0f55e2e09b076030808c6d417e82523.etc2.ctex"]
+dest_files=["res://.godot/imported/tx_noise06_256.png-5a4e461875d330ae4a35b8d2e85c6358.s3tc.ctex", "res://.godot/imported/tx_noise06_256.png-5a4e461875d330ae4a35b8d2e85c6358.etc2.ctex"]
 
 [params]
 

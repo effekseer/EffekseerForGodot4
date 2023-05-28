@@ -3,12 +3,12 @@
 importer="effekseer.effect"
 type="Resource"
 uid="uid://dy5iqgorwcadj"
-path="res://.godot/imported/Noise.efkefc-a2565472199d8862fa8350a8cf18c26f.res"
+path="res://.godot/imported/Noise.efkefc-93184343cd1d47c8627819b11ca3759a.res"
 
 [deps]
 
-source_file="res://effects/sample-material3/Noise.efkefc"
-dest_files=["res://.godot/imported/Noise.efkefc-a2565472199d8862fa8350a8cf18c26f.res"]
+source_file="res://effects/tests/17/Noise.efkefc"
+dest_files=["res://.godot/imported/Noise.efkefc-93184343cd1d47c8627819b11ca3759a.res"]
 
 [params]
 

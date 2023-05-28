@@ -3,12 +3,12 @@
 importer="effekseer.effect"
 type="Resource"
 uid="uid://wfxcvxjsq3sc"
-path="res://.godot/imported/Gradient.efkefc-32fde3b107a070ed90c7fe9d905c0ded.res"
+path="res://.godot/imported/Gradient.efkefc-604fd508adc5c21e105d3bda0a02a7d3.res"
 
 [deps]
 
-source_file="res://effects/sample-material3/Gradient.efkefc"
-dest_files=["res://.godot/imported/Gradient.efkefc-32fde3b107a070ed90c7fe9d905c0ded.res"]
+source_file="res://effects/tests/17/Gradient.efkefc"
+dest_files=["res://.godot/imported/Gradient.efkefc-604fd508adc5c21e105d3bda0a02a7d3.res"]
 
 [params]
 
