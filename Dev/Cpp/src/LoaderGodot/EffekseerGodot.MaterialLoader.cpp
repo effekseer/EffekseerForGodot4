@@ -40,7 +40,7 @@ namespace EffekseerGodot
 	auto modelShader = new MaterialShader("Material_Model", materialFile, GeometryType::Model);
 	
 	material->UserPtr = shader;
-	material->ModelUserPtr = shader;
+	material->ModelUserPtr = modelShader;
 	
 	material->CustomData1 = materialFile.GetCustomData1Count();
 	material->CustomData2 = materialFile.GetCustomData2Count();
