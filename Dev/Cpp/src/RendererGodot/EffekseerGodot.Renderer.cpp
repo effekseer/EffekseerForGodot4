@@ -77,7 +77,7 @@ void DynamicTexture::Update()
 		auto rs = godot::RenderingServer::get_singleton();
 
 		godot::Ref<godot::Image> image = godot::Image::create_from_data(
-			m_textureWidth, m_textureHeight, false, godot::Image::FORMAT_RGBAF, m_pixels);
+			(int32_t)m_textureWidth, (int32_t)m_textureHeight, false, godot::Image::FORMAT_RGBAF, m_pixels);
 
 		rs->texture_2d_update(m_texture2D, image, 0);
 
@@ -511,7 +511,7 @@ void Renderer::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 		auto& command = m_renderCommand2Ds[m_renderCount2D];
 		command.SetupSprites(emitter);
 
-		rs->material_set_param(command.GetMaterial(), "VertexTextureOffset", m_vertexTextureOffset);
+		rs->material_set_param(command.GetMaterial(), "VertexTextureOffset", (int32_t)m_vertexTextureOffset);
 
 		// Transfer vertex data
 		auto srt = EffekseerGodot::ToSRT(emitter->get_global_transform());

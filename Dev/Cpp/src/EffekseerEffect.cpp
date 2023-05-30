@@ -194,16 +194,14 @@ void EffekseerEffect::setup_node_render(Effekseer::EffectNode* node, TargetLayer
 			settings.renderSettings = renderSettings;
 			settings.geometryType = (isModel) ? GeometryType::Model : GeometryType::Sprite;
 
-			switch (renderParams.MaterialType) {
-			case RendererMaterialType::Default:
+			if (renderParams.MaterialType == RendererMaterialType::Default) {
 				settings.shaderType = BuiltinShaderType::Unlit;
-				break;
-			case RendererMaterialType::Lighting:
+			}
+			else if (renderParams.MaterialType == RendererMaterialType::Lighting) {
 				settings.shaderType = BuiltinShaderType::Lighting;
-				break;
-			case RendererMaterialType::BackDistortion:
+			}
+			else if (renderParams.MaterialType == RendererMaterialType::BackDistortion) {
 				settings.shaderType = BuiltinShaderType::Distortion;
-				break;
 			}
 
 			settings.advancedShader =
