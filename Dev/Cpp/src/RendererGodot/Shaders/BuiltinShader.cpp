@@ -53,9 +53,10 @@ varying vec4 v_Tangent;
 )";
 static const char vertex_Tangent_Sprite2D[] =
 R"(
-	ivec2 size = textureSize(TangentTexture, 0);
-	int offset = VERTEX_ID + VertexTextureOffset;
-	v_Tangent = texelFetch(TangentTexture, ivec2(offset % 256, offset / 256), 0);
+	ivec2 texSize = textureSize(TangentTexture, 0);
+	int texOffset = VERTEX_ID + VertexTextureOffset;
+	ivec2 texUV2 = ivec2(texOffset % texSize.x, texOffset / texSize.y);
+	v_Tangent = texelFetch(TangentTexture, texUV2, 0);
 )";
 static const char vertex_Tangent_Model2D[] =
 R"(

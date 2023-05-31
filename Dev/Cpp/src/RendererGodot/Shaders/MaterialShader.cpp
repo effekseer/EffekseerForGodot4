@@ -214,7 +214,10 @@ static const char src_spatial_vertex_post[] = R"(
 
 static const char src_canvasitem_vertex_sprite_pre[] = R"(
 void vertex() {
-	vec4 tangent = texture(TangentTexture, UV);
+	ivec2 texSize = textureSize(TangentTexture, 0);
+	int texOffset = VERTEX_ID + VertexTextureOffset;
+	ivec2 texUV2 = ivec2(texOffset % texSize.x, texOffset / texSize.y);
+	vec4 tangent = texelFetch(TangentTexture, texUV2, 0);
 	vec3 worldNormal = vec3(0.0, 0.0, 1.0);
 	vec3 worldTangent = vec3(tangent.xy * 2.0 - 1.0, 0.0);
 	vec3 worldBinormal = cross(worldNormal, worldTangent);
@@ -435,6 +438,7 @@ void GenerateShaderCode(std::string& code, const Effekseer::MaterialFile& materi
 				code += uniforms_model;
 			}
 			code += "uniform sampler2D TangentTexture;\n";
+			code += "uniform int VertexTextureOffset;\n";
 		}
 	}
 
@@ -574,8 +578,8 @@ void GenerateShaderCode(std::string& code, const Effekseer::MaterialFile& materi
 		code += src_canvasitem_vertex_common;
 
 		if (geometryType == GeometryType::Sprite) {
-			if (customData1Count > 0) AppendFormat(code, "\t%s customData1 = texture(CustomData1, UV).%s;\n", customData1Type, customData1Element);
-			if (customData2Count > 0) AppendFormat(code, "\t%s customData2 = texture(CustomData2, UV).%s;\n", customData2Type, customData2Element);
+			if (customData1Count > 0) AppendFormat(code, "\t%s customData1 = texelFetch(CustomData1, texUV2, 0).%s;\n", customData1Type, customData1Element);
+			if (customData2Count > 0) AppendFormat(code, "\t%s customData2 = texelFetch(CustomData2, texUV2, 0).%s;\n", customData2Type, customData2Element);
 		}
 		else {
 			if (customData1Count > 0) AppendFormat(code, "\t%s customData1 = CustomData1.%s;\n", customData1Type, customData1Element);
