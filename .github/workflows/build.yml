@@ -8,7 +8,7 @@ on:
 jobs:
   linux:
     name: Build for Linux
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
       - name: Update Submodules
@@ -28,7 +28,7 @@ jobs:
 
   android:
     name: Build for Android
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
       - name: Update Submodules
@@ -97,7 +97,7 @@ jobs:
 
   web:
     name: Build for Web
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
       - name: Update Submodules
@@ -119,7 +119,7 @@ jobs:
 
   merge:
     name: Merge 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: [linux, android, macos, ios, windows, web]
     steps:
       - uses: actions/checkout@v3
