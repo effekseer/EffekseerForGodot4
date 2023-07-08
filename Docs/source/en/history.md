@@ -1,5 +1,8 @@
 ﻿# Release notes
 
+## 1.70e.2
+- godot-cpp updated to 4.1 (it no longer works under Godot 4.1)
+
 ## 1.70e.1
 - Change default values for project settings
   - Instance Max Count: 2000 -> 4000
