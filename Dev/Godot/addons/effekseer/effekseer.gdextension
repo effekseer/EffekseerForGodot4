@@ -1,5 +1,6 @@
 [configuration]
 entry_symbol = "effekseer_library_init"
+compatibility_minimum = 4.1
 
 [libraries]
 windows.x86_64 = "res://addons/effekseer/bin/windows/libeffekseer.x86_64.dll"

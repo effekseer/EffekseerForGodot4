@@ -38,10 +38,12 @@ void uninitialize_effekseer_module(ModuleInitializationLevel p_level)
 }
 
 extern "C" 
-GDExtensionBool GDE_EXPORT effekseer_library_init(const GDExtensionInterface * p_interface,
-	GDExtensionClassLibraryPtr p_library, GDExtensionInitialization * r_initialization
-) {
-	GDExtensionBinding::InitObject init_obj(p_interface, p_library, r_initialization);
+GDExtensionBool GDE_EXPORT effekseer_library_init(
+	GDExtensionInterfaceGetProcAddress p_get_proc_address,
+	GDExtensionClassLibraryPtr p_library,
+	GDExtensionInitialization *r_initialization)
+{
+	GDExtensionBinding::InitObject init_obj(p_get_proc_address, p_library, r_initialization);
 
 	init_obj.register_initializer(initialize_effekseer_module);
 	init_obj.register_terminator(uninitialize_effekseer_module);
