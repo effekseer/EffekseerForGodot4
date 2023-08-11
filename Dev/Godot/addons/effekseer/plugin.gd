@@ -4,17 +4,27 @@ extends EditorPlugin
 const plugin_path = "res://addons/effekseer"
 const plugin_source_path = "res://addons/effekseer/src"
 
-var effect_import_plugin
-var effect_inspector_plugin
-var resource_import_plugin
-var emitter3d_gizmo_plugin
-var editor_menu: Node
+var effect_import_plugin: EditorImportPlugin = null
+var effect_inspector_plugin: EditorInspectorPlugin = null
+var resource_import_plugin: EditorImportPlugin = null
+var emitter3d_gizmo_plugin: EditorNode3DGizmoPlugin = null
+var editor_menu: Node = null
+
+static var plugin_enabled: bool = false
+
+
 
 func _enter_tree():
+	if plugin_enabled:
+		return
+	else:
+		plugin_enabled = true
+
 	add_project_setting("effekseer/instance_max_count", 4000, TYPE_INT, PROPERTY_HINT_RANGE, "40,8000")
 	add_project_setting("effekseer/square_max_count", 16000, TYPE_INT, PROPERTY_HINT_RANGE, "80,32000")
 	add_project_setting("effekseer/draw_max_count", 256, TYPE_INT, PROPERTY_HINT_RANGE, "16,1024")
 	add_project_setting("effekseer/sound_script", load(plugin_source_path + "/EffekseerSound.gd"), TYPE_OBJECT, PROPERTY_HINT_RESOURCE_TYPE, "Script")
+	
 	add_editor_setting("effekseer/editor_path", "", TYPE_STRING, PROPERTY_HINT_GLOBAL_FILE, get_editor_file_name())
 	add_editor_setting("effekseer/preview_mode", "", TYPE_INT, PROPERTY_HINT_ENUM, "3D,2D")
 	
@@ -41,23 +51,39 @@ func _enter_tree():
 
 
 func _exit_tree():
+	if not plugin_enabled:
+		return
+	else:
+		plugin_enabled = false
+
 	if Engine.is_editor_hint():
+		remove_child(editor_menu)
+		editor_menu.free()
+		editor_menu = null
+		
 		remove_node_3d_gizmo_plugin(emitter3d_gizmo_plugin)
 		remove_inspector_plugin(effect_inspector_plugin)
-
+		
 	remove_import_plugin(resource_import_plugin)
 	remove_import_plugin(effect_import_plugin)
 
-	
-func _disable_plugin():
-	remove_editor_setting("effekseer/editor_path")
 	remove_editor_setting("effekseer/preview_mode")
+	remove_editor_setting("effekseer/editor_path")
+
 	remove_project_setting("effekseer/sound_script")
 	remove_project_setting("effekseer/draw_max_count")
 	remove_project_setting("effekseer/square_max_count")
 	remove_project_setting("effekseer/instance_max_count")
 
 
+func _enable_plugin():
+	_enter_tree()
+
+
+func _disable_plugin():
+	_exit_tree()
+	
+	
 func add_project_setting(name: String, initial_value, type: int, hint: int, hint_string: String) -> void:
 	if not ProjectSettings.has_setting(name):
 		ProjectSettings.set_setting(name, initial_value)
@@ -105,18 +131,26 @@ func get_editor_file_name() -> String:
 
 
 func _handles(object: Object) -> bool:
+	if not editor_menu:
+		return false
 	if editor_menu.handles(object):
 		return true
 	return false
 
 
 func _edit(object: Object) -> void:
+	if not editor_menu:
+		return
 	editor_menu.edit(object)
 
 
 func _clear() -> void:
+	if not editor_menu:
+		return
 	editor_menu.clear()
 
 
 func _make_visible(visible: bool) -> void:
+	if not editor_menu:
+		return
 	editor_menu.make_visible(visible)

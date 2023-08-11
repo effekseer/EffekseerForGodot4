@@ -2,6 +2,7 @@
 
 #include <godot_cpp/godot.hpp>
 #include <godot_cpp/classes/node.hpp>
+#include <godot_cpp/classes/rendering_server.hpp>
 #include <Effekseer.h>
 #include "RendererGodot/EffekseerGodot.Renderer.h"
 #include "SoundGodot/EffekseerGodot.SoundPlayer.h"
@@ -103,6 +104,7 @@ public:
 	void complete_all_shader_loads();
 
 private:
+  void _free_shader_loader_resources(godot::RenderingServer*);
 	void _process_shader_loader();
 
 private:

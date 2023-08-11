@@ -1,8 +1,8 @@
 extends Node
 
 var _editor_plugin: EditorPlugin = null
-var _editing_emitter_2d: EffekseerEmitter2D
-var _editing_emitter_3d: EffekseerEmitter3D
+var _editing_emitter_2d: EffekseerEmitter2D = null
+var _editing_emitter_3d: EffekseerEmitter3D = null
 var _playing_emitter_2d: Array[EffekseerEmitter2D] = []
 var _playing_emitter_3d: Array[EffekseerEmitter3D] = []
 var _editor_viewport_2d: Array[SubViewport] = []

@@ -6,7 +6,6 @@
 #include <godot_cpp/classes/window.hpp>
 #include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/classes/viewport.hpp>
-#include <godot_cpp/classes/rendering_server.hpp>
 #include <godot_cpp/classes/world3d.hpp>
 #include <godot_cpp/classes/world2d.hpp>
 #include <godot_cpp/classes/camera3d.hpp>
@@ -160,7 +159,10 @@ void EffekseerSystem::_enter_tree()
 
 void EffekseerSystem::_exit_tree()
 {
-	RenderingServer::get_singleton()->disconnect("frame_pre_draw", Callable(this, "_update_draw"));
+	auto rs = RenderingServer::get_singleton();
+	
+	rs->disconnect("frame_pre_draw", Callable(this, "_update_draw"));
+	_free_shader_loader_resources(rs);
 
 	m_manager.Reset();
 	m_renderer.Reset();
@@ -397,10 +399,8 @@ void EffekseerSystem::complete_all_shader_loads()
 	m_should_complete_all_shader_loads = true;
 }
 
-void EffekseerSystem::_process_shader_loader()
+void EffekseerSystem::_free_shader_loader_resources(godot::RenderingServer* rs)
 {
-	auto rs = RenderingServer::get_singleton();
-
 	// Destroy all completed loaders
 	for (auto& loader : m_shader_loaders) {
 		rs->free_rid(loader.matarial);
@@ -408,6 +408,12 @@ void EffekseerSystem::_process_shader_loader()
 		rs->free_rid(loader.instance);
 	}
 	m_shader_loaders.clear();
+}
+
+void EffekseerSystem::_process_shader_loader()
+{
+	auto rs = RenderingServer::get_singleton();
+  _free_shader_loader_resources(rs);
 
 	// Start loader if queued load request
 	const size_t load_count_in_a_frame = 1;
@@ -430,7 +436,6 @@ void EffekseerSystem::_process_shader_loader()
 			rs->canvas_item_set_material(loader.instance, loader.matarial);
 			rs->canvas_item_add_rect(loader.instance, Rect2(0.0f, 0.0f, 0.0f, 0.0f), Color());
 			rs->canvas_item_set_parent(loader.instance, get_viewport()->find_world_2d()->get_canvas());
-			m_shader_loaders.push_back(loader);
 		}
 		else {
 			loader.mesh = rs->mesh_create();
