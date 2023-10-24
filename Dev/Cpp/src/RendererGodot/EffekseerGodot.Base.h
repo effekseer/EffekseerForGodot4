@@ -34,8 +34,6 @@ class RenderStateBase;
 class Texture;
 class TargetTexture;
 class DepthTexture;
-class VertexBuffer;
-class IndexBuffer;
 class Shader;
 
 class SpriteRenderer;

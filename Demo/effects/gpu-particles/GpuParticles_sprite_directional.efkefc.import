@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://bbcglhhvrurql"
+path="res://.godot/imported/GpuParticles_sprite_directional.efkefc-5d717cdf08cac5733aec6625b636e830.res"
+
+[deps]
+
+source_file="res://effects/gpu-particles/GpuParticles_sprite_directional.efkefc"
+dest_files=["res://.godot/imported/GpuParticles_sprite_directional.efkefc-5d717cdf08cac5733aec6625b636e830.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

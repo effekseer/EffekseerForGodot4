@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://kqcx252kdr5m"
+path="res://.godot/imported/GpuParticles_force_vortex.efkefc-c780a2b652a6499f6211802f54c51aa6.res"
+
+[deps]
+
+source_file="res://effects/gpu-particles/GpuParticles_force_vortex.efkefc"
+dest_files=["res://.godot/imported/GpuParticles_force_vortex.efkefc-c780a2b652a6499f6211802f54c51aa6.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

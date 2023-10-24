@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://cutiu3roihqhg"
+path="res://.godot/imported/GpuParticles_sprite_simple2.efkefc-84e86f9a75142ae0a464f735f5c01b55.res"
+
+[deps]
+
+source_file="res://effects/gpu-particles/GpuParticles_sprite_simple2.efkefc"
+dest_files=["res://.godot/imported/GpuParticles_sprite_simple2.efkefc-84e86f9a75142ae0a464f735f5c01b55.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

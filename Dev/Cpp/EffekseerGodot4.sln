@@ -7,6 +7,20 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EffekseerGodot4", "Effeksee
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Effekseer", "..\Effekseer\build\Dev\Cpp\Effekseer\Effekseer.vcxproj", "{33EC032D-72B1-3894-8AE7-FB8DD0E5654A}"
 EndProject
+Project("{911E67C6-3D85-4FCE-B560-20A9C3E3FF48}") = "Godot_v4.2.2-stable_win64", "..\Godot_v4.2.2-stable_win64.exe", "{E1D79B46-2E63-455C-9F59-22F0031A9421}"
+	ProjectSection(DebuggerProjectSystem) = preProject
+		PortSupplier = 00000000-0000-0000-0000-000000000000
+		Executable = D:\home\work\Effekseer\EffekseerForGodot4\Dev\Godot_v4.2.2-stable_win64.exe
+		RemoteMachine = UM690-1
+		StartingDirectory = D:\home\work\Effekseer\EffekseerForGodot4\Dev
+		Environment = 既定
+		LaunchingEngine = 00000000-0000-0000-0000-000000000000
+		UseLegacyDebugEngines = No
+		LaunchSQLEngine = No
+		AttachLaunchAction = No
+		IORedirection = Auto
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -47,6 +61,14 @@ Global
 		{33EC032D-72B1-3894-8AE7-FB8DD0E5654A}.RelWithDebInfo|x64.ActiveCfg = RelWithDebInfo|x64
 		{33EC032D-72B1-3894-8AE7-FB8DD0E5654A}.RelWithDebInfo|x64.Build.0 = RelWithDebInfo|x64
 		{33EC032D-72B1-3894-8AE7-FB8DD0E5654A}.RelWithDebInfo|x86.ActiveCfg = RelWithDebInfo|x64
+		{E1D79B46-2E63-455C-9F59-22F0031A9421}.Debug|x64.ActiveCfg = Release|x64
+		{E1D79B46-2E63-455C-9F59-22F0031A9421}.Debug|x86.ActiveCfg = Release|x64
+		{E1D79B46-2E63-455C-9F59-22F0031A9421}.MinSizeRel|x64.ActiveCfg = Release|x64
+		{E1D79B46-2E63-455C-9F59-22F0031A9421}.MinSizeRel|x86.ActiveCfg = Release|x64
+		{E1D79B46-2E63-455C-9F59-22F0031A9421}.Release|x64.ActiveCfg = Release|x64
+		{E1D79B46-2E63-455C-9F59-22F0031A9421}.Release|x86.ActiveCfg = Release|x64
+		{E1D79B46-2E63-455C-9F59-22F0031A9421}.RelWithDebInfo|x64.ActiveCfg = Release|x64
+		{E1D79B46-2E63-455C-9F59-22F0031A9421}.RelWithDebInfo|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
