@@ -52,6 +52,7 @@ void EffekseerEmitter3D::_ready()
 
 void EffekseerEmitter3D::_enter_tree()
 {
+	m_scenario = get_world_3d()->get_scenario();
 	if (auto system = EffekseerSystem::get_singleton()) {
 		system->_init_modules();
 		m_layer = system->attach_layer(get_viewport(), EffekseerSystem::LayerType::Render3D);

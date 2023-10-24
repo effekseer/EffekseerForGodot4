@@ -179,6 +179,24 @@ inline godot::Transform3D ToGdMatrix(Effekseer::Matrix44 matrix)
 	return transform;
 }
 
+inline godot::Transform3D ToGdMatrix(Effekseer::Matrix43 matrix)
+{
+	godot::Transform3D transform;
+	transform.basis[0][0] = matrix.Value[0][0];
+	transform.basis[1][0] = matrix.Value[0][1];
+	transform.basis[2][0] = matrix.Value[0][2];
+	transform.basis[0][1] = matrix.Value[1][0];
+	transform.basis[1][1] = matrix.Value[1][1];
+	transform.basis[2][1] = matrix.Value[1][2];
+	transform.basis[0][2] = matrix.Value[2][0];
+	transform.basis[1][2] = matrix.Value[2][1];
+	transform.basis[2][2] = matrix.Value[2][2];
+	transform.origin.x = matrix.Value[3][0];
+	transform.origin.y = matrix.Value[3][1];
+	transform.origin.z = matrix.Value[3][2];
+	return transform;
+}
+
 inline Effekseer::Color ToEfkColor(godot::Color c)
 {
 	return {

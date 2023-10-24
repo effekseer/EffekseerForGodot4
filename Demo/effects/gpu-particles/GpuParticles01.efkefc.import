@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://c70kpu1nahy0w"
+path="res://.godot/imported/GpuParticles01.efkefc-0679b4d52c4c4fe8d5508b9422a8b1d1.res"
+
+[deps]
+
+source_file="res://effects/gpu-particles/GpuParticles01.efkefc"
+dest_files=["res://.godot/imported/GpuParticles01.efkefc-0679b4d52c4c4fe8d5508b9422a8b1d1.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

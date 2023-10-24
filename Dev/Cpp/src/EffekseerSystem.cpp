@@ -130,6 +130,7 @@ void EffekseerSystem::_init_modules()
 	m_manager->SetTrackRenderer(m_renderer->CreateTrackRenderer());
 	m_manager->SetRingRenderer(m_renderer->CreateRingRenderer());
 	m_manager->SetModelRenderer(m_renderer->CreateModelRenderer());
+	m_manager->SetGpuParticles(m_renderer->CreateGpuParticles());
 
 	if (sound.is_valid()) {
 		m_manager->SetSoundPlayer(Effekseer::MakeRefPtr<EffekseerGodot::SoundPlayer>(sound));

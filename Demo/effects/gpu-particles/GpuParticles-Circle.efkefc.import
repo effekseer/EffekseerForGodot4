@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://di14o544j61r7"
+path="res://.godot/imported/GpuParticles-Circle.efkefc-eb94ccc2b6f10aa9d6b7188efd2b1166.res"
+
+[deps]
+
+source_file="res://effects/gpu-particles/GpuParticles-Circle.efkefc"
+dest_files=["res://.godot/imported/GpuParticles-Circle.efkefc-eb94ccc2b6f10aa9d6b7188efd2b1166.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

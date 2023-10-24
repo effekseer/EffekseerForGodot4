@@ -77,6 +77,8 @@ public:
 
 	void set_editor_mode(bool enabled);
 
+	RID get_scenario() const { return m_scenario; }
+
 private:
 	Ref<EffekseerEffect> m_effect;
 	int32_t m_layer = -1;
@@ -88,6 +90,7 @@ private:
 	Effekseer::Color m_color = {255, 255, 255, 255};
 	Vector3 m_target_position = {};
 	bool m_editor_mode = false;
+	RID m_scenario;
 };
 
 }

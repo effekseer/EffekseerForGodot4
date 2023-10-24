@@ -18,10 +18,9 @@
 #include "EffekseerGodot.Renderer.h"
 #include "EffekseerGodot.RenderingHandle.h"
 
-#include "EffekseerGodot.IndexBuffer.h"
-#include "EffekseerGodot.VertexBuffer.h"
 #include "EffekseerGodot.ModelRenderer.h"
 #include "EffekseerGodot.RenderResources.h"
+#include "EffekseerGodot.GpuParticles.h"
 #include "Shaders/BuiltinShader.h"
 
 #include "EffekseerRenderer.Renderer_Impl.h"
@@ -272,22 +271,20 @@ bool Renderer::Initialize(int32_t drawMaxCount)
 {
 	using namespace EffekseerRenderer;
 
-	//GetImpl()->CreateProxyTextures(this);
-
+	m_graphicsDevice = Effekseer::MakeRefPtr<Backend::GraphicsDevice>();
 	m_renderState.reset(new RenderState());
 
 	// generate a vertex buffer
-	m_vertexBuffer = VertexBuffer::Create(this, EffekseerRenderer::GetMaximumVertexSizeInAllTypes() * m_squareMaxCount * 4, true);
-	if (m_vertexBuffer == nullptr)
-		return false;
+	int vertexBufferSize = EffekseerRenderer::GetMaximumVertexSizeInAllTypes() * m_squareMaxCount * 4;
+	GetImpl()->InternalVertexBuffer = std::make_shared<EffekseerRenderer::VertexBufferRing>(m_graphicsDevice, vertexBufferSize, 3);
 
 	// Create builtin shaders
-	m_shaders[(size_t)RendererShaderType::Unlit].reset(new BuiltinShader("Basic_Unlit_Sprite", RendererShaderType::Unlit, GeometryType::Sprite));
-	m_shaders[(size_t)RendererShaderType::Lit].reset(new BuiltinShader("Basic_Lighting_Sprite", RendererShaderType::Lit, GeometryType::Sprite));
-	m_shaders[(size_t)RendererShaderType::BackDistortion].reset(new BuiltinShader("Basic_Distortion_Sprite", RendererShaderType::BackDistortion, GeometryType::Sprite));
-	m_shaders[(size_t)RendererShaderType::AdvancedUnlit].reset(new BuiltinShader("Advanced_Unlit_Sprite", RendererShaderType::AdvancedUnlit, GeometryType::Sprite));
-	m_shaders[(size_t)RendererShaderType::AdvancedLit].reset(new BuiltinShader("Advanced_Lighting_Sprite", RendererShaderType::AdvancedLit, GeometryType::Sprite));
-	m_shaders[(size_t)RendererShaderType::AdvancedBackDistortion].reset(new BuiltinShader("Advanced_Distortion_Sprite", RendererShaderType::AdvancedBackDistortion, GeometryType::Sprite));
+	GetImpl()->ShaderUnlit.reset(new BuiltinShader("Basic_Unlit_Sprite", RendererShaderType::Unlit, GeometryType::Sprite));
+	GetImpl()->ShaderLit.reset(new BuiltinShader("Basic_Lighting_Sprite", RendererShaderType::Lit, GeometryType::Sprite));
+	GetImpl()->ShaderDistortion.reset(new BuiltinShader("Basic_Distortion_Sprite", RendererShaderType::BackDistortion, GeometryType::Sprite));
+	GetImpl()->ShaderAdUnlit.reset(new BuiltinShader("Advanced_Unlit_Sprite", RendererShaderType::AdvancedUnlit, GeometryType::Sprite));
+	GetImpl()->ShaderAdLit.reset(new BuiltinShader("Advanced_Lighting_Sprite", RendererShaderType::AdvancedLit, GeometryType::Sprite));
+	GetImpl()->ShaderAdDistortion.reset(new BuiltinShader("Advanced_Distortion_Sprite", RendererShaderType::AdvancedBackDistortion, GeometryType::Sprite));
 
 	m_renderCommand3Ds.resize((size_t)drawMaxCount);
 	m_renderCommand2Ds.resize((size_t)drawMaxCount);
@@ -372,24 +369,17 @@ bool Renderer::EndRendering()
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-VertexBuffer* Renderer::GetVertexBuffer()
+Effekseer::Backend::VertexBufferRef Renderer::GetVertexBuffer()
 {
-	return m_vertexBuffer.Get();
+	return GetImpl()->InternalVertexBuffer->GetCurrentBuffer();
 }
 
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-IndexBuffer* Renderer::GetIndexBuffer()
+Effekseer::Backend::IndexBufferRef Renderer::GetIndexBuffer()
 {
-	if (GetRenderMode() == ::Effekseer::RenderMode::Wireframe)
-	{
-		return m_indexBufferForWireframe.Get();
-	}
-	else
-	{
-		return m_indexBuffer.Get();
-	}
+	return nullptr;
 }
 
 //----------------------------------------------------------------------------------
@@ -435,6 +425,19 @@ IndexBuffer* Renderer::GetIndexBuffer()
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
+::Effekseer::GpuParticlesRef Renderer::CreateGpuParticles(const Effekseer::GpuParticles::Settings& settings)
+{
+	auto gpuParticles = GpuParticles::Create(this);
+	if (gpuParticles->InitSystem(settings))
+	{
+		return gpuParticles;
+	}
+	return nullptr;
+}
+
+//----------------------------------------------------------------------------------
+//
+//----------------------------------------------------------------------------------
 const Effekseer::Backend::TextureRef& Renderer::GetBackground()
 {
 	return m_background;
@@ -455,12 +458,12 @@ void Renderer::SetDistortingCallback(EffekseerRenderer::DistortingCallback* call
 {
 }
 
-void Renderer::SetVertexBuffer(VertexBuffer* vertexBuffer, int32_t size)
+void Renderer::SetVertexBuffer(Effekseer::Backend::VertexBufferRef vertexBuffer, int32_t size)
 {
 	m_vertexStride = size;
 }
 
-void Renderer::SetIndexBuffer(IndexBuffer* indexBuffer)
+void Renderer::SetIndexBuffer(Effekseer::Backend::IndexBufferRef indexBuffer)
 {
 }
 
@@ -484,7 +487,7 @@ void Renderer::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 	auto godotNode = reinterpret_cast<godot::Object*>(GetImpl()->CurrentHandleUserData);
 	auto renderingHandle = GetImpl()->CurrentRenderingUserData.DownCast<RenderingHandle>();
 
-	auto vertexDataPtr = GetVertexBuffer()->Refer() + vertexOffset * m_vertexStride;
+	auto vertexDataPtr = GetVertexBuffer().DownCast<Backend::VertexBuffer>()->Refer() + vertexOffset * m_vertexStride;
 
 	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter3D>(godotNode))
 	{
@@ -660,8 +663,7 @@ void Renderer::EndModelRendering()
 
 BuiltinShader* Renderer::GetShader(::EffekseerRenderer::RendererShaderType type)
 {
-	size_t index = static_cast<size_t>(type);
-	return (index < m_shaders.size()) ? m_shaders[index].get() : nullptr;
+	return (BuiltinShader*)GetImpl()->GetShader(type);
 }
 
 void Renderer::BeginShader(Shader* shader)

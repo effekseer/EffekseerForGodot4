@@ -54,9 +54,6 @@
     <ClCompile Include="src\EffekseerEffect.cpp">
       <Filter>EffekseerGodot</Filter>
     </ClCompile>
-    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.IndexBufferBase.cpp">
-      <Filter>EffekseerRendererCommon</Filter>
-    </ClCompile>
     <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.Renderer.cpp">
       <Filter>EffekseerRendererCommon</Filter>
     </ClCompile>
@@ -76,9 +73,6 @@
       <Filter>EffekseerRendererCommon</Filter>
     </ClCompile>
     <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.TrackRendererBase.cpp">
-      <Filter>EffekseerRendererCommon</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.VertexBufferBase.cpp">
       <Filter>EffekseerRendererCommon</Filter>
     </ClCompile>
     <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.CommonUtils.cpp">
@@ -106,12 +100,6 @@
       <Filter>EffekseerGodot\LoaderGodot</Filter>
     </ClCompile>
     <ClCompile Include="src\RendererGodot\EffekseerGodot.RenderState.cpp">
-      <Filter>EffekseerGodot\RendererGodot</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RendererGodot\EffekseerGodot.VertexBuffer.cpp">
-      <Filter>EffekseerGodot\RendererGodot</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RendererGodot\EffekseerGodot.IndexBuffer.cpp">
       <Filter>EffekseerGodot\RendererGodot</Filter>
     </ClCompile>
     <ClCompile Include="src\RendererGodot\EffekseerGodot.ModelRenderer.cpp">
@@ -2868,6 +2856,15 @@
     <ClCompile Include="godot-cpp\src\core\object.cpp">
       <Filter>godot-cpp\src\core</Filter>
     </ClCompile>
+    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\VertexBuffer.cpp">
+      <Filter>EffekseerRendererCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RendererGodot\GraphicsDevice.cpp">
+      <Filter>EffekseerGodot\RendererGodot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RendererGodot\EffekseerGodot.GpuParticles.cpp">
+      <Filter>EffekseerGodot\RendererGodot</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GDLibrary.h">
@@ -2877,9 +2874,6 @@
       <Filter>EffekseerGodot</Filter>
     </ClInclude>
     <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.CommonUtils.h">
-      <Filter>EffekseerRendererCommon</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.IndexBufferBase.h">
       <Filter>EffekseerRendererCommon</Filter>
     </ClInclude>
     <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.Renderer.h">
@@ -2909,9 +2903,6 @@
     <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.TrackRendererBase.h">
       <Filter>EffekseerRendererCommon</Filter>
     </ClInclude>
-    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.VertexBufferBase.h">
-      <Filter>EffekseerRendererCommon</Filter>
-    </ClInclude>
     <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.ModelRendererBase.h">
       <Filter>EffekseerRendererCommon</Filter>
     </ClInclude>
@@ -2936,16 +2927,10 @@
     <ClInclude Include="src\RendererGodot\EffekseerGodot.RenderState.h">
       <Filter>EffekseerGodot\RendererGodot</Filter>
     </ClInclude>
-    <ClInclude Include="src\RendererGodot\EffekseerGodot.VertexBuffer.h">
-      <Filter>EffekseerGodot\RendererGodot</Filter>
-    </ClInclude>
     <ClInclude Include="src\RendererGodot\EffekseerGodot.Base.h">
       <Filter>EffekseerGodot\RendererGodot</Filter>
     </ClInclude>
     <ClInclude Include="src\RendererGodot\EffekseerGodot.Base.Pre.h">
-      <Filter>EffekseerGodot\RendererGodot</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RendererGodot\EffekseerGodot.IndexBuffer.h">
       <Filter>EffekseerGodot\RendererGodot</Filter>
     </ClInclude>
     <ClInclude Include="src\RendererGodot\EffekseerGodot.ModelRenderer.h">
@@ -3004,6 +2989,15 @@
     </ClInclude>
     <ClInclude Include="src\RendererGodot\Shaders\MaterialShader.h">
       <Filter>EffekseerGodot\RendererGodot\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\VertexBuffer.h">
+      <Filter>EffekseerRendererCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RendererGodot\GraphicsDevice.h">
+      <Filter>EffekseerGodot\RendererGodot</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RendererGodot\EffekseerGodot.GpuParticles.h">
+      <Filter>EffekseerGodot\RendererGodot</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
