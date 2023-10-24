@@ -16,6 +16,7 @@
 #include "GDLibrary.h"
 #include "RendererGodot/EffekseerGodot.Renderer.h"
 #include "RendererGodot/EffekseerGodot.ModelRenderer.h"
+#include "RendererGodot/EffekseerGodot.GpuParticles.h"
 #include "LoaderGodot/EffekseerGodot.TextureLoader.h"
 #include "LoaderGodot/EffekseerGodot.ModelLoader.h"
 #include "LoaderGodot/EffekseerGodot.MaterialLoader.h"
@@ -115,6 +116,7 @@ void EffekseerSystem::_init_modules()
 	effekseerSettings->SetMaterialLoader(Effekseer::MakeRefPtr<EffekseerGodot::MaterialLoader>());
 	effekseerSettings->SetCurveLoader(Effekseer::MakeRefPtr<EffekseerGodot::CurveLoader>());
 	effekseerSettings->SetProceduralMeshGenerator(Effekseer::MakeRefPtr<EffekseerGodot::ProceduralModelGenerator>());
+	effekseerSettings->SetGpuParticleFactory(Effekseer::MakeRefPtr<EffekseerGodot::GpuParticleFactory>());
 
 	if (sound.is_valid()) {
 		effekseerSettings->SetSoundLoader(Effekseer::MakeRefPtr<EffekseerGodot::SoundLoader>(sound));
@@ -130,6 +132,7 @@ void EffekseerSystem::_init_modules()
 	m_manager->SetTrackRenderer(m_renderer->CreateTrackRenderer());
 	m_manager->SetRingRenderer(m_renderer->CreateRingRenderer());
 	m_manager->SetModelRenderer(m_renderer->CreateModelRenderer());
+	m_manager->SetGpuParticleSystem(m_renderer->CreateGpuParticleSystem());
 
 	if (sound.is_valid()) {
 		m_manager->SetSoundPlayer(Effekseer::MakeRefPtr<EffekseerGodot::SoundPlayer>(sound));
@@ -190,6 +193,7 @@ void EffekseerSystem::_update_pre_draw()
 	float advance = deltaFrames / iterations;
 	for (int i = 0; i < iterations; i++) {
 		m_manager->Update(advance);
+		m_manager->Compute();
 	}
 	m_renderer->SetTime(m_renderer->GetTime() + (float)delta);
 

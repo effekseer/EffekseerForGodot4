@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <godot_cpp/variant/rid.hpp>
+#include <godot_cpp/variant/string.hpp>
 #include "EffekseerRenderer.ShaderBase.h"
 #include "EffekseerRenderer.CommonUtils.h"
 
@@ -105,9 +106,9 @@ public:
 
 	EffekseerRenderer::RendererShaderType GetRendererShaderType() { return m_renderershaderType; }
 
-protected:
-	void GenerateHeader(std::string& code, NodeType nodeType, RenderSettings renderSettings, bool unshaded);
+	static void GenerateHeader(std::string& code, NodeType nodeType, RenderSettings renderSettings, bool unshaded);
 
+protected:
 	std::array<std::vector<uint8_t>, 2> m_constantBuffers;
 	std::vector<ParamDecl> m_paramDecls3D;
 	std::vector<ParamDecl> m_paramDecls2D;

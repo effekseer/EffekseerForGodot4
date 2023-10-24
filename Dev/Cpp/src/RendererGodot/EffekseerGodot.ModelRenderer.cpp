@@ -5,9 +5,7 @@
 #include "EffekseerGodot.RenderState.h"
 #include "EffekseerGodot.Renderer.h"
 
-#include "EffekseerGodot.IndexBuffer.h"
 #include "EffekseerGodot.ModelRenderer.h"
-#include "EffekseerGodot.VertexBuffer.h"
 #include "Shaders/BuiltinShader.h"
 
 #include "../EffekseerEmitter3D.h"

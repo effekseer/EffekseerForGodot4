@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://c2f1vo8x7apuv"
+path="res://.godot/imported/GpuParticles_trails_simple.efkefc-9c151928751a162dd3d0727acf8535ac.res"
+
+[deps]
+
+source_file="res://effects/gpu-particles/GpuParticles_trails_simple.efkefc"
+dest_files=["res://.godot/imported/GpuParticles_trails_simple.efkefc-9c151928751a162dd3d0727acf8535ac.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

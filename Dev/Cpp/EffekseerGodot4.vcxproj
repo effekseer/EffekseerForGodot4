@@ -19,22 +19,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.CommonUtils.cpp" />
-    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.DDSTextureLoader.cpp" />
-    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.IndexBufferBase.cpp" />
-    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.ModelRendererBase.cpp" />
-    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.PngTextureLoader.cpp" />
-    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.Renderer.cpp" />
-    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.Renderer_Impl.cpp" />
-    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.RenderStateBase.cpp" />
-    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.RibbonRendererBase.cpp" />
-    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.RingRendererBase.cpp" />
-    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.SpriteRendererBase.cpp" />
-    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.TGATextureLoader.cpp" />
-    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.TrackRendererBase.cpp" />
-    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.VertexBufferBase.cpp" />
-    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\ModelLoader.cpp" />
-    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\TextureLoader.cpp" />
+    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRenderer.CommonUtils.cpp" />
+    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRenderer.ModelRendererBase.cpp" />
+    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRenderer.Renderer.cpp" />
+    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRenderer.Renderer_Impl.cpp" />
+    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRenderer.RenderStateBase.cpp" />
+    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRenderer.RibbonRendererBase.cpp" />
+    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRenderer.RingRendererBase.cpp" />
+    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRenderer.SpriteRendererBase.cpp" />
+    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRenderer.TrackRendererBase.cpp" />
+    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\GraphicsDeviceCPU.cpp" />
+    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\ModelLoader.cpp" />
+    <ClCompile Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\VertexBuffer.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\accept_dialog.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\aes_context.cpp" />
     <ClCompile Include="godot-cpp\gen\src\classes\animatable_body2d.cpp" />
@@ -1014,13 +1010,14 @@
     <ClCompile Include="src\LoaderGodot\EffekseerGodot.ProceduralModelGenerator.cpp" />
     <ClCompile Include="src\LoaderGodot\EffekseerGodot.SoundLoader.cpp" />
     <ClCompile Include="src\LoaderGodot\EffekseerGodot.TextureLoader.cpp" />
-    <ClCompile Include="src\RendererGodot\EffekseerGodot.IndexBuffer.cpp" />
+    <ClCompile Include="src\RendererGodot\EffekseerGodot.GpuParticles.cpp" />
     <ClCompile Include="src\RendererGodot\EffekseerGodot.ModelRenderer.cpp" />
     <ClCompile Include="src\RendererGodot\EffekseerGodot.Renderer.cpp" />
     <ClCompile Include="src\RendererGodot\EffekseerGodot.RenderResources.cpp" />
     <ClCompile Include="src\RendererGodot\EffekseerGodot.RenderState.cpp" />
-    <ClCompile Include="src\RendererGodot\EffekseerGodot.VertexBuffer.cpp" />
+    <ClCompile Include="src\RendererGodot\GraphicsDevice.cpp" />
     <ClCompile Include="src\RendererGodot\Shaders\BuiltinShader.cpp" />
+    <ClCompile Include="src\RendererGodot\Shaders\GpuParticlesShader.cpp" />
     <ClCompile Include="src\RendererGodot\Shaders\MaterialShader.cpp" />
     <ClCompile Include="src\RendererGodot\Shaders\ShaderBase.cpp" />
     <ClCompile Include="src\SoundGodot\EffekseerGodot.SoundPlayer.cpp" />
@@ -1028,24 +1025,21 @@
     <ClCompile Include="src\Utils\EffekseerGodot.Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.CommonUtils.h" />
-    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.DDSTextureLoader.h" />
-    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.IndexBufferBase.h" />
-    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.ModelRendererBase.h" />
-    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.PngTextureLoader.h" />
-    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.Renderer.h" />
-    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.Renderer_Impl.h" />
-    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.RenderStateBase.h" />
-    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.RibbonRendererBase.h" />
-    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.RingRendererBase.h" />
-    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.ShaderBase.h" />
-    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.SpriteRendererBase.h" />
-    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.StandardRenderer.h" />
-    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.TGATextureLoader.h" />
-    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.TrackRendererBase.h" />
-    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRenderer.VertexBufferBase.h" />
-    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\ModelLoader.h" />
-    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\TextureLoader.h" />
+    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRenderer.CommonUtils.h" />
+    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRenderer.ModelRendererBase.h" />
+    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRenderer.Renderer.h" />
+    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRenderer.Renderer_Impl.h" />
+    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRenderer.RenderStateBase.h" />
+    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRenderer.RibbonRendererBase.h" />
+    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRenderer.RingRendererBase.h" />
+    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRenderer.ShaderBase.h" />
+    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRenderer.SpriteRendererBase.h" />
+    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRenderer.StandardRenderer.h" />
+    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRenderer.TrackRendererBase.h" />
+    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\EffekseerRendererFlags.h" />
+    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\GraphicsDeviceCPU.h" />
+    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\ModelLoader.h" />
+    <ClInclude Include="..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon\VertexBuffer.h" />
     <ClInclude Include="src\EffekseerEmitter2D.h" />
     <ClInclude Include="src\EffekseerResource.h" />
     <ClInclude Include="src\EffekseerSystem.h" />
@@ -1060,14 +1054,15 @@
     <ClInclude Include="src\LoaderGodot\EffekseerGodot.TextureLoader.h" />
     <ClInclude Include="src\RendererGodot\EffekseerGodot.Base.h" />
     <ClInclude Include="src\RendererGodot\EffekseerGodot.Base.Pre.h" />
-    <ClInclude Include="src\RendererGodot\EffekseerGodot.IndexBuffer.h" />
+    <ClInclude Include="src\RendererGodot\EffekseerGodot.GpuParticles.h" />
     <ClInclude Include="src\RendererGodot\EffekseerGodot.ModelRenderer.h" />
     <ClInclude Include="src\RendererGodot\EffekseerGodot.Renderer.h" />
     <ClInclude Include="src\RendererGodot\EffekseerGodot.RenderingHandle.h" />
     <ClInclude Include="src\RendererGodot\EffekseerGodot.RenderResources.h" />
     <ClInclude Include="src\RendererGodot\EffekseerGodot.RenderState.h" />
-    <ClInclude Include="src\RendererGodot\EffekseerGodot.VertexBuffer.h" />
+    <ClInclude Include="src\RendererGodot\GraphicsDevice.h" />
     <ClInclude Include="src\RendererGodot\Shaders\BuiltinShader.h" />
+    <ClInclude Include="src\RendererGodot\Shaders\GpuParticlesShader.h" />
     <ClInclude Include="src\RendererGodot\Shaders\MaterialShader.h" />
     <ClInclude Include="src\RendererGodot\Shaders\ShaderBase.h" />
     <ClInclude Include="src\SoundGodot\EffekseerGodot.SoundPlayer.h" />
@@ -1196,7 +1191,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)godot-cpp\gdextension;$(ProjectDir)godot-cpp\include;$(ProjectDir)godot-cpp\gen\include;$(ProjectDir)..\Effekseer\Dev\Cpp\Effekseer;$(ProjectDir)..\Effekseer\Dev\Cpp\EffekseerRendererCommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)godot-cpp\gdextension;$(ProjectDir)godot-cpp\include;$(ProjectDir)godot-cpp\gen\include;$(ProjectDir)..\Effekseer\Dev\Cpp\Effekseer;$(ProjectDir)..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;26495</DisableSpecificWarnings>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -1263,7 +1258,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)godot-cpp\gdextension;$(ProjectDir)godot-cpp\include;$(ProjectDir)godot-cpp\gen\include;$(ProjectDir)..\Effekseer\Dev\Cpp\Effekseer;$(ProjectDir)..\Effekseer\Dev\Cpp\EffekseerRendererCommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)godot-cpp\gdextension;$(ProjectDir)godot-cpp\include;$(ProjectDir)godot-cpp\gen\include;$(ProjectDir)..\Effekseer\Dev\Cpp\Effekseer;$(ProjectDir)..\Effekseer\Dev\Cpp\EffekseerRendererCommon\EffekseerRendererCommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;26495</DisableSpecificWarnings>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>

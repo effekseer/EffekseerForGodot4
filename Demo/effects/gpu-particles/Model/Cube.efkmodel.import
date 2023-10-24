@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://dgssp03kaleoj"
+path="res://.godot/imported/Cube.efkmodel-37011eba63e085ebf62a83de25161811.res"
+
+[deps]
+
+source_file="res://effects/gpu-particles/Model/Cube.efkmodel"
+dest_files=["res://.godot/imported/Cube.efkmodel-37011eba63e085ebf62a83de25161811.res"]
+
+[params]
+
+compress=true

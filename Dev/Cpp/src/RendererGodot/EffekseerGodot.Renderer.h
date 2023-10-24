@@ -6,8 +6,7 @@
 #include "EffekseerGodot.Base.h"
 #include "EffekseerGodot.Renderer.h"
 #include "EffekseerGodot.RenderState.h"
-#include "EffekseerGodot.VertexBuffer.h"
-#include "EffekseerGodot.IndexBuffer.h"
+#include "GraphicsDevice.h"
 #include "Shaders/ShaderBase.h"
 
 namespace godot
@@ -107,13 +106,10 @@ class Renderer
 	using StandardRenderer = EffekseerRenderer::StandardRenderer<Renderer, Shader>;
 
 private:
-	VertexBufferRef m_vertexBuffer;
-	IndexBufferRef m_indexBuffer;
-	IndexBufferRef m_indexBufferForWireframe;
+	Backend::GraphicsDeviceRef m_graphicsDevice;
 	int32_t m_squareMaxCount = 0;
 	int32_t m_vertexStride = 0;
 
-	std::array<std::unique_ptr<BuiltinShader>, 6> m_shaders;
 	Shader* m_currentShader = nullptr;
 
 	std::vector<RenderCommand3D> m_renderCommand3Ds;
@@ -159,9 +155,9 @@ public:
 
 	bool EndRendering() override;
 
-	VertexBuffer* GetVertexBuffer();
+	Effekseer::Backend::VertexBufferRef GetVertexBuffer();
 
-	IndexBuffer* GetIndexBuffer();
+	Effekseer::Backend::IndexBufferRef GetIndexBuffer();
 
 	int32_t GetSquareMaxCount() const override { return m_squareMaxCount; }
 
@@ -177,6 +173,8 @@ public:
 
 	::Effekseer::TrackRendererRef CreateTrackRenderer() override;
 
+	::Effekseer::GpuParticleSystemRef CreateGpuParticleSystem(const Effekseer::GpuParticleSystem::Settings& settings = {}) override;
+
 	::Effekseer::TextureLoaderRef CreateTextureLoader(::Effekseer::FileInterfaceRef fileInterface = nullptr) override { return nullptr; }
 
 	::Effekseer::ModelLoaderRef CreateModelLoader(::Effekseer::FileInterfaceRef fileInterface = nullptr) override { return nullptr; }
@@ -191,11 +189,8 @@ public:
 
 	StandardRenderer* GetStandardRenderer() { return m_standardRenderer.get(); }
 
-	void SetVertexBuffer(VertexBuffer* vertexBuffer, int32_t size);
-	void SetIndexBuffer(IndexBuffer* indexBuffer);
-
-	void SetVertexBuffer(Effekseer::Backend::VertexBufferRef vertexBuffer, int32_t size) {}
-	void SetIndexBuffer(Effekseer::Backend::IndexBufferRef indexBuffer) {}
+	void SetVertexBuffer(Effekseer::Backend::VertexBufferRef vertexBuffer, int32_t size);
+	void SetIndexBuffer(Effekseer::Backend::IndexBufferRef indexBuffer);
 
 	void SetLayout(Shader* shader);
 	void DrawSprites(int32_t spriteCount, int32_t vertexOffset);
