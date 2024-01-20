@@ -19,7 +19,7 @@ func _enter_tree():
 	add_editor_setting("effekseer/preview_mode", "", TYPE_INT, PROPERTY_HINT_ENUM, "3D,2D")
 	
 	var icon = load(plugin_path + "/icon16.png") as Texture2D
-	var theme = get_editor_interface().get_base_control().get_theme()
+	var theme = EditorInterface.get_editor_theme()
 	theme.set_icon("EffekseerEmitter3D", "EditorIcons", icon)
 	theme.set_icon("EffekseerEmitter2D", "EditorIcons", icon)
 	theme.set_icon("EffekseerEffect", "EditorIcons", icon)
@@ -30,7 +30,7 @@ func _enter_tree():
 	add_import_plugin(resource_import_plugin)
 
 	if Engine.is_editor_hint():
-		effect_inspector_plugin = load(plugin_source_path + "/EffekseerEffectInspectorPlugin.gd").new(get_editor_interface())
+		effect_inspector_plugin = load(plugin_source_path + "/EffekseerEffectInspectorPlugin.gd").new(EditorInterface)
 		add_inspector_plugin(effect_inspector_plugin)
 		emitter3d_gizmo_plugin = load(plugin_source_path + "/EffekseerEmitter3DGizmoPlugin.gd").new()
 		add_node_3d_gizmo_plugin(emitter3d_gizmo_plugin)
@@ -77,7 +77,7 @@ func remove_project_setting(name: String):
 
 
 func add_editor_setting(name: String, initial_value, type: int, hint: int, hint_string: String) -> void:
-	var editor_settings := get_editor_interface().get_editor_settings()
+	var editor_settings := EditorInterface.get_editor_settings()
 	if not editor_settings.has_setting(name):
 		editor_settings.set_setting(name, initial_value)
 
@@ -92,7 +92,7 @@ func add_editor_setting(name: String, initial_value, type: int, hint: int, hint_
 
 
 func remove_editor_setting(name: String):
-	var editor_settings := get_editor_interface().get_editor_settings()
+	var editor_settings := EditorInterface.get_editor_settings()
 	editor_settings.erase(name)
 
 

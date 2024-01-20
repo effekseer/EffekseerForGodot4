@@ -1,7 +1,6 @@
 ﻿#include <algorithm>
 #include <godot_cpp/godot.hpp>
 #include <godot_cpp/classes/gd_script.hpp>
-#include <godot_cpp/classes/gd_script_native_class.hpp>
 #include <godot_cpp/classes/rendering_server.hpp>
 #include "EffekseerGodot.Utils.h"
 #include "EffekseerRenderer.CommonUtils.h"
@@ -55,15 +54,7 @@ godot::Variant ScriptNew(godot::Ref<godot::Script> script)
 {
 	using namespace godot;
 
-	auto className = script->get_class();
-	if (className == "GDScript") {
-		return Ref<GDScript>(script)->new_();
-	} else if (className == "NativeScript") {
-		return Ref<GDScriptNativeClass>(script)->new_();
-	} else if (className == "VisualScript") {
-		return Variant();
-	}
-	return Variant();
+	return Ref<GDScript>(script)->new_();
 }
 
 uint32_t ToGdNormal(const Effekseer::Vector3D& v)

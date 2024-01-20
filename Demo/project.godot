@@ -12,7 +12,7 @@ config_version=5
 
 config/name="EffekseerForGodot4"
 run/main_scene="res://scenes/Scene3D.tscn"
-config/features=PackedStringArray("4.1")
+config/features=PackedStringArray("4.2")
 config/icon="res://addons/effekseer/icon64.png"
 
 [debug]
