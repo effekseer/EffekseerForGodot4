@@ -1,9 +1,9 @@
-[gd_scene load_steps=11 format=3 uid="uid://co3uv7mhnemqy"]
+[gd_scene load_steps=12 format=3 uid="uid://co3uv7mhnemqy"]
 
 [ext_resource type="Script" path="res://scripts/Scene3D.gd" id="1_2q4v7"]
 [ext_resource type="Texture2D" uid="uid://cq0rnvcuc6xwp" path="res://shared/grid.png" id="2_gwnl2"]
 [ext_resource type="Script" path="res://scripts/CameraController3D.gd" id="3_2wpy0"]
-[ext_resource type="EffekseerEffect" uid="uid://bkbmaq2e1kq0e" path="res://effects/samples/Simple_Distortion.efkefc" id="4_xwe8b"]
+[ext_resource type="EffekseerEffect" uid="uid://bkbmaq2e1kq0e" path="res://effects/samples/Simple_Distortion.efkefc" id="4_p8d67"]
 [ext_resource type="PackedScene" uid="uid://3yy8se2knnd6" path="res://shared/gui.tscn" id="5_v7deq"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_12xne"]
@@ -19,6 +19,8 @@ script/source = "extends MeshInstance3D
 func _process(delta: float):
 	rotate_y(deg_to_rad(delta * 180.0))
 "
+
+[sub_resource type="PrismMesh" id="PrismMesh_53s0x"]
 
 [sub_resource type="Environment" id="3"]
 ambient_light_color = Color(0.25098, 0.25098, 0.25098, 1)
@@ -46,9 +48,16 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.93182, 0)
 mesh = SubResource("BoxMesh_4buj6")
 script = SubResource("GDScript_7xpxe")
 
-[node name="Effect" type="EffekseerEmitter3D" parent="."]
-effect = ExtResource("4_xwe8b")
+[node name="Player" type="CharacterBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -0.2, 0, 1, -8.74228e-09, 0, 0, 0)
+mesh = SubResource("PrismMesh_53s0x")
+skeleton = NodePath("../..")
+
+[node name="Effect" type="EffekseerEmitter3D" parent="Player"]
+effect = ExtResource("4_p8d67")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("3")
