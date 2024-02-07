@@ -122,13 +122,13 @@ inline Effekseer::Matrix43 ToEfkMatrix43(const godot::Transform3D& transform)
 {
 	Effekseer::Matrix43 matrix;
 	matrix.Value[0][0] = transform.basis[0][0];
-	matrix.Value[0][1] = transform.basis[0][1];
-	matrix.Value[0][2] = transform.basis[0][2];
-	matrix.Value[1][0] = transform.basis[1][0];
+	matrix.Value[0][1] = transform.basis[1][0];
+	matrix.Value[0][2] = transform.basis[2][0];
+	matrix.Value[1][0] = transform.basis[0][1];
 	matrix.Value[1][1] = transform.basis[1][1];
-	matrix.Value[1][2] = transform.basis[1][2];
-	matrix.Value[2][0] = transform.basis[2][0];
-	matrix.Value[2][1] = transform.basis[2][1];
+	matrix.Value[1][2] = transform.basis[2][1];
+	matrix.Value[2][0] = transform.basis[0][2];
+	matrix.Value[2][1] = transform.basis[1][2];
 	matrix.Value[2][2] = transform.basis[2][2];
 	matrix.Value[3][0] = transform.origin.x;
 	matrix.Value[3][1] = transform.origin.y;
