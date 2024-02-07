@@ -54,9 +54,7 @@ public:
 
 	virtual void _exit_tree() override;
 
-	virtual void _process(double delta) override;
-
-	void _update_draw();
+	void _update_pre_draw();
 
 	int32_t attach_layer(Viewport* viewport, LayerType layer_type);
 

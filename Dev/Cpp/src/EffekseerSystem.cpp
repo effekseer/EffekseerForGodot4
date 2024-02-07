@@ -37,7 +37,7 @@ void EffekseerSystem::_bind_methods()
 {
 	GDBIND_METHOD(EffekseerSystem, _init_modules);
 	GDBIND_METHOD(EffekseerSystem, _register_to_scenetree);
-	GDBIND_METHOD(EffekseerSystem, _update_draw);
+	GDBIND_METHOD(EffekseerSystem, _update_pre_draw);
 	GDBIND_METHOD(EffekseerSystem, spawn_effect_2d, "effect", "parent", "xform");
 	GDBIND_METHOD(EffekseerSystem, spawn_effect_3d, "effect", "parent", "xform");
 	GDBIND_METHOD(EffekseerSystem, stop_all_effects);
@@ -146,21 +146,18 @@ void EffekseerSystem::_register_to_scenetree()
 {
 	auto tree = Object::cast_to<SceneTree>(Engine::get_singleton()->get_main_loop());
 	tree->get_root()->add_child(this);
-	set_process(true);
-	set_process_priority(100);
-	set_process_mode(PROCESS_MODE_ALWAYS);
 }
 
 void EffekseerSystem::_enter_tree()
 {
 	Node::_enter_tree();
 
-	RenderingServer::get_singleton()->connect("frame_pre_draw", Callable(this, "_update_draw"));
+	RenderingServer::get_singleton()->connect("frame_pre_draw", Callable(this, "_update_pre_draw"));
 }
 
 void EffekseerSystem::_exit_tree()
 {
-	RenderingServer::get_singleton()->disconnect("frame_pre_draw", Callable(this, "_update_draw"));
+	RenderingServer::get_singleton()->disconnect("frame_pre_draw", Callable(this, "_update_pre_draw"));
 
 	m_manager.Reset();
 	m_renderer.Reset();
@@ -168,9 +165,9 @@ void EffekseerSystem::_exit_tree()
 	Node::_exit_tree();
 }
 
-void EffekseerSystem::_process(double delta)
+void EffekseerSystem::_update_pre_draw()
 {
-	Node::_process(delta);
+	double delta = get_process_delta_time();
 
 	for (size_t i = 0; i < m_render_layers.size(); i++) {
 		auto& layer = m_render_layers[i];
@@ -195,13 +192,11 @@ void EffekseerSystem::_process(double delta)
 		m_manager->Update(advance);
 	}
 	m_renderer->SetTime(m_renderer->GetTime() + (float)delta);
-	
+
 	// Shader loading process
 	_process_shader_loader();
-}
 
-void EffekseerSystem::_update_draw()
-{
+	// Renderer setup
 	m_renderer->ResetState();
 	m_renderer->ResetDrawCallCount();
 	m_renderer->ResetDrawVertexCount();
