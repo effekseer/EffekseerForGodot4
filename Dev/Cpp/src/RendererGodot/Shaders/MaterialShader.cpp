@@ -420,8 +420,8 @@ void GenerateShaderCode(std::string& code, const Effekseer::MaterialFile& materi
 				code += uniforms_sprite;
 			}
 			else {
-				if (customData1Count > 0) AppendFormat(code, "uniform %s CustomData1[%d];\n", customData1Type, ModelRenderer::InstanceCount);
-				if (customData2Count > 0) AppendFormat(code, "uniform %s CustomData2[%d];\n", customData2Type, ModelRenderer::InstanceCount);
+				if (customData1Count > 0) AppendFormat(code, "uniform vec4 CustomData1[%d];\n", ModelRenderer::InstanceCount);
+				if (customData2Count > 0) AppendFormat(code, "uniform vec4 CustomData2[%d];\n", ModelRenderer::InstanceCount);
 				code += uniforms_model;
 			}
 		}
@@ -433,8 +433,8 @@ void GenerateShaderCode(std::string& code, const Effekseer::MaterialFile& materi
 				code += uniforms_sprite;
 			}
 			else {
-				if (customData1Count > 0) AppendFormat(code, "uniform %s CustomData1;\n", customData1Type);
-				if (customData2Count > 0) AppendFormat(code, "uniform %s CustomData2;\n", customData2Type);
+				if (customData1Count > 0) AppendFormat(code, "uniform vec4 CustomData1;\n");
+				if (customData2Count > 0) AppendFormat(code, "uniform vec4 CustomData2;\n");
 				code += uniforms_model;
 			}
 			code += "uniform sampler2D TangentTexture;\n";
@@ -551,8 +551,8 @@ void GenerateShaderCode(std::string& code, const Effekseer::MaterialFile& materi
 			if (customData2Count > 0) AppendFormat(code, "\t%s customData2 = CUSTOM1.%s;\n", customData2Type, customData2Element);
 		}
 		else {
-			if (customData1Count > 0) AppendFormat(code, "\t%s customData1 = CustomData1[INSTANCE_ID];\n", customData1Type);
-			if (customData2Count > 0) AppendFormat(code, "\t%s customData2 = CustomData2[INSTANCE_ID];\n", customData2Type);
+			if (customData1Count > 0) AppendFormat(code, "\t%s customData1 = CustomData1[INSTANCE_ID].%s;\n", customData1Type, customData1Element);
+			if (customData2Count > 0) AppendFormat(code, "\t%s customData2 = CustomData2[INSTANCE_ID].%s;\n", customData2Type, customData1Element);
 		}
 
 		std::string vertCode = baseCode;
@@ -651,13 +651,11 @@ std::tuple<int32_t, int32_t> GenerateParamDecls(std::vector<ParamDecl>& paramDec
 	{
 		if (materialFile.GetCustomData1Count() > 0)
 		{
-			ParamType type = (ParamType)((size_t)ParamType::Float + materialFile.GetCustomData1Count() - 1);
-			appendDecls("CustomData1", type, 0, parameterGenerator.VertexModelCustomData1Offset, instanceCount);
+			appendDecls("CustomData1", ParamType::Vector4, 0, parameterGenerator.VertexModelCustomData1Offset, instanceCount);
 		}
 		if (materialFile.GetCustomData2Count() > 0)
 		{
-			ParamType type = (ParamType)((size_t)ParamType::Float + materialFile.GetCustomData2Count() - 1);
-			appendDecls("CustomData2", type, 0, parameterGenerator.VertexModelCustomData2Offset, instanceCount);
+			appendDecls("CustomData2", ParamType::Vector4, 0, parameterGenerator.VertexModelCustomData2Offset, instanceCount);
 		}
 	};
 	auto appendUserUniformDecls = [appendDecls](const MaterialFile& materialFile,

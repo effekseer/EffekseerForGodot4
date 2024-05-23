@@ -39,8 +39,6 @@ enum class ParamType : uint8_t
 	Matrix44,
 	Color,
 	Texture,
-	FloatArray,
-	Vector4Array,
 };
 
 struct ParamDecl
