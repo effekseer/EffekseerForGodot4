@@ -79,7 +79,7 @@ public:
 		}
 
 		bool IsUsingAdvanced() const {
-			return IsNode3D() && advancedShader;
+			return advancedShader;
 		}
 		bool IsUsingSoftParticle() const {
 			return IsNode3D() && softparticle;

@@ -17,67 +17,116 @@ static const char* GdTextureWrap[] = {
 	"repeat_disable",
 };
 
-static const char uniform_Sprite3D[] =
+static const char uniform_3D[] =
 R"(
-uniform mat4 ViewMatrix;
 )";
-static const char vertex_Sprite3D[] =
+static const char vertex_Sprite_Unlit_3D[] =
 R"(
-	MODELVIEW_MATRIX = ViewMatrix;
+	VERTEX = (VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
+)";
+static const char vertex_Sprite_Lit_3D[] =
+R"(
+	VERTEX = (VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	NORMAL = (VIEW_MATRIX * vec4(NORMAL, 0.0)).xyz;
+	TANGENT = (VIEW_MATRIX * vec4(TANGENT, 0.0)).xyz;
+	BINORMAL = (VIEW_MATRIX * vec4(BINORMAL, 0.0)).xyz;
 )";
 
-static const char uniform_Model3D[] =
-R"(
-uniform mat4 ViewMatrix;
-)";
-static const char vertex_Model3D[] =
-R"(
-	MODELVIEW_MATRIX = ViewMatrix * MODEL_MATRIX;
-    UV = ApplyModelUV(UV, INSTANCE_CUSTOM);
-)";
-static const char func_Model3D[] =
+static const char func_Model[] =
 R"(
 vec2 ApplyModelUV(vec2 meshUV, vec4 modelUV) {
 	return (meshUV * modelUV.zw) + modelUV.xy;
 }
 )";
-
-static const char uniform_Tangent_Sprite2D[] =
+static const char func_Normal_2D[] =
 R"(
-uniform sampler2D TangentTexture : hint_normal, filter_nearest, repeat_disable;
-uniform int VertexTextureOffset;
-)";
-static const char varying_Tangent_2D[] =
-R"(
-varying vec4 v_Tangent;
-)";
-static const char vertex_Tangent_Sprite2D[] =
-R"(
-	ivec2 texSize = textureSize(TangentTexture, 0);
-	int texOffset = VERTEX_ID + VertexTextureOffset;
-	ivec2 texUV2 = ivec2(texOffset % texSize.x, texOffset / texSize.y);
-	v_Tangent = texelFetch(TangentTexture, texUV2, 0);
-)";
-static const char vertex_Tangent_Model2D[] =
-R"(
-	v_Tangent = vec4(1.0, 0.0, 0.0, 0.0);
+vec3 UnpackNormal(float fbits) {
+	vec2 e = unpackUnorm2x16(floatBitsToUint(fbits));
+	e = e * 2.0 - 1.0;
+	vec3 v = vec3(e.xy, 1.0 - abs(e.x) - abs(e.y));
+	float t = max(-v.z, 0.0);
+	v.xy += t * -sign(v.xy);
+	return normalize(v);
+}
 )";
 
-static const char uniform_Model2D[] =
+static const char vertex_Model_Unlit_3D[] =
 R"(
-uniform vec4 ModelUV;
-uniform vec4 ModelColor : source_color;
+	VERTEX = (MODELVIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
+    UV = ApplyModelUV(UV, INSTANCE_CUSTOM);
 )";
-static const char vertex_Model2D[] =
+static const char vertex_Model_Lit_3D[] =
 R"(
-	UV = (UV.xy * ModelUV.zw) + ModelUV.xy;
-	COLOR = COLOR * ModelColor;
+	VERTEX = (MODELVIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
+    UV = ApplyModelUV(UV, INSTANCE_CUSTOM);
+	NORMAL = (MODELVIEW_MATRIX * vec4(NORMAL, 0.0)).xyz;
+	TANGENT = (MODELVIEW_MATRIX * vec4(TANGENT, 0.0)).xyz;
+	BINORMAL = (MODELVIEW_MATRIX * vec4(BINORMAL, 0.0)).xyz;
 )";
+
+static const char uniform_2D[] =
+R"(
+uniform vec2 BaseScale;
+)";
+static const char uniform_Model_2D[] =
+R"(
+uniform mat4 ModelMatrix[16];
+uniform int CullingType = 0;
+)";
+static const char varying_Model_Unlit_2D[] =
+R"(
+varying vec3 v_Normal;
+)";
+static const char varying_Lit_2D[] =
+R"(
+varying vec3 v_Normal;
+varying vec3 v_Tangent;
+varying vec3 v_Binormal;
+)";
+static const char vertex_Sprite_Unlit_2D[] =
+R"(
+	VERTEX = VERTEX * BaseScale;
+)";
+static const char vertex_Sprite_Lit_2D[] =
+R"(
+	VERTEX = VERTEX * BaseScale;
+	v_Normal = normalize(UnpackNormal(CUSTOM0.x));
+	v_Tangent = normalize(UnpackNormal(CUSTOM0.y));
+	v_Binormal = cross(v_Normal, v_Tangent);
+)";
+static const char vertex_Model_Unlit_2D[] =
+R"(
+	VERTEX = (ModelMatrix[INSTANCE_ID] * vec4(VERTEX, CUSTOM0.x, 1.0)).xy;
+	VERTEX = VERTEX * BaseScale;
+    UV = ApplyModelUV(UV, INSTANCE_CUSTOM);
+	mat3 normal_matrix = mat3(ModelMatrix[INSTANCE_ID]);
+	v_Normal = normalize(normal_matrix * UnpackNormal(CUSTOM0.y));
+)";
+static const char vertex_Model_Lit_2D[] =
+R"(
+	VERTEX = (ModelMatrix[INSTANCE_ID] * vec4(VERTEX, CUSTOM0.x, 1.0)).xy;
+	VERTEX = VERTEX * BaseScale;
+    UV = ApplyModelUV(UV, INSTANCE_CUSTOM);
+	mat3 normal_matrix = mat3(ModelMatrix[INSTANCE_ID]);
+	v_Normal = normalize(normal_matrix * UnpackNormal(CUSTOM0.y));
+	v_Tangent = normalize(normal_matrix * UnpackNormal(CUSTOM0.z));
+	v_Binormal = cross(v_Normal, v_Tangent);
+)";
+
 
 static const char uniform_ColorMap[] =
 R"(
 uniform float EmissiveScale;
 uniform sampler2D ColorTexture : source_color, %s, %s;
+)";
+
+static const char fragment_Model_2D[] =
+R"(
+	if (CullingType == 0) {
+		if (v_Normal.z < 0.0) discard;
+	} else if (CullingType == 1) {
+		if (v_Normal.z > 0.0) discard;
+	}
 )";
 
 static const char fragment_ColorMap_3D[] =
@@ -111,16 +160,17 @@ uniform sampler2D NormalTexture : hint_normal, %s, %s;
 
 static const char fragment_NormalMap_3D[] =
 R"(
-	vec4 normalTexel = texture(NormalTexture, UV) * 2.0 - 1.0;
-	NORMAL = normalize(TANGENT * normalTexel.x + BINORMAL * normalTexel.y + NORMAL * normalTexel.z);
+	vec3 normalTexel = texture(NormalTexture, UV).xyz * 2.0 - 1.0;
+	NORMAL = normalize(mat3(TANGENT, BINORMAL, NORMAL) * normalTexel);
 )";
 
 static const char fragment_NormalMap_2D[] =
 R"(
-	vec4 normalTexel = texture(NormalTexture, UV) * 2.0 - 1.0;
-	vec2 tangent = v_Tangent.xy;
-	vec2 binormal = vec2(tangent.y, -tangent.x);
-	NORMAL_MAP = normalize(vec3(tangent, 0.0) * normalTexel.x + vec3(binormal, 0.0) * normalTexel.y + vec3(0.0, 0.0, 1.0) * normalTexel.z);
+	vec3 normalTexel = texture(NormalTexture, UV).xyz * 2.0 - 1.0;
+	vec3 normal = normalize(v_Normal);
+	vec3 tangent = normalize(v_Tangent);
+	vec3 binormal = normalize(v_Binormal);
+	NORMAL = normalize(mat3(tangent, binormal, normal) * normalTexel);
 )";
 
 static const char uniform_DistortionMap[] =
@@ -130,20 +180,10 @@ uniform sampler2D DistortionTexture : hint_normal, %s, %s;
 uniform sampler2D ScreenTexture : hint_screen_texture, filter_linear_mipmap, repeat_disable;
 )";
 
-static const char func_DistortionMap_3D[] =
+static const char func_DistortionMap[] =
 R"(
 vec2 DistortionMap(vec4 texel, float intencity, vec2 offset, vec3 tangent, vec3 binormal) {
 	vec2 posU = binormal.xy;
-	vec2 posR = tangent.xy;
-	vec2 scale = (texel.xy * 2.0 - 1.0) * offset * intencity * 4.0;
-	return posR * scale.x + posU * scale.y;
-}
-)";
-
-static const char func_DistortionMap_2D[] =
-R"(
-vec2 DistortionMap(vec4 texel, float intencity, vec2 offset, vec2 tangent) {
-	vec2 posU = vec2(tangent.y, -tangent.x);
 	vec2 posR = tangent.xy;
 	vec2 scale = (texel.xy * 2.0 - 1.0) * offset * intencity * 4.0;
 	return posR * scale.x + posU * scale.y;
@@ -163,7 +203,7 @@ R"(
 static const char fragment_DistortionMap_2D[] =
 R"(
 	vec4 distTexel = texture(DistortionTexture, UV);
-	vec2 distUV = DistortionMap(distTexel, DistortionIntensity, COLOR.xy, v_Tangent.xy);
+	vec2 distUV = DistortionMap(distTexel, DistortionIntensity, COLOR.xy, v_Tangent, v_Binormal);
 	vec4 colorTexel = texture(ScreenTexture, SCREEN_UV + distUV);
 	colorTexel.a = distTexel.a;
 	COLOR = vec4(colorTexel.rgb, colorTexel.a * COLOR.a);
@@ -336,16 +376,16 @@ varying vec4 v_blendFBNextUV;
 
 static const char vertex_Advanced_Sprite[] =
 R"(
-	v_alphaDistUV = CUSTOM0;
-	v_blendAlphaDistUV = CUSTOM1;
+	v_alphaDistUV = vec4(unpackHalf2x16(floatBitsToUint(CUSTOM0.x)), unpackHalf2x16(floatBitsToUint(CUSTOM0.y)));
+	v_blendAlphaDistUV = vec4(unpackHalf2x16(floatBitsToUint(CUSTOM0.z)), unpackHalf2x16(floatBitsToUint(CUSTOM0.w)));
 
 	float flipbookRate = 0.0f;
 	vec2 flipbookNextIndexUV = vec2(0.0f);
 	if (FlipbookParameter1.x > 0.0) {
-		ApplyFlipbookVS(flipbookRate, flipbookNextIndexUV, FlipbookParameter1, FlipbookParameter2, CUSTOM2.z, UV);
+		ApplyFlipbookVS(flipbookRate, flipbookNextIndexUV, FlipbookParameter1, FlipbookParameter2, CUSTOM1.z, UV);
 	}
-	v_blendFBNextUV = vec4(CUSTOM2.xy, flipbookNextIndexUV);
-	UV2 = vec2(flipbookRate, CUSTOM2.w);
+	v_blendFBNextUV = vec4(CUSTOM1.xy, flipbookNextIndexUV);
+	UV2 = vec2(flipbookRate, CUSTOM1.w);
 )";
 
 static const char vertex_Advanced_Model[] =
@@ -457,21 +497,10 @@ void GeneratePredefined(std::string& code, BuiltinShader::Settings settings)
 {
 	using namespace EffekseerRenderer;
 
-	if (settings.IsNode3D()) {
-		if (settings.IsSprite()) {
-			code += uniform_Sprite3D;
-		}
-		else if (settings.IsModel()) {
-			code += uniform_Model3D;
-		}
-	}
-	else if (settings.IsNode2D()) {
-		if (settings.IsSprite() && settings.shaderType != BuiltinShaderType::Unlit) {
-			code += uniform_Tangent_Sprite2D;
-		}
-		else if (settings.IsModel()) {
-			code += uniform_Model2D;
-		}
+	code += settings.IsNode3D() ? uniform_3D : uniform_2D;
+
+	if (settings.IsNode2D() && settings.IsModel()) {
+		code += uniform_Model_2D;
 	}
 
 	if (settings.shaderType == BuiltinShaderType::Unlit) {
@@ -492,7 +521,7 @@ void GeneratePredefined(std::string& code, BuiltinShader::Settings settings)
 			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(BuiltinTextures::Distortion))],
 			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(BuiltinTextures::Distortion))]);
 
-		code += settings.IsNode3D() ? func_DistortionMap_3D : func_DistortionMap_2D;
+		code += func_DistortionMap;
 	}
 
 	if (settings.IsUsingAdvanced()) {
@@ -522,12 +551,19 @@ void GeneratePredefined(std::string& code, BuiltinShader::Settings settings)
 		code += func_SoftParticle;
 	}
 
-	if (settings.IsNode3D() && settings.IsModel()) {
-		code += func_Model3D;
+	if (settings.IsModel()) {
+		code += func_Model;
 	}
 
-	if (settings.IsNode2D() && settings.shaderType != BuiltinShaderType::Unlit) {
-		code += varying_Tangent_2D;
+	if (settings.IsNode2D()) {
+		if (settings.shaderType != BuiltinShaderType::Unlit) {
+			code += func_Normal_2D;
+			code += varying_Lit_2D;
+		}
+		else if (settings.IsModel()) {
+			code += func_Normal_2D;
+			code += varying_Model_Unlit_2D;
+		}
 	}
 
 	if (settings.IsUsingAdvanced()) {
@@ -547,18 +583,18 @@ void GenerateVertexCode(std::string& code, BuiltinShader::Settings settings)
 
 	if (settings.IsNode3D()) {
 		if (settings.IsSprite()) {
-			code += vertex_Sprite3D;
+			code += (settings.shaderType == BuiltinShaderType::Unlit) ? vertex_Sprite_Unlit_3D : vertex_Sprite_Lit_3D;
 		}
 		else if (settings.IsModel()) {
-			code += vertex_Model3D;
+			code += (settings.shaderType == BuiltinShaderType::Unlit) ? vertex_Model_Unlit_3D : vertex_Model_Lit_3D;
 		}
 	}
 	else if (settings.IsNode2D()) {
-		if (settings.shaderType != BuiltinShaderType::Unlit) {
-			code += settings.IsSprite() ? vertex_Tangent_Sprite2D : vertex_Tangent_Model2D;
+		if (settings.IsSprite()) {
+			code += (settings.shaderType == BuiltinShaderType::Unlit) ? vertex_Sprite_Unlit_2D : vertex_Sprite_Lit_2D;
 		}
-		if (settings.IsModel()) {
-			code += vertex_Model2D;
+		else if (settings.IsModel()) {
+			code += (settings.shaderType == BuiltinShaderType::Unlit) ? vertex_Model_Unlit_2D : vertex_Model_Lit_2D;
 		}
 	}
 
@@ -570,6 +606,10 @@ void GenerateFragmentCode(std::string& code, BuiltinShader::Settings settings)
 	using namespace EffekseerRenderer;
 
 	code += "\nvoid fragment() {";
+
+	if (settings.IsNode2D() && settings.IsModel()) {
+		code += fragment_Model_2D;
+	}
 
 	if (settings.shaderType == BuiltinShaderType::Distortion) {
 		if (settings.IsUsingAdvanced()) {
@@ -619,14 +659,6 @@ void GenerateParamDecls(std::vector<ParamDecl>& paramDecls, NodeType nodeType, G
 	using PCBDistortion = PixelConstantBufferDistortion;
 	using PCBNormal = PixelConstantBuffer;
 
-	if (nodeType == NodeType::Node3D) {
-		paramDecls.push_back({ "ViewMatrix", ParamType::Matrix44, 0, 0, 0 });
-	}
-	else if (nodeType == NodeType::Node2D && geometryType == GeometryType::Model) {
-		paramDecls.push_back({ "ModelUV", ParamType::Vector4, 0, 0, 128 });
-		paramDecls.push_back({ "ModelColor",  ParamType::Vector4,  0, 0, 144 });
-	}
-
 	if (shaderType == BuiltinShaderType::Distortion) {
 		paramDecls.push_back({ "DistortionIntensity", ParamType::Float, 0, 1, 48 });
 		paramDecls.push_back({ "DistortionTexture", ParamType::Texture, 0, 0, 0 });
@@ -639,7 +671,16 @@ void GenerateParamDecls(std::vector<ParamDecl>& paramDecls, NodeType nodeType, G
 		paramDecls.push_back({ "EmissiveScale", ParamType::Float, 0, 1, offsetof(PCBNormal, EmmisiveParam) });
 	}
 
-	if (nodeType == NodeType::Node3D && isAdvanced) {
+	if (nodeType == NodeType::Node2D && geometryType == GeometryType::Model) {
+		if (isAdvanced) {
+			paramDecls.push_back({ "ModelMatrix", ParamType::Matrix44, ModelRenderer::InstanceCount, 0, offsetof(VCBModelAdvanced, ModelMatrix) });
+		}
+		else {
+			paramDecls.push_back({ "ModelMatrix", ParamType::Matrix44, ModelRenderer::InstanceCount, 0, offsetof(VCBModelNormal, ModelMatrix) });
+		}
+	}
+
+	if (isAdvanced) {
 		if (geometryType == GeometryType::Model) {
 			paramDecls.push_back({ "ModelAlphaUV", ParamType::Vector4, ModelRenderer::InstanceCount, 0, offsetof(VCBModelAdvanced, ModelAlphaUV) });
 			paramDecls.push_back({ "ModelDistUV", ParamType::Vector4,  ModelRenderer::InstanceCount, 0, offsetof(VCBModelAdvanced, ModelUVDistortionUV) });

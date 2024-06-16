@@ -105,18 +105,22 @@ func get_editor_file_name() -> String:
 
 
 func _handles(object: Object) -> bool:
-	if editor_menu.handles(object):
-		return true
+	if editor_menu:
+		if editor_menu.handles(object):
+			return true
 	return false
 
 
 func _edit(object: Object) -> void:
-	editor_menu.edit(object)
+	if editor_menu:
+		editor_menu.edit(object)
 
 
 func _clear() -> void:
-	editor_menu.clear()
+	if editor_menu:
+		editor_menu.clear()
 
 
 func _make_visible(visible: bool) -> void:
-	editor_menu.make_visible(visible)
+	if editor_menu:
+		editor_menu.make_visible(visible)

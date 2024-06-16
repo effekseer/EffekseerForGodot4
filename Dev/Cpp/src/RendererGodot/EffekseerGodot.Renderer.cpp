@@ -18,8 +18,6 @@
 #include "EffekseerGodot.Renderer.h"
 #include "EffekseerGodot.RenderingHandle.h"
 
-#include "EffekseerGodot.IndexBuffer.h"
-#include "EffekseerGodot.VertexBuffer.h"
 #include "EffekseerGodot.ModelRenderer.h"
 #include "EffekseerGodot.RenderResources.h"
 #include "Shaders/BuiltinShader.h"
@@ -142,6 +140,28 @@ inline void CopyCustomData(float*& dst, const uint8_t*& src, int32_t count)
 	src += count * sizeof(float);
 }
 
+template <class T>
+inline void ApplyMultimeshParams3D(godot::RenderingServer* rs, godot::RID multimeshRID, T* constantBuffer, int32_t instanceCount)
+{
+	for (int32_t i = 0; i < instanceCount; i++)
+	{
+		rs->multimesh_instance_set_transform(multimeshRID, i, EffekseerGodot::ToGdTransform3D(constantBuffer->ModelMatrix[i]));
+		rs->multimesh_instance_set_color(multimeshRID, i, EffekseerGodot::ToGdColor(constantBuffer->ModelColor[i]));
+		rs->multimesh_instance_set_custom_data(multimeshRID, i, EffekseerGodot::ToGdColor(constantBuffer->ModelUV[i]));
+	}
+}
+
+template <class T>
+inline void ApplyMultimeshParams2D(godot::RenderingServer* rs, godot::RID multimeshRID, T* constantBuffer, int32_t instanceCount)
+{
+	for (int32_t i = 0; i < instanceCount; i++)
+	{
+		rs->multimesh_instance_set_transform_2d(multimeshRID, i, godot::Transform2D());
+		rs->multimesh_instance_set_color(multimeshRID, i, EffekseerGodot::ToGdColor(constantBuffer->ModelColor[i]));
+		rs->multimesh_instance_set_custom_data(multimeshRID, i, EffekseerGodot::ToGdColor(constantBuffer->ModelUV[i]));
+	}
+}
+
 RenderCommand3D::RenderCommand3D()
 {
 	auto rs = godot::RenderingServer::get_singleton();
@@ -210,25 +230,34 @@ void EffekseerGodot::RenderCommand2D::Reset()
 	auto rs = godot::RenderingServer::get_singleton();
 	rs->canvas_item_clear(m_canvasItem);
 	rs->canvas_item_set_parent(m_canvasItem, godot::RID());
+	if (m_base.is_valid())
+	{
+		rs->free_rid(m_base);
+	}
 }
 
 void RenderCommand2D::SetupSprites(godot::Node2D* parent)
 {
 	auto rs = godot::RenderingServer::get_singleton();
 
+	m_base = rs->mesh_create();
 	rs->canvas_item_set_parent(m_canvasItem, parent->get_canvas_item());
-	rs->canvas_item_set_transform(m_canvasItem, parent->get_global_transform().affine_inverse());
+	rs->canvas_item_add_mesh(m_canvasItem, m_base);
 	rs->canvas_item_set_material(m_canvasItem, m_material);
+	rs->canvas_item_set_transform(m_canvasItem, parent->get_global_transform().affine_inverse());
 }
 
 void RenderCommand2D::SetupModels(godot::Node2D* parent, godot::RID mesh, int32_t instanceCount)
 {
 	auto rs = godot::RenderingServer::get_singleton();
 
+	m_base = rs->multimesh_create();
+	rs->multimesh_set_mesh(m_base, mesh);
+	rs->multimesh_allocate_data(m_base, instanceCount, godot::RenderingServer::MultimeshTransformFormat::MULTIMESH_TRANSFORM_2D, true, true);
 	rs->canvas_item_set_parent(m_canvasItem, parent->get_canvas_item());
-	rs->canvas_item_set_transform(m_canvasItem, parent->get_global_transform().affine_inverse());
-	rs->canvas_item_add_mesh(m_canvasItem, mesh);
+	rs->canvas_item_add_multimesh(m_canvasItem, m_base);
 	rs->canvas_item_set_material(m_canvasItem, m_material);
+	rs->canvas_item_set_transform(m_canvasItem, parent->get_global_transform().affine_inverse());
 }
 
 //----------------------------------------------------------------------------------
@@ -272,8 +301,6 @@ bool Renderer::Initialize(int32_t drawMaxCount)
 {
 	using namespace EffekseerRenderer;
 
-	//GetImpl()->CreateProxyTextures(this);
-
 	m_renderState.reset(new RenderState());
 
 	// generate a vertex buffer
@@ -293,11 +320,6 @@ bool Renderer::Initialize(int32_t drawMaxCount)
 	m_renderCommand2Ds.resize((size_t)drawMaxCount);
 
 	m_standardRenderer.reset(new StandardRenderer(this));
-
-	// For 2D
-	m_tangentTexture.Init(CUSTOM_DATA_TEXTURE_WIDTH, CUSTOM_DATA_TEXTURE_HEIGHT);
-	m_customData1Texture.Init(CUSTOM_DATA_TEXTURE_WIDTH, CUSTOM_DATA_TEXTURE_HEIGHT);
-	m_customData2Texture.Init(CUSTOM_DATA_TEXTURE_WIDTH, CUSTOM_DATA_TEXTURE_HEIGHT);
 
 	impl->SetBackground(m_background);
 	impl->SetDepth(m_depth, EffekseerRenderer::DepthReconstructionParameter());
@@ -329,8 +351,6 @@ void Renderer::ResetState()
 		m_renderCommand2Ds[i].Reset();
 	}
 	m_renderCount2D = 0;
-
-	m_vertexTextureOffset = 0;
 }
 
 //----------------------------------------------------------------------------------
@@ -359,13 +379,6 @@ bool Renderer::EndRendering()
 	// reset a renderer
 	m_standardRenderer->ResetAndRenderingIfRequired();
 
-	if (m_vertexTextureOffset > 0)
-	{
-		m_tangentTexture.Update();
-		m_customData1Texture.Update();
-		m_customData2Texture.Update();
-	}
-
 	return true;
 }
 
@@ -382,14 +395,7 @@ VertexBuffer* Renderer::GetVertexBuffer()
 //----------------------------------------------------------------------------------
 IndexBuffer* Renderer::GetIndexBuffer()
 {
-	if (GetRenderMode() == ::Effekseer::RenderMode::Wireframe)
-	{
-		return m_indexBufferForWireframe.Get();
-	}
-	else
-	{
-		return m_indexBuffer.Get();
-	}
+	return nullptr;
 }
 
 //----------------------------------------------------------------------------------
@@ -480,10 +486,14 @@ void Renderer::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 
 	auto rs = godot::RenderingServer::get_singleton();
 
-	auto& renderState = m_renderState->GetActiveState();
 	auto godotNode = reinterpret_cast<godot::Object*>(GetImpl()->CurrentHandleUserData);
 	auto renderingHandle = GetImpl()->CurrentRenderingUserData.DownCast<RenderingHandle>();
+	if (godotNode == nullptr || renderingHandle == nullptr)
+	{
+		return;
+	}
 
+	auto& renderState = m_renderState->GetActiveState();
 	auto vertexDataPtr = GetVertexBuffer()->Refer() + vertexOffset * m_vertexStride;
 
 	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter3D>(godotNode))
@@ -494,7 +504,7 @@ void Renderer::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 		command.SetupSprites(emitter->get_world_3d().ptr(), (int32_t)m_renderCount3D);
 
 		// Transfer vertex data
-		TransferVertexToMesh(command.GetBase(), vertexDataPtr, spriteCount);
+		TransferVertexToMesh(command.GetBase(), vertexDataPtr, spriteCount, true);
 
 		// Setup material
 		ApplyParametersToMaterial(command.GetMaterial(), renderingHandle->GetShader3D(), m_currentShader->GetParamDecls3D());
@@ -511,31 +521,14 @@ void Renderer::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 		auto& command = m_renderCommand2Ds[m_renderCount2D];
 		command.SetupSprites(emitter);
 
-		rs->material_set_param(command.GetMaterial(), "VertexTextureOffset", (int32_t)m_vertexTextureOffset);
-
 		// Transfer vertex data
-		auto srt = EffekseerGodot::ToSRT(emitter->get_global_transform());
-		TransferVertexToCanvasItem2D(command.GetCanvasItem(), 
-			vertexDataPtr, spriteCount, srt.scale.abs());
+		TransferVertexToMesh(command.GetBase(), vertexDataPtr, spriteCount, false);
 
 		// Setup material
 		ApplyParametersToMaterial(command.GetMaterial(), renderingHandle->GetShader2D(), m_currentShader->GetParamDecls2D());
 
-		auto shaderType = m_currentShader->GetRendererShaderType();
-		if (shaderType == EffekseerRenderer::RendererShaderType::Lit ||
-			shaderType == EffekseerRenderer::RendererShaderType::BackDistortion ||
-			shaderType == EffekseerRenderer::RendererShaderType::Material)
-		{
-			rs->material_set_param(command.GetMaterial(), "TangentTexture", m_tangentTexture.GetRID());
-		}
-		if (m_currentShader->GetCustomData1Count() > 0)
-		{
-			rs->material_set_param(command.GetMaterial(), "CustomData1", m_customData1Texture.GetRID());
-		}
-		if (m_currentShader->GetCustomData2Count() > 0)
-		{
-			rs->material_set_param(command.GetMaterial(), "CustomData2", m_customData2Texture.GetRID());
-		}
+		auto srt = EffekseerGodot::ToSRT(emitter->get_global_transform());
+		rs->material_set_param(command.GetMaterial(), "BaseScale", srt.scale.abs());
 
 		m_renderCount2D++;
 		impl->drawcallCount++;
@@ -548,41 +541,7 @@ void Renderer::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 //----------------------------------------------------------------------------------
 void Renderer::DrawPolygon(int32_t vertexCount, int32_t indexCount)
 {
-	assert(m_currentShader != nullptr);
-	assert(m_modelRenderState.model != nullptr);
-
-	auto rs = godot::RenderingServer::get_singleton();
-
-	auto& renderState = m_renderState->GetActiveState();
-	auto godotNode = reinterpret_cast<godot::Object*>(GetImpl()->CurrentHandleUserData);
-	auto renderingHandle = GetImpl()->CurrentRenderingUserData.DownCast<RenderingHandle>();
-
-	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter2D>(godotNode))
-	{
-		if (m_renderCount2D >= m_renderCommand2Ds.size()) return;
-
-		auto& command = m_renderCommand2Ds[m_renderCount2D];
-		//auto meshRID = m_modelRenderState.model.DownCast<Model>()->GetRID();
-		//command.SetupSprites(node2d, meshRID, instanceCount);
-		command.SetupSprites(emitter);
-
-		// Transfer vertex data
-		auto srt = EffekseerGodot::ToSRT(emitter->get_global_transform());
-		bool flip = (srt.scale.x < 0.0f) ^ (srt.scale.y < 0.0f) ^ emitter->get_flip_h() ^ emitter->get_flip_v();
-
-		TransferModelToCanvasItem2D(command.GetCanvasItem(), m_modelRenderState.model.Get(), srt.scale.abs(), flip, renderState.CullingType);
-
-		// Setup material
-		ApplyParametersToMaterial(command.GetMaterial(), renderingHandle->GetShader2D(), m_currentShader->GetParamDecls2D());
-
-		m_renderCount2D++;
-		impl->drawcallCount++;
-		impl->drawvertexCount += vertexCount;
-	}
-	else
-	{
-		assert(false);
-	}
+	assert(false);
 }
 
 void Renderer::DrawPolygonInstanced(int32_t vertexCount, int32_t indexCount, int32_t instanceCount)
@@ -592,16 +551,21 @@ void Renderer::DrawPolygonInstanced(int32_t vertexCount, int32_t indexCount, int
 
 	auto rs = godot::RenderingServer::get_singleton();
 
-	auto& renderState = m_renderState->GetActiveState();
 	auto godotNode = reinterpret_cast<godot::Object*>(GetImpl()->CurrentHandleUserData);
 	auto renderingHandle = GetImpl()->CurrentRenderingUserData.DownCast<RenderingHandle>();
+	if (godotNode == nullptr || renderingHandle == nullptr)
+	{
+		return;
+	}
+
+	auto& renderState = m_renderState->GetActiveState();
+	auto meshRID = m_modelRenderState.model.DownCast<Model>()->GetRID();
 
 	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter3D>(godotNode))
 	{
 		if (m_renderCount3D >= m_renderCommand3Ds.size()) return;
 
 		auto& command = m_renderCommand3Ds[m_renderCount3D];
-		auto meshRID = m_modelRenderState.model.DownCast<Model>()->GetRID();
 		command.SetupModels(emitter->get_world_3d().ptr(), (int32_t)m_renderCount3D, meshRID, instanceCount);
 		
 		auto multimeshRID = command.GetBase();
@@ -615,24 +579,12 @@ void Renderer::DrawPolygonInstanced(int32_t vertexCount, int32_t indexCount, int
 		if (isShaderAdvanced)
 		{
 			auto constantBuffer = (const EffekseerRenderer::ModelRendererAdvancedVertexConstantBuffer<ModelRenderer::InstanceCount>*)m_currentShader->GetVertexConstantBuffer();
-
-			for (int32_t i = 0; i < instanceCount; i++)
-			{
-				rs->multimesh_instance_set_transform(multimeshRID, i, EffekseerGodot::ToGdMatrix(constantBuffer->ModelMatrix[i]));
-				rs->multimesh_instance_set_color(multimeshRID, i, EffekseerGodot::ToGdColor(constantBuffer->ModelColor[i]));
-				rs->multimesh_instance_set_custom_data(multimeshRID, i, EffekseerGodot::ToGdColor(constantBuffer->ModelUV[i]));
-			}
+			ApplyMultimeshParams3D(rs, multimeshRID, constantBuffer, instanceCount);
 		}
 		else
 		{
 			auto constantBuffer = (const EffekseerRenderer::ModelRendererVertexConstantBuffer<ModelRenderer::InstanceCount>*)m_currentShader->GetVertexConstantBuffer();
-
-			for (int32_t i = 0; i < instanceCount; i++)
-			{
-				rs->multimesh_instance_set_transform(multimeshRID, i, EffekseerGodot::ToGdMatrix(constantBuffer->ModelMatrix[i]));
-				rs->multimesh_instance_set_color(multimeshRID, i, EffekseerGodot::ToGdColor(constantBuffer->ModelColor[i]));
-				rs->multimesh_instance_set_custom_data(multimeshRID, i, EffekseerGodot::ToGdColor(constantBuffer->ModelUV[i]));
-			}
+			ApplyMultimeshParams3D(rs, multimeshRID, constantBuffer, instanceCount);
 		}
 		
 		// Setup material
@@ -642,9 +594,42 @@ void Renderer::DrawPolygonInstanced(int32_t vertexCount, int32_t indexCount, int
 		impl->drawcallCount++;
 		impl->drawvertexCount += vertexCount * instanceCount;
 	}
-	else
+	else if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter2D>(godotNode))
 	{
-		assert(false);
+		if (m_renderCount2D >= m_renderCommand2Ds.size()) return;
+
+		auto& command = m_renderCommand2Ds[m_renderCount2D];
+		command.SetupModels(emitter, meshRID, instanceCount);
+
+		auto multimeshRID = command.GetBase();
+
+		const EffekseerRenderer::RendererShaderType shaderType = m_currentShader->GetRendererShaderType();
+		const bool isShaderAdvanced = 
+			shaderType == EffekseerRenderer::RendererShaderType::AdvancedUnlit ||
+			shaderType == EffekseerRenderer::RendererShaderType::AdvancedLit ||
+			shaderType == EffekseerRenderer::RendererShaderType::AdvancedBackDistortion;
+
+		if (isShaderAdvanced)
+		{
+			auto constantBuffer = (const EffekseerRenderer::ModelRendererAdvancedVertexConstantBuffer<ModelRenderer::InstanceCount>*)m_currentShader->GetVertexConstantBuffer();
+			ApplyMultimeshParams2D(rs, multimeshRID, constantBuffer, instanceCount);
+		}
+		else
+		{
+			auto constantBuffer = (const EffekseerRenderer::ModelRendererVertexConstantBuffer<ModelRenderer::InstanceCount>*)m_currentShader->GetVertexConstantBuffer();
+			ApplyMultimeshParams2D(rs, multimeshRID, constantBuffer, instanceCount);
+		}
+
+		// Setup material
+		ApplyParametersToMaterial(command.GetMaterial(), renderingHandle->GetShader2D(), m_currentShader->GetParamDecls2D());
+
+		auto srt = EffekseerGodot::ToSRT(emitter->get_global_transform());
+		rs->material_set_param(command.GetMaterial(), "BaseScale", srt.scale.abs());
+		rs->material_set_param(command.GetMaterial(), "CullingType", (int)renderState.CullingType);
+
+		m_renderCount2D++;
+		impl->drawcallCount++;
+		impl->drawvertexCount += vertexCount * instanceCount;
 	}
 }
 
@@ -740,7 +725,7 @@ bool Renderer::IsSoftParticleEnabled()
 	}
 }
 
-void Renderer::TransferVertexToMesh(godot::RID mesh, const void* vertexData, size_t spriteCount)
+void Renderer::TransferVertexToMesh3D(godot::RID mesh, const void* vertexData, size_t spriteCount)
 {
 	using namespace Effekseer::SIMD;
 	using namespace EffekseerRenderer;
@@ -763,19 +748,19 @@ void Renderer::TransferVertexToMesh(godot::RID mesh, const void* vertexData, siz
 			RenderingServer::ARRAY_FORMAT_COLOR |
 			RenderingServer::ARRAY_FORMAT_TEX_UV;
 
-		m_vertexData.resize(vertexCount * sizeof(GdSimpleVertex));
-		m_attributeData.resize(vertexCount * sizeof(GdAttribute));
+		m_vertexData.resize(vertexCount * sizeof(GdVertexPos3D));
+		m_attributeData.resize(vertexCount * sizeof(GdBasicAttribute));
 
-		GdSimpleVertex* dstVertex = (GdSimpleVertex*)m_vertexData.ptrw();
-		GdAttribute* dstAttribute = (GdAttribute*)m_attributeData.ptrw();
+		GdVertexPos3D* dstVertex = (GdVertexPos3D*)m_vertexData.ptrw();
+		GdBasicAttribute* dstAttribute = (GdBasicAttribute*)m_attributeData.ptrw();
 
 		const SimpleVertex* srcVertex = (const SimpleVertex*)vertexData;
 		aabbMin = aabbMax = srcVertex[0].Pos;
 		for (int32_t i = 0; i < vertexCount; i++)
 		{
 			auto& v = *srcVertex++;
-			*dstVertex++ = GdSimpleVertex{ v.Pos };
-			*dstAttribute++ = GdAttribute{ v.Col, {v.UV[0], v.UV[1]} };
+			*dstVertex++ = GdVertexPos3D{ v.Pos };
+			*dstAttribute++ = GdBasicAttribute{ v.Col, {v.UV[0], v.UV[1]} };
 
 			aabbMin = Vec3f::Min(aabbMin, v.Pos);
 			aabbMax = Vec3f::Max(aabbMax, v.Pos);
@@ -789,19 +774,19 @@ void Renderer::TransferVertexToMesh(godot::RID mesh, const void* vertexData, siz
 			RenderingServer::ARRAY_FORMAT_COLOR |
 			RenderingServer::ARRAY_FORMAT_TEX_UV;
 
-		m_vertexData.resize(vertexCount * sizeof(GdLitVertex));
-		m_attributeData.resize(vertexCount * sizeof(GdAttribute));
+		m_vertexData.resize(vertexCount * sizeof(GdLitVertex3D));
+		m_attributeData.resize(vertexCount * sizeof(GdBasicAttribute));
 
-		GdLitVertex* dstVertex = (GdLitVertex*)m_vertexData.ptrw();
-		GdAttribute* dstAttribute = (GdAttribute*)m_attributeData.ptrw();
+		GdLitVertex3D* dstVertex = (GdLitVertex3D*)m_vertexData.ptrw();
+		GdBasicAttribute* dstAttribute = (GdBasicAttribute*)m_attributeData.ptrw();
 
 		const LightingVertex* srcVertex = (const LightingVertex*)vertexData;
 		aabbMin = aabbMax = srcVertex[0].Pos;
 		for (int32_t i = 0; i < vertexCount; i++)
 		{
 			auto& v = *srcVertex++;
-			*dstVertex++ = GdLitVertex{ v.Pos, ToGdNormal(v.Normal), ToGdTangent(v.Tangent) };
-			*dstAttribute++ = GdAttribute{ v.Col, {v.UV[0], v.UV[1]} };
+			*dstVertex++ = GdLitVertex3D{ v.Pos, ToGdNormal(v.Normal), ToGdTangent(v.Tangent) };
+			*dstAttribute++ = GdBasicAttribute{ v.Col, {v.UV[0], v.UV[1]} };
 
 			aabbMin = Vec3f::Min(aabbMin, v.Pos);
 			aabbMax = Vec3f::Max(aabbMax, v.Pos);
@@ -814,12 +799,11 @@ void Renderer::TransferVertexToMesh(godot::RID mesh, const void* vertexData, siz
 			RenderingServer::ARRAY_FORMAT_TEX_UV |
 			RenderingServer::ARRAY_FORMAT_CUSTOM0 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM0_SHIFT) |
 			RenderingServer::ARRAY_FORMAT_CUSTOM1 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM1_SHIFT) |
-			RenderingServer::ARRAY_FORMAT_CUSTOM2 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM2_SHIFT);
 
-		m_vertexData.resize(vertexCount * sizeof(GdSimpleVertex));
+		m_vertexData.resize(vertexCount * sizeof(GdVertexPos3D));
 		m_attributeData.resize(vertexCount * sizeof(GdAdvancedAttribute));
 
-		GdSimpleVertex* dstVertex = (GdSimpleVertex*)m_vertexData.ptrw();
+		GdVertexPos3D* dstVertex = (GdVertexPos3D*)m_vertexData.ptrw();
 		GdAdvancedAttribute* dstAttribute = (GdAdvancedAttribute*)m_attributeData.ptrw();
 
 		const AdvancedSimpleVertex* srcVertex = (const AdvancedSimpleVertex*)vertexData;
@@ -827,12 +811,10 @@ void Renderer::TransferVertexToMesh(godot::RID mesh, const void* vertexData, siz
 		for (int32_t i = 0; i < vertexCount; i++)
 		{
 			auto& v = *srcVertex++;
-			*dstVertex++ = GdSimpleVertex{ v.Pos };
+			*dstVertex++ = GdVertexPos3D{ v.Pos };
 			*dstAttribute++ = GdAdvancedAttribute{ v.Col, {v.UV[0], v.UV[1]}, 
-				{v.AlphaUV[0], v.AlphaUV[1]}, {v.UVDistortionUV[0], v.UVDistortionUV[1]},
-				{v.BlendUV[0], v.BlendUV[1]}, {v.BlendAlphaUV[0], v.BlendAlphaUV[1]},
-				{v.BlendUVDistortionUV[0], v.BlendUVDistortionUV[1]},
-				v.FlipbookIndexAndNextRate, v.AlphaThreshold
+				{ToHalfFloat(v.AlphaUV), ToHalfFloat(v.UVDistortionUV), ToHalfFloat(v.BlendUV), ToHalfFloat(v.BlendAlphaUV)},
+				{v.BlendUVDistortionUV[0], v.BlendUVDistortionUV[1], v.FlipbookIndexAndNextRate, v.AlphaThreshold},
 			};
 
 			aabbMin = Vec3f::Min(aabbMin, v.Pos);
@@ -847,13 +829,12 @@ void Renderer::TransferVertexToMesh(godot::RID mesh, const void* vertexData, siz
 			RenderingServer::ARRAY_FORMAT_COLOR |
 			RenderingServer::ARRAY_FORMAT_TEX_UV |
 			RenderingServer::ARRAY_FORMAT_CUSTOM0 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM0_SHIFT) |
-			RenderingServer::ARRAY_FORMAT_CUSTOM1 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM1_SHIFT) |
-			RenderingServer::ARRAY_FORMAT_CUSTOM2 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM2_SHIFT);
+			RenderingServer::ARRAY_FORMAT_CUSTOM1 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM1_SHIFT);
 
-		m_vertexData.resize(vertexCount * sizeof(GdLitVertex));
+		m_vertexData.resize(vertexCount * sizeof(GdLitVertex3D));
 		m_attributeData.resize(vertexCount * sizeof(GdAdvancedAttribute));
 
-		GdLitVertex* dstVertex = (GdLitVertex*)m_vertexData.ptrw();
+		GdLitVertex3D* dstVertex = (GdLitVertex3D*)m_vertexData.ptrw();
 		GdAdvancedAttribute* dstAttribute = (GdAdvancedAttribute*)m_attributeData.ptrw();
 
 		const AdvancedLightingVertex* srcVertex = (const AdvancedLightingVertex*)vertexData;
@@ -861,12 +842,10 @@ void Renderer::TransferVertexToMesh(godot::RID mesh, const void* vertexData, siz
 		for (int32_t i = 0; i < vertexCount; i++)
 		{
 			auto& v = *srcVertex++;
-			*dstVertex++ = GdLitVertex{ v.Pos, ToGdNormal(v.Normal), ToGdTangent(v.Tangent) };
+			*dstVertex++ = GdLitVertex3D{ v.Pos, ToGdNormal(v.Normal), ToGdTangent(v.Tangent) };
 			*dstAttribute++ = GdAdvancedAttribute{ v.Col, {v.UV[0], v.UV[1]},
-				{v.AlphaUV[0], v.AlphaUV[1]}, {v.UVDistortionUV[0], v.UVDistortionUV[1]},
-				{v.BlendUV[0], v.BlendUV[1]}, {v.BlendAlphaUV[0], v.BlendAlphaUV[1]},
-				{v.BlendUVDistortionUV[0], v.BlendUVDistortionUV[1]},
-				v.FlipbookIndexAndNextRate, v.AlphaThreshold
+				{ToHalfFloat(v.AlphaUV), ToHalfFloat(v.UVDistortionUV), ToHalfFloat(v.BlendUV), ToHalfFloat(v.BlendAlphaUV)},
+				{v.BlendUVDistortionUV[0], v.BlendUVDistortionUV[1], v.FlipbookIndexAndNextRate, v.AlphaThreshold},
 			};
 
 			aabbMin = Vec3f::Min(aabbMin, v.Pos);
@@ -878,8 +857,8 @@ void Renderer::TransferVertexToMesh(godot::RID mesh, const void* vertexData, siz
 		const size_t customData1Count = (size_t)m_currentShader->GetCustomData1Count();
 		const size_t customData2Count = (size_t)m_currentShader->GetCustomData2Count();
 		const size_t srcStride = sizeof(DynamicVertex) + (customData1Count + customData2Count) * sizeof(float);
-		const size_t dstVertexStride = sizeof(GdLitVertex);
-		const size_t dstAttributeStride = sizeof(GdAttribute) + (customData1Count + customData2Count) * sizeof(float);
+		const size_t dstVertexStride = sizeof(GdLitVertex3D);
+		const size_t dstAttributeStride = sizeof(GdBasicAttribute) + (customData1Count + customData2Count) * sizeof(float);
 
 		format = RenderingServer::ARRAY_FORMAT_VERTEX |
 			RenderingServer::ARRAY_FORMAT_NORMAL |
@@ -896,7 +875,7 @@ void Renderer::TransferVertexToMesh(godot::RID mesh, const void* vertexData, siz
 			format |= RenderingServer::ARRAY_FORMAT_CUSTOM1 | ((RenderingServer::ARRAY_CUSTOM_R_FLOAT + customData2Count - 1) << RenderingServer::ARRAY_FORMAT_CUSTOM1_SHIFT);
 		}
 
-		m_vertexData.resize(vertexCount * sizeof(GdLitVertex));
+		m_vertexData.resize(vertexCount * sizeof(GdLitVertex3D));
 		m_attributeData.resize(vertexCount * dstAttributeStride);
 
 		uint8_t* dstVertexPtr = (uint8_t*)m_vertexData.ptrw();
@@ -907,13 +886,13 @@ void Renderer::TransferVertexToMesh(godot::RID mesh, const void* vertexData, siz
 		for (int32_t i = 0; i < vertexCount; i++)
 		{
 			auto& v = *(const DynamicVertex*)srcVertexPtr;
-			auto& dstVertex = *(GdLitVertex*)dstVertexPtr;
-			auto& dstAttribute = *(GdAttribute*)dstAttributePtr;
+			auto& dstVertex = *(GdLitVertex3D*)dstVertexPtr;
+			auto& dstAttribute = *(GdBasicAttribute*)dstAttributePtr;
 
-			dstVertex = GdLitVertex{ v.Pos, ToGdNormal(v.Normal), ToGdTangent(v.Tangent) };
-			dstAttribute = GdAttribute{ v.Col, {v.UV[0], v.UV[1]} };
+			dstVertex = GdLitVertex3D{ v.Pos, ToGdNormal(v.Normal), ToGdTangent(v.Tangent) };
+			dstAttribute = GdBasicAttribute{ v.Col, {v.UV[0], v.UV[1]} };
 			
-			memcpy(dstAttributePtr + sizeof(GdAttribute),
+			memcpy(dstAttributePtr + sizeof(GdBasicAttribute),
 				srcVertexPtr + sizeof(DynamicVertex),
 				(customData1Count + customData2Count) * sizeof(float));
 
@@ -957,235 +936,535 @@ void Renderer::TransferVertexToMesh(godot::RID mesh, const void* vertexData, siz
 	rs->mesh_add_surface(mesh, surface);
 }
 
-void Renderer::TransferVertexToCanvasItem2D(godot::RID canvas_item, 
-	const void* vertexData, size_t spriteCount, godot::Vector2 baseScale)
+void Renderer::TransferVertexToMesh2D(godot::RID mesh, const void* vertexData, size_t spriteCount)
 {
+	using namespace Effekseer;
+	using namespace Effekseer::SIMD;
 	using namespace EffekseerRenderer;
+	using namespace EffekseerGodot;
+	using namespace godot;
 
-	auto rs = godot::RenderingServer::get_singleton();
+	auto rs = RenderingServer::get_singleton();
 
-	godot::PackedInt32Array indexArray;
-	godot::PackedVector2Array pointArray;
-	godot::PackedColorArray colorArray;
-	godot::PackedVector2Array uvArray;
-
-	indexArray.resize(spriteCount * 6);
-	pointArray.resize(spriteCount * 4);
-	colorArray.resize(spriteCount * 4);
-	uvArray.resize(spriteCount * 4);
-
-	// Generate index data
-	{
-		int* indices = indexArray.ptrw();
-
-		for (size_t i = 0; i < spriteCount; i++)
-		{
-			indices[i * 6 + 0] = (int)(i * 4 + 0);
-			indices[i * 6 + 1] = (int)(i * 4 + 1);
-			indices[i * 6 + 2] = (int)(i * 4 + 2);
-			indices[i * 6 + 3] = (int)(i * 4 + 3);
-			indices[i * 6 + 4] = (int)(i * 4 + 2);
-			indices[i * 6 + 5] = (int)(i * 4 + 1);
-		}
-	}
+	rs->mesh_clear(mesh);
 
 	RendererShaderType shaderType = m_currentShader->GetRendererShaderType();
 
-	// Copy vertex data
+	uint64_t format = 0;
+	const size_t vertexCount = spriteCount * 4;
+	Vec3f aabbMin{}, aabbMax{};
+
 	if (shaderType == RendererShaderType::Unlit)
 	{
-		godot::Vector2* points = pointArray.ptrw();
-		godot::Color* colors = colorArray.ptrw();
-		godot::Vector2* urs = uvArray.ptrw();
+		format = RenderingServer::ARRAY_FORMAT_VERTEX | RenderingServer::ARRAY_FLAG_USE_2D_VERTICES |
+			RenderingServer::ARRAY_FORMAT_COLOR |
+			RenderingServer::ARRAY_FORMAT_TEX_UV;
 
-		const SimpleVertex* vertices = (const SimpleVertex*)vertexData;
-		for (size_t i = 0; i < spriteCount; i++)
+		m_vertexData.resize(vertexCount * sizeof(GdVertexPos2D));
+		m_attributeData.resize(vertexCount * sizeof(GdBasicAttribute));
+
+		GdVertexPos2D* dstVertex = (GdVertexPos2D*)m_vertexData.ptrw();
+		GdBasicAttribute* dstAttribute = (GdBasicAttribute*)m_attributeData.ptrw();
+
+		const SimpleVertex* srcVertex = (const SimpleVertex*)vertexData;
+		aabbMin = aabbMax = srcVertex[0].Pos;
+		for (int32_t i = 0; i < vertexCount; i++)
 		{
-			for (size_t j = 0; j < 4; j++)
-			{
-				auto& v = vertices[i * 4 + j];
-				points[i * 4 + j] = ConvertVector2(v.Pos, baseScale);
-				colors[i * 4 + j] = ConvertColor(v.Col);
-				urs[i * 4 + j] = ConvertUV(v.UV);
-			}
+			auto& v = *srcVertex++;
+			*dstVertex++ = GdVertexPos2D{ {v.Pos.X, v.Pos.Y} };
+			*dstAttribute++ = GdBasicAttribute{ v.Col, {v.UV[0], v.UV[1]} };
+
+			aabbMin = Vec3f::Min(aabbMin, v.Pos);
+			aabbMax = Vec3f::Max(aabbMax, v.Pos);
 		}
 	}
 	else if (shaderType == RendererShaderType::BackDistortion || shaderType == RendererShaderType::Lit)
 	{
-		godot::Vector2* points = pointArray.ptrw();
-		godot::Color* colors = colorArray.ptrw();
-		godot::Vector2* urs = uvArray.ptrw();
+		format = RenderingServer::ARRAY_FORMAT_VERTEX | RenderingServer::ARRAY_FLAG_USE_2D_VERTICES |
+			RenderingServer::ARRAY_FORMAT_COLOR |
+			RenderingServer::ARRAY_FORMAT_TEX_UV;
 
-		const int32_t width = CUSTOM_DATA_TEXTURE_WIDTH;
-		float* tangentTexPtr = m_tangentTexture.Pixels(m_vertexTextureOffset % width, m_vertexTextureOffset / width);
+		m_vertexData.resize(vertexCount * sizeof(GdVertexPos2D));
+		m_attributeData.resize(vertexCount * sizeof(GdBasicAttribute));
 
-		const LightingVertex* vertices = (const LightingVertex*)vertexData;
-		for (int32_t i = 0; i < spriteCount; i++)
+		GdVertexPos2D* dstVertex = (GdVertexPos2D*)m_vertexData.ptrw();
+		GdBasicAttribute* dstAttribute = (GdBasicAttribute*)m_attributeData.ptrw();
+
+		const LightingVertex* srcVertex = (const LightingVertex*)vertexData;
+		aabbMin = aabbMax = srcVertex[0].Pos;
+		for (int32_t i = 0; i < vertexCount; i++)
 		{
-			for (int32_t j = 0; j < 4; j++)
-			{
-				auto& v = vertices[i * 4 + j];
-				points[i * 4 + j] = ConvertVector2(v.Pos, baseScale);
-				colors[i * 4 + j] = ConvertColor(v.Col);
-				urs[i * 4 + j] = ConvertUV(v.UV);
+			auto& v = *srcVertex++;
+			*dstVertex++ = GdVertexPos2D{ {v.Pos.X, v.Pos.Y} };
+			*dstAttribute++ = GdBasicAttribute{ v.Col, {v.UV[0], v.UV[1]} };
 
-				auto tangent = UnpackVector3DF(v.Tangent);
-				CopyVertexTexture(tangentTexPtr, tangent.X, tangent.Y, 0.0f, 0.0f);
-			}
+			aabbMin = Vec3f::Min(aabbMin, v.Pos);
+			aabbMax = Vec3f::Max(aabbMax, v.Pos);
 		}
+	}
+	else if (shaderType == RendererShaderType::AdvancedUnlit)
+	{
+		format = RenderingServer::ARRAY_FORMAT_VERTEX | RenderingServer::ARRAY_FLAG_USE_2D_VERTICES |
+			RenderingServer::ARRAY_FORMAT_COLOR |
+			RenderingServer::ARRAY_FORMAT_TEX_UV |
+			RenderingServer::ARRAY_FORMAT_CUSTOM0 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM0_SHIFT) |
+			RenderingServer::ARRAY_FORMAT_CUSTOM1 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM1_SHIFT);
 
-		m_vertexTextureOffset += spriteCount * 4;
+		m_vertexData.resize(vertexCount * sizeof(GdVertexPos2D));
+		m_attributeData.resize(vertexCount * sizeof(GdAdvancedAttribute));
+
+		GdVertexPos2D* dstVertex = (GdVertexPos2D*)m_vertexData.ptrw();
+		GdAdvancedAttribute* dstAttribute = (GdAdvancedAttribute*)m_attributeData.ptrw();
+
+		const AdvancedSimpleVertex* srcVertex = (const AdvancedSimpleVertex*)vertexData;
+		aabbMin = aabbMax = srcVertex[0].Pos;
+		for (int32_t i = 0; i < vertexCount; i++)
+		{
+			auto& v = *srcVertex++;
+			*dstVertex++ = GdVertexPos2D{ {v.Pos.X, v.Pos.Y} };
+			*dstAttribute++ = GdAdvancedAttribute{ v.Col, {v.UV[0], v.UV[1]}, 
+				{ToHalfFloat(v.AlphaUV), ToHalfFloat(v.UVDistortionUV), ToHalfFloat(v.BlendUV), ToHalfFloat(v.BlendAlphaUV)},
+				{v.BlendUVDistortionUV[0], v.BlendUVDistortionUV[1], v.FlipbookIndexAndNextRate, v.AlphaThreshold},
+			};
+
+			aabbMin = Vec3f::Min(aabbMin, v.Pos);
+			aabbMax = Vec3f::Max(aabbMax, v.Pos);
+		}
+	}
+	else if (shaderType == RendererShaderType::AdvancedBackDistortion || shaderType == RendererShaderType::AdvancedLit)
+	{
+		format = RenderingServer::ARRAY_FORMAT_VERTEX | RenderingServer::ARRAY_FLAG_USE_2D_VERTICES |
+			RenderingServer::ARRAY_FORMAT_COLOR |
+			RenderingServer::ARRAY_FORMAT_TEX_UV |
+			RenderingServer::ARRAY_FORMAT_CUSTOM0 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM0_SHIFT) |
+			RenderingServer::ARRAY_FORMAT_CUSTOM1 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM1_SHIFT);
+
+		m_vertexData.resize(vertexCount * sizeof(GdVertexPos2D));
+		m_attributeData.resize(vertexCount * sizeof(GdAdvancedAttribute));
+
+		GdVertexPos2D* dstVertex = (GdVertexPos2D*)m_vertexData.ptrw();
+		GdAdvancedAttribute* dstAttribute = (GdAdvancedAttribute*)m_attributeData.ptrw();
+
+		const AdvancedLightingVertex* srcVertex = (const AdvancedLightingVertex*)vertexData;
+		aabbMin = aabbMax = srcVertex[0].Pos;
+		for (int32_t i = 0; i < vertexCount; i++)
+		{
+			auto& v = *srcVertex++;
+			*dstVertex++ = GdVertexPos2D{ {v.Pos.X, v.Pos.Y} };
+			*dstAttribute++ = GdAdvancedAttribute{ v.Col, {v.UV[0], v.UV[1]},
+				{ToHalfFloat(v.AlphaUV), ToHalfFloat(v.UVDistortionUV), ToHalfFloat(v.BlendUV), ToHalfFloat(v.BlendAlphaUV)},
+				{v.BlendUVDistortionUV[0], v.BlendUVDistortionUV[1], v.FlipbookIndexAndNextRate, v.AlphaThreshold},
+			};
+
+			aabbMin = Vec3f::Min(aabbMin, v.Pos);
+			aabbMax = Vec3f::Max(aabbMax, v.Pos);
+		}
 	}
 	else if (shaderType == RendererShaderType::Material)
 	{
-		const int32_t customData1Count = m_currentShader->GetCustomData1Count();
-		const int32_t customData2Count = m_currentShader->GetCustomData2Count();
-		const int32_t stride = sizeof(DynamicVertex) + (customData1Count + customData2Count) * sizeof(float);
+		const size_t customData1Count = (size_t)m_currentShader->GetCustomData1Count();
+		const size_t customData2Count = (size_t)m_currentShader->GetCustomData2Count();
+		const size_t srcStride = sizeof(DynamicVertex) + (customData1Count + customData2Count) * sizeof(float);
+		const size_t dstVertexStride = sizeof(GdVertexPos2D);
+		const size_t dstAttributeStride = sizeof(GdBasicAttribute) + (customData1Count + customData2Count) * sizeof(float);
 
-		godot::Vector2* points = pointArray.ptrw();
-		godot::Color* colors = colorArray.ptrw();
-		godot::Vector2* urs = uvArray.ptrw();
+		format = RenderingServer::ARRAY_FORMAT_VERTEX | RenderingServer::ARRAY_FLAG_USE_2D_VERTICES |
+			RenderingServer::ARRAY_FORMAT_COLOR |
+			RenderingServer::ARRAY_FORMAT_TEX_UV;
 
-		const int32_t width = CUSTOM_DATA_TEXTURE_WIDTH;
-		const uint8_t* vertexPtr = (const uint8_t*)vertexData;
-		float* tangentTexPtr = m_tangentTexture.Pixels(m_vertexTextureOffset % width, m_vertexTextureOffset / width);
-		float* customData1TexPtr = m_customData1Texture.Pixels(m_vertexTextureOffset % width, m_vertexTextureOffset / width);
-		float* customData2TexPtr = m_customData2Texture.Pixels(m_vertexTextureOffset % width, m_vertexTextureOffset / width);
-
-		for (size_t i = 0; i < spriteCount; i++)
+		if (customData1Count > 0)
 		{
-			for (size_t j = 0; j < 4; j++)
-			{
-				auto& v = *(const DynamicVertex*)vertexPtr;
-				points[i * 4 + j] = ConvertVector2(v.Pos, baseScale);
-				colors[i * 4 + j] = ConvertColor(v.Col);
-				urs[i * 4 + j] = ConvertUV(v.UV);
-
-				auto tangent = UnpackVector3DF(v.Tangent);
-				CopyVertexTexture(tangentTexPtr, tangent.X, tangent.Y, 0.0f, 0.0f);
-				vertexPtr += sizeof(DynamicVertex);
-
-				if (customData1Count > 0) CopyCustomData(customData1TexPtr, vertexPtr, customData1Count);
-				if (customData2Count > 0) CopyCustomData(customData2TexPtr, vertexPtr, customData2Count);
-			}
+			format |= RenderingServer::ARRAY_FORMAT_CUSTOM0 | ((RenderingServer::ARRAY_CUSTOM_R_FLOAT + customData1Count - 1) << RenderingServer::ARRAY_FORMAT_CUSTOM0_SHIFT);
+		}
+		if (customData2Count > 0)
+		{
+			format |= RenderingServer::ARRAY_FORMAT_CUSTOM1 | ((RenderingServer::ARRAY_CUSTOM_R_FLOAT + customData2Count - 1) << RenderingServer::ARRAY_FORMAT_CUSTOM1_SHIFT);
 		}
 
-		m_vertexTextureOffset += spriteCount * 4;
-	}
+		m_vertexData.resize(vertexCount * sizeof(GdVertexPos2D));
+		m_attributeData.resize(vertexCount * dstAttributeStride);
 
-	rs->canvas_item_add_triangle_array(canvas_item, indexArray, pointArray, colorArray, uvArray);
-}
+		uint8_t* dstVertexPtr = (uint8_t*)m_vertexData.ptrw();
+		uint8_t* dstAttributePtr = (uint8_t*)m_attributeData.ptrw();
 
-void Renderer::TransferModelToCanvasItem2D(godot::RID canvas_item, 
-	Effekseer::Model* model, godot::Vector2 baseScale, bool flipPolygon,
-	Effekseer::CullingType cullingType)
-{
-	using namespace EffekseerRenderer;
-
-	auto rs = godot::RenderingServer::get_singleton();
-
-	const int32_t vertexCount = model->GetVertexCount();
-	const Effekseer::Model::Vertex* vertexData = model->GetVertexes();
-
-	const int32_t faceCount = model->GetFaceCount();
-	const Effekseer::Model::Face* faceData = model->GetFaces();
-
-	godot::PackedInt32Array indexArray;
-	godot::PackedVector2Array pointArray;
-	godot::PackedColorArray colorArray;
-	godot::PackedVector2Array uvArray;
-
-	indexArray.resize(faceCount * 3);
-	pointArray.resize(vertexCount);
-	colorArray.resize(vertexCount);
-	uvArray.resize(vertexCount);
-
-	const uint8_t* constantBuffer = (const uint8_t*)m_currentShader->GetVertexConstantBuffer();
-	const Effekseer::Matrix44 worldMatrix = *(Effekseer::Matrix44*)(constantBuffer + 64);
-
-	if (cullingType == Effekseer::CullingType::Double)
-	{
-		// Copy transfromed vertices
-		godot::Vector2* points = pointArray.ptrw();
-		godot::Color* colors = colorArray.ptrw();
-		godot::Vector2* urs = uvArray.ptrw();
-
+		const uint8_t* srcVertexPtr = (const uint8_t*)vertexData;
+		aabbMin = aabbMax = ((const DynamicVertex*)srcVertexPtr)->Pos;
 		for (int32_t i = 0; i < vertexCount; i++)
 		{
-			auto& v = vertexData[i];
-			Effekseer::Vector3D pos;
-			Effekseer::Vector3D::Transform(pos, v.Position, worldMatrix);
-			points[i] = ConvertVector2(pos, baseScale);
-			colors[i] = ConvertColor(v.VColor);
-			urs[i] = ConvertUV(v.UV);
+			auto& v = *(const DynamicVertex*)srcVertexPtr;
+			auto& dstVertex = *(GdVertexPos2D*)dstVertexPtr;
+			auto& dstAttribute = *(GdBasicAttribute*)dstAttributePtr;
+
+			dstVertex = GdVertexPos2D{ {v.Pos.X, v.Pos.Y} };
+			dstAttribute = GdBasicAttribute{ v.Col, {v.UV[0], v.UV[1]} };
+
+			memcpy(dstAttributePtr + sizeof(GdBasicAttribute),
+				srcVertexPtr + sizeof(DynamicVertex),
+				(customData1Count + customData2Count) * sizeof(float));
+
+			aabbMin = Vec3f::Min(aabbMin, v.Pos);
+			aabbMax = Vec3f::Max(aabbMax, v.Pos);
+
+			srcVertexPtr += srcStride;
+			dstVertexPtr += dstVertexStride;
+			dstAttributePtr += dstAttributeStride;
+		}
+	}
+
+	// Generate degenerate triangles
+	const size_t indexCount = spriteCount * 6;
+	m_indexData.resize(indexCount * sizeof(uint16_t));
+	uint16_t* dstIndex = (uint16_t*)m_indexData.ptrw();
+	for (size_t i = 0; i < spriteCount; i++)
+	{
+		dstIndex[0] = (uint16_t)(i * 4 + 0);
+		dstIndex[1] = (uint16_t)(i * 4 + 0);
+		dstIndex[2] = (uint16_t)(i * 4 + 1);
+		dstIndex[3] = (uint16_t)(i * 4 + 2);
+		dstIndex[4] = (uint16_t)(i * 4 + 3);
+		dstIndex[5] = (uint16_t)(i * 4 + 3);
+		dstIndex += 6;
+	}
+
+	AABB aabb;
+	Vec3f::Store(&aabb.position, aabbMin);
+	Vec3f::Store(&aabb.size, aabbMax - aabbMin);
+
+	Dictionary surface;
+	surface["primitive"] = RenderingServer::PRIMITIVE_TRIANGLE_STRIP;
+	surface["format"] = format;
+	surface["vertex_data"] = m_vertexData;
+	surface["attribute_data"] = m_attributeData;
+	surface["vertex_count"] = (int)vertexCount;
+	surface["index_data"] = m_indexData;
+	surface["index_count"] = (int)indexCount;
+	surface["aabb"] = aabb;
+	rs->mesh_add_surface(mesh, surface);
+}
+
+void Renderer::TransferVertexToMesh(godot::RID mesh, const uint8_t* vertexData, size_t spriteCount, bool is3d)
+{
+	using namespace Effekseer;
+	using namespace Effekseer::SIMD;
+	using namespace EffekseerRenderer;
+	using namespace EffekseerGodot;
+	using namespace godot;
+
+	auto rs = RenderingServer::get_singleton();
+
+	rs->mesh_clear(mesh);
+
+	RendererShaderType shaderType = m_currentShader->GetRendererShaderType();
+
+	const size_t vertexCount = spriteCount * 4;
+	Vec3f aabbMin{}, aabbMax{};
+
+	uint32_t srcVertexSize = 0;
+	uint32_t customData1Count = 0;
+	uint32_t customData2Count = 0;
+	const uint8_t* srcBufferPos = nullptr;
+	const uint8_t* srcBufferColor = nullptr;
+	const uint8_t* srcBufferUV = nullptr;
+	const uint8_t* srcBufferNormal = nullptr;
+	const uint8_t* srcBufferTangent = nullptr;
+	const uint8_t* srcBufferAdvance = nullptr;
+	const uint8_t* srcBufferCustom = nullptr;
+
+	uint32_t dstVertexPosSize = 0;
+	uint32_t dstVertexNrmTanSize = 0;
+	uint32_t dstAttributeSize = 0;
+	uint8_t* dstBufferPos = nullptr;
+	uint8_t* dstBufferColUV = nullptr;
+	uint8_t* dstBufferNrmTan = nullptr;
+	uint8_t* dstBufferAdv = nullptr;
+	uint8_t* dstBufferCustom = nullptr;
+
+	uint64_t format = RenderingServer::ARRAY_FLAG_FORMAT_VERSION_2 |
+		RenderingServer::ARRAY_FORMAT_VERTEX |
+		RenderingServer::ARRAY_FORMAT_COLOR |
+		RenderingServer::ARRAY_FORMAT_TEX_UV;
+
+	if (is3d)
+	{
+		dstVertexPosSize = sizeof(GdVertexPos3D);
+	}
+	else
+	{
+		dstVertexPosSize = sizeof(GdVertexPos2D);
+		format |= RenderingServer::ARRAY_FLAG_USE_2D_VERTICES;
+	}
+
+	if (shaderType == RendererShaderType::Unlit)
+	{
+		srcVertexSize = sizeof(SimpleVertex);
+		srcBufferPos = vertexData + offsetof(SimpleVertex, Pos);
+		srcBufferColor = vertexData + offsetof(SimpleVertex, Col);
+		srcBufferUV = vertexData + offsetof(SimpleVertex, UV);
+
+		dstAttributeSize = sizeof(GdAttributeColUV);
+
+		m_vertexData.resize(vertexCount * dstVertexPosSize + vertexCount * dstVertexNrmTanSize);
+		m_attributeData.resize(vertexCount * dstAttributeSize);
+
+		dstBufferPos = m_vertexData.ptrw();
+		dstBufferColUV = m_attributeData.ptrw();
+	}
+	else if (shaderType == RendererShaderType::BackDistortion || shaderType == RendererShaderType::Lit)
+	{
+		srcVertexSize = sizeof(LightingVertex);
+		srcBufferPos = vertexData + offsetof(LightingVertex, Pos);
+		srcBufferColor = vertexData + offsetof(LightingVertex, Col);
+		srcBufferUV = vertexData + offsetof(LightingVertex, UV);
+		srcBufferNormal = vertexData + offsetof(LightingVertex, Normal);
+		srcBufferTangent = vertexData + offsetof(LightingVertex, Tangent);
+
+		if (is3d)
+		{
+			format |= RenderingServer::ARRAY_FORMAT_NORMAL | RenderingServer::ARRAY_FORMAT_TANGENT;
+			dstVertexNrmTanSize = sizeof(GdVertexNrmTan);
+			dstAttributeSize = sizeof(GdAttributeColUV);
+		}
+		else
+		{
+			format |= RenderingServer::ARRAY_FORMAT_CUSTOM0 | ((RenderingServer::ARRAY_CUSTOM_RG_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM0_SHIFT);
+			dstAttributeSize = sizeof(GdAttributeColUV) + sizeof(GdAttributeNrmTan);
 		}
 
-		// Copy indeces without culling
-		int* indices = indexArray.ptrw();
+		m_vertexData.resize(vertexCount * dstVertexPosSize + vertexCount * dstVertexNrmTanSize);
+		m_attributeData.resize(vertexCount * dstAttributeSize);
 
-		for (int32_t i = 0; i < faceCount; i++)
+		dstBufferPos = m_vertexData.ptrw();
+		dstBufferColUV = m_attributeData.ptrw();
+		dstBufferNrmTan = (is3d) ? dstBufferPos + (vertexCount * dstVertexPosSize) : dstBufferColUV + sizeof(GdAttributeColUV);
+	}
+	else if (shaderType == RendererShaderType::AdvancedUnlit)
+	{
+		srcVertexSize = sizeof(AdvancedSimpleVertex);
+		srcBufferPos = vertexData + offsetof(AdvancedSimpleVertex, Pos);
+		srcBufferColor = vertexData + offsetof(AdvancedSimpleVertex, Col);
+		srcBufferUV = vertexData + offsetof(AdvancedSimpleVertex, UV);
+		srcBufferAdvance = vertexData + offsetof(AdvancedSimpleVertex, AlphaUV);
+
+		format |= RenderingServer::ARRAY_FORMAT_CUSTOM0 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM0_SHIFT);
+		format |= RenderingServer::ARRAY_FORMAT_CUSTOM1 | ((RenderingServer::ARRAY_CUSTOM_RG_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM1_SHIFT);
+
+		dstAttributeSize = sizeof(GdAttributeColUV) + sizeof(GdAdvancedAttribute);
+
+		m_vertexData.resize(vertexCount * dstVertexPosSize + vertexCount * dstVertexNrmTanSize);
+		m_attributeData.resize(vertexCount * dstAttributeSize);
+
+		dstBufferPos = m_vertexData.ptrw();
+		dstBufferColUV = m_attributeData.ptrw();
+		dstBufferAdv = dstBufferColUV + sizeof(GdAttributeColUV);
+	}
+	else if (shaderType == RendererShaderType::AdvancedBackDistortion || shaderType == RendererShaderType::AdvancedLit)
+	{
+		srcVertexSize = sizeof(AdvancedLightingVertex);
+		srcBufferPos = vertexData + offsetof(AdvancedLightingVertex, Pos);
+		srcBufferColor = vertexData + offsetof(AdvancedLightingVertex, Col);
+		srcBufferUV = vertexData + offsetof(AdvancedLightingVertex, UV);
+		srcBufferNormal = vertexData + offsetof(AdvancedLightingVertex, Normal);
+		srcBufferTangent = vertexData + offsetof(AdvancedLightingVertex, Tangent);
+		srcBufferAdvance = vertexData + offsetof(AdvancedLightingVertex, AlphaUV);
+
+		if (is3d)
 		{
-			auto face = faceData[i];
-			indices[i * 3 + 0] = face.Indexes[0];
-			indices[i * 3 + 1] = face.Indexes[1];
-			indices[i * 3 + 2] = face.Indexes[2];
+			format |= RenderingServer::ARRAY_FORMAT_NORMAL | RenderingServer::ARRAY_FORMAT_TANGENT;
+			format |= RenderingServer::ARRAY_FORMAT_CUSTOM0 | ((RenderingServer::ARRAY_CUSTOM_RG_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM0_SHIFT);
+			format |= RenderingServer::ARRAY_FORMAT_CUSTOM1 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM1_SHIFT);
+
+			dstVertexNrmTanSize = sizeof(GdVertexNrmTan);
+			dstAttributeSize = sizeof(GdAttributeColUV) + sizeof(GdAttributeAdvance);
+		}
+		else
+		{
+			format |= RenderingServer::ARRAY_FORMAT_CUSTOM0 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM0_SHIFT);
+			format |= RenderingServer::ARRAY_FORMAT_CUSTOM1 | ((RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM1_SHIFT);
+
+			dstAttributeSize = sizeof(GdAttributeColUV) + sizeof(GdAttributeNrmTan) + sizeof(GdAttributeAdvance);
+		}
+
+		m_vertexData.resize(vertexCount * dstVertexPosSize + vertexCount * dstVertexNrmTanSize);
+		m_attributeData.resize(vertexCount * dstAttributeSize);
+
+		dstBufferPos = m_vertexData.ptrw();
+		dstBufferColUV = m_attributeData.ptrw();
+
+		if (is3d)
+		{
+			dstBufferNrmTan = dstBufferPos + vertexCount * dstVertexPosSize;
+			dstBufferAdv = dstBufferColUV + sizeof(GdAttributeColUV);
+		}
+		else
+		{
+			dstBufferNrmTan = dstBufferColUV + sizeof(GdAttributeColUV);
+			dstBufferAdv = dstBufferColUV + sizeof(GdAttributeColUV) + sizeof(GdAttributeNrmTan);
+		}
+	}
+	else if (shaderType == RendererShaderType::Material)
+	{
+		customData1Count = (uint32_t)m_currentShader->GetCustomData1Count();
+		customData2Count = (uint32_t)m_currentShader->GetCustomData2Count();
+		srcVertexSize = sizeof(DynamicVertex) + (customData1Count + customData2Count) * sizeof(float);
+		srcBufferPos = vertexData + offsetof(DynamicVertex, Pos);
+		srcBufferColor = vertexData + offsetof(DynamicVertex, Col);
+		srcBufferUV = vertexData + offsetof(DynamicVertex, UV);
+		srcBufferNormal = vertexData + offsetof(DynamicVertex, Normal);
+		srcBufferTangent = vertexData + offsetof(DynamicVertex, Tangent);
+
+		if (is3d)
+		{
+			format |= RenderingServer::ARRAY_FORMAT_NORMAL | RenderingServer::ARRAY_FORMAT_TANGENT;
+			dstVertexNrmTanSize = sizeof(GdVertexNrmTan);
+			dstAttributeSize = sizeof(GdAttributeColUV);
+		}
+		else
+		{
+			format |= RenderingServer::ARRAY_FORMAT_CUSTOM0 | ((RenderingServer::ARRAY_CUSTOM_RG_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM0_SHIFT);
+			dstAttributeSize = sizeof(GdAttributeColUV) + sizeof(GdAttributeNrmTan);
+		}
+
+		if (customData1Count > 0 || customData2Count > 0)
+		{
+			srcBufferCustom = vertexData + sizeof(DynamicVertex);
+			format |= RenderingServer::ARRAY_FORMAT_CUSTOM1 | (RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT << RenderingServer::ARRAY_FORMAT_CUSTOM1_SHIFT);
+			dstAttributeSize += 4 * sizeof(float);  // Allocate maximum custom data size
+		}
+
+		m_vertexData.resize(vertexCount * dstVertexPosSize + vertexCount * dstVertexNrmTanSize);
+		m_attributeData.resize(vertexCount * dstAttributeSize);
+
+		dstBufferPos = m_vertexData.ptrw();
+		dstBufferColUV = m_attributeData.ptrw();
+
+		if (is3d)
+		{
+			dstBufferNrmTan = dstBufferPos + vertexCount * dstVertexPosSize;
+			dstBufferCustom = dstBufferColUV + sizeof(GdAttributeColUV);
+		}
+		else
+		{
+			dstBufferNrmTan = dstBufferColUV + sizeof(GdAttributeColUV);
+			dstBufferCustom = dstBufferColUV + sizeof(GdAttributeColUV) + sizeof(GdAttributeNrmTan);
+		}
+	}
+
+	aabbMin = aabbMax = *((const Vector3D*)srcBufferPos);
+
+	if (is3d)
+	{
+		uint8_t* dstBufferPos = m_vertexData.ptrw();
+		for (int32_t i = 0; i < vertexCount; i++)
+		{
+			auto pos = *(const Vector3D*)(srcBufferPos + i * srcVertexSize);
+			aabbMin = Vec3f::Min(aabbMin, pos);
+			aabbMax = Vec3f::Max(aabbMax, pos);
+			*(GdVertexPos3D*)(dstBufferPos + i * dstVertexPosSize) = { pos };
 		}
 	}
 	else
 	{
-		godot::PackedVector3Array positionArray;
-		positionArray.resize(vertexCount);
-
-		// Copy transfromed vertices
-		godot::Vector3* positions = positionArray.ptrw();
-		godot::Vector2* points = pointArray.ptrw();
-		godot::Color* colors = colorArray.ptrw();
-		godot::Vector2* urs = uvArray.ptrw();
-
-		const godot::Vector3 frontVec = (flipPolygon) ? godot::Vector3(0.0f, 0.0f, -1.0f) : godot::Vector3(0.0f, 0.0f, 1.0f);
-		const godot::Vector3 backVec = (flipPolygon) ? godot::Vector3(0.0f, 0.0f, 1.0f) : godot::Vector3(0.0f, 0.0f, -1.0f);
-
+		uint8_t* dstBufferPos = m_vertexData.ptrw();
 		for (int32_t i = 0; i < vertexCount; i++)
 		{
-			auto& v = vertexData[i];
-			Effekseer::Vector3D pos;
-			Effekseer::Vector3D::Transform(pos, v.Position, worldMatrix);
-			positions[i] = ConvertVector3(pos);
-			points[i] = ConvertVector2(pos, baseScale);
-			colors[i] = ConvertColor(v.VColor);
-			urs[i] = ConvertUV(v.UV);
+			auto pos = *(const Vector3D*)(srcBufferPos + i * srcVertexSize);
+			aabbMin = Vec3f::Min(aabbMin, pos);
+			aabbMax = Vec3f::Max(aabbMax, pos);
+			*(GdVertexPos2D*)(dstBufferPos + i * dstVertexPosSize) = { Vector2D{pos.X, pos.Y} };
 		}
+	}
 
-		// Copy indeces with culling
-		int* indices = indexArray.ptrw();
-		godot::Vector3 direction = (cullingType == Effekseer::CullingType::Back) ? frontVec : backVec;
-
-		for (int32_t i = 0; i < faceCount; i++)
+	if (srcBufferNormal && srcBufferTangent)
+	{
+		if (dstVertexNrmTanSize > 0)
 		{
-			auto face = faceData[i];
-			auto& v0 = positions[face.Indexes[0]];
-			auto& v1 = positions[face.Indexes[1]];
-			auto& v2 = positions[face.Indexes[2]];
-			
-			auto normal = (v1 - v0).cross(v2 - v0);
-
-			if (normal.dot(direction) > 0.0f)
+			for (int32_t i = 0; i < vertexCount; i++)
 			{
-				indices[i * 3 + 0] = face.Indexes[0];
-				indices[i * 3 + 1] = face.Indexes[1];
-				indices[i * 3 + 2] = face.Indexes[2];
+				auto normal = *(const VertexColor*)(srcBufferNormal + i * srcVertexSize);
+				auto tangent = *(const VertexColor*)(srcBufferTangent + i * srcVertexSize);
+				*(GdVertexNrmTan*)(dstBufferNrmTan + i * dstVertexNrmTanSize) = { ToGdNormal(normal), ToGdTangent(tangent) };
 			}
-			else
+		}
+		else
+		{
+			for (int32_t i = 0; i < vertexCount; i++)
 			{
-				// Cutoff
-				indices[i * 3 + 0] = 0;
-				indices[i * 3 + 1] = 0;
-				indices[i * 3 + 2] = 0;
+				auto normal = *(const VertexColor*)(srcBufferNormal + i * srcVertexSize);
+				auto tangent = *(const VertexColor*)(srcBufferTangent + i * srcVertexSize);
+				*(GdAttributeNrmTan*)(dstBufferNrmTan + i * dstAttributeSize) = { ToGdNormal(normal), ToGdTangent(tangent) };
 			}
 		}
 	}
 
-	rs->canvas_item_add_triangle_array(canvas_item, indexArray, pointArray, colorArray, uvArray);
+	if (srcBufferColor && srcBufferUV)
+	{
+		for (int32_t i = 0; i < vertexCount; i++)
+		{
+			auto color = *(const VertexColor*)(srcBufferColor + i * srcVertexSize);
+			auto uv = *(const Vector2D*)(srcBufferUV + i * srcVertexSize);
+			*(GdAttributeColUV*)(dstBufferColUV + i * dstAttributeSize) = { color, uv };
+		}
+	}
+
+	if (srcBufferAdvance)
+	{
+		for (int32_t i = 0; i < vertexCount; i++)
+		{
+			auto adv = (const float*)(srcBufferAdvance + i * srcVertexSize);
+			auto& dst = *(GdAttributeAdvance*)(dstBufferAdv + i * dstAttributeSize);
+			for (uint32_t j = 0; j < 12; j++)
+			{
+				dst.advance[j] = ToHalfFloat(adv[j]);
+			}
+		}
+	}
+
+	if (srcBufferCustom)
+	{
+		for (int32_t i = 0; i < vertexCount; i++)
+		{
+			auto custom = (const float*)(srcBufferCustom + i * srcVertexSize);
+			auto& dst = *(GdAttributeCustom*)(dstBufferCustom + i * dstAttributeSize);
+			dst.custom = {};
+			for (uint32_t j = 0; j < customData1Count; j++)
+			{
+				dst.custom[j] = ToHalfFloat(*custom++);
+			}
+			for (uint32_t j = 0; j < customData2Count; j++)
+			{
+				dst.custom[j + 4] = ToHalfFloat(*custom++);
+			}
+		}
+	}
+	// Generate degenerate triangles
+	const size_t indexCount = spriteCount * 6;
+	m_indexData.resize(indexCount * sizeof(uint16_t));
+	uint16_t* dstIndex = (uint16_t*)m_indexData.ptrw();
+	for (size_t i = 0; i < spriteCount; i++)
+	{
+		dstIndex[0] = (uint16_t)(i * 4 + 0);
+		dstIndex[1] = (uint16_t)(i * 4 + 0);
+		dstIndex[2] = (uint16_t)(i * 4 + 1);
+		dstIndex[3] = (uint16_t)(i * 4 + 2);
+		dstIndex[4] = (uint16_t)(i * 4 + 3);
+		dstIndex[5] = (uint16_t)(i * 4 + 3);
+		dstIndex += 6;
+	}
+
+	AABB aabb;
+	Vec3f::Store(&aabb.position, aabbMin);
+	Vec3f::Store(&aabb.size, aabbMax - aabbMin);
+
+	Dictionary surface;
+	surface["primitive"] = RenderingServer::PRIMITIVE_TRIANGLE_STRIP;
+	surface["format"] = format;
+	surface["vertex_data"] = m_vertexData;
+	surface["attribute_data"] = m_attributeData;
+	surface["vertex_count"] = (int)vertexCount;
+	surface["index_data"] = m_indexData;
+	surface["index_count"] = (int)indexCount;
+	surface["aabb"] = aabb;
+	rs->mesh_add_surface(mesh, surface);
 }
 
 void Renderer::ApplyParametersToMaterial(godot::RID material, godot::RID shaderRID, const std::vector<ParamDecl>& paramDecls)
@@ -1303,17 +1582,19 @@ void Renderer::ApplyParametersToMaterial(godot::RID material, godot::RID shaderR
 			if (decl.length == 0)
 			{
 				auto& matrix = *(const Effekseer::Matrix44*)&constantBuffers[decl.slot][decl.offset];
-				rs->material_set_param(material, decl.name, ToGdMatrix(matrix));
+				godot::Projection proj;
+				ToGdMatrix4(&proj.columns[0].x, matrix);
+				rs->material_set_param(material, decl.name, proj);
 			}
 			else
 			{
 				PackedFloat32Array array;
-				array.resize((size_t)decl.length * 12);
-				float* arrayPtr = array.ptrw();
+				array.resize((size_t)decl.length * 16);
+				float* transformArray = array.ptrw();
 				for (size_t i = 0; i < (size_t)decl.length; i++)
 				{
-					auto transform = ToGdMatrix(((const Effekseer::Matrix44*)&constantBuffers[decl.slot][decl.offset])[i]);
-					memcpy(&arrayPtr[i * 12], &transform, sizeof(transform));
+					auto& matrix = ((const Effekseer::Matrix44*)&constantBuffers[decl.slot][decl.offset])[i];
+					ToGdMatrix4(&transformArray[i * 16], matrix);
 				}
 				rs->material_set_param(material, decl.name, array);
 			}

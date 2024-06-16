@@ -48,20 +48,23 @@ void Model::UploadToEngine()
 
 	Vec3f aabbMin{}, aabbMax{};
 
-	uint32_t format = RenderingServer::ARRAY_FORMAT_VERTEX |
+	uint64_t format = RenderingServer::ARRAY_FORMAT_VERTEX |
 		RenderingServer::ARRAY_FORMAT_NORMAL |
 		RenderingServer::ARRAY_FORMAT_TANGENT |
 		RenderingServer::ARRAY_FORMAT_COLOR |
-		RenderingServer::ARRAY_FORMAT_TEX_UV;
+		RenderingServer::ARRAY_FORMAT_TEX_UV | 
+		RenderingServer::ARRAY_FORMAT_CUSTOM0 | (RenderingServer::ARRAY_CUSTOM_RGB_FLOAT << RenderingServer::ARRAY_FORMAT_CUSTOM0_SHIFT) |
+		RenderingServer::ARRAY_FLAG_FORMAT_VERSION_2;
 
 	PackedByteArray vertexData;
 	PackedByteArray attributeData;
 
-	vertexData.resize(vertexCount * sizeof(GdLitVertex));
-	attributeData.resize(vertexCount * sizeof(GdAttribute));
+	vertexData.resize(vertexCount * sizeof(GdMeshVertexPos) + vertexCount * sizeof(GdMeshVertexNrmTan));
+	attributeData.resize(vertexCount * sizeof(GdMeshAttribute));
 
-	GdLitVertex* dstVertex = (GdLitVertex*)vertexData.ptrw();
-	GdAttribute* dstAttribute = (GdAttribute*)attributeData.ptrw();
+	GdMeshVertexPos* dstVertex1 = (GdMeshVertexPos*)vertexData.ptrw();
+	GdMeshVertexNrmTan* dstVertex2 = (GdMeshVertexNrmTan*)(vertexData.ptrw() + vertexCount * sizeof(GdMeshVertexPos));
+	GdMeshAttribute* dstAttribute = (GdMeshAttribute*)attributeData.ptrw();
 
 	const Vertex* srcVertex = GetVertexes();
 
@@ -69,8 +72,12 @@ void Model::UploadToEngine()
 	for (int32_t i = 0; i < vertexCount; i++)
 	{
 		auto& v = *srcVertex++;
-		*dstVertex++ = GdLitVertex{ v.Position, ToGdNormal(v.Normal), ToGdTangent(v.Tangent) };
-		*dstAttribute++ = GdAttribute{ v.VColor, v.UV };
+
+		*dstVertex1++ = GdMeshVertexPos{ v.Position };
+		*dstVertex2++ = GdMeshVertexNrmTan{ ToGdNormal(v.Normal), ToGdTangent(v.Tangent) };
+
+		// Hacky way to send 3D depth attribute to 2D vertex shader
+		*dstAttribute++ = GdMeshAttribute{ v.VColor, v.UV, v.Position.Z, ToGdNormal(v.Normal), ToGdTangent(v.Tangent) };
 
 		aabbMin = Vec3f::Min(aabbMin, v.Position);
 		aabbMax = Vec3f::Max(aabbMax, v.Position);

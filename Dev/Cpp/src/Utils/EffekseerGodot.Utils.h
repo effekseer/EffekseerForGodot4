@@ -9,9 +9,98 @@
 #include <godot_cpp/variant/transform3d.hpp>
 #include <godot_cpp/variant/color.hpp>
 #include <godot_cpp/classes/script.hpp>
+#include <godot_cpp/classes/rendering_server.hpp>
 
 namespace EffekseerGodot
 {
+
+union FP32
+{
+	float f;
+	uint32_t u;
+	struct
+	{
+		uint32_t Mantissa : 23;
+		uint32_t Exponent : 8;
+		uint32_t Sign : 1;
+	};
+};
+
+union FP16
+{
+	uint16_t u;
+	struct
+	{
+		uint32_t Mantissa : 10;
+		uint32_t Exponent : 5;
+		uint32_t Sign : 1;
+	};
+};
+
+// from https://gist.github.com/rygorous/2156668
+inline uint16_t ToHalfFloat(float value)
+{
+	FP32 f = { value };
+	FP16 h = { 0 };
+
+	if (f.Exponent == 0)
+	{
+		h.Exponent = 0;
+	}
+	else if (f.Exponent == 255)
+	{
+		h.Exponent = 31;
+		h.Mantissa = f.Mantissa ? 0x200 : 0;
+	}
+	else
+	{
+		int newexp = f.Exponent - 127 + 15;
+		if (newexp >= 31)
+		{
+			h.Exponent = 31;
+		}
+		else if (newexp <= 0)
+		{
+			if ((14 - newexp) <= 24)
+			{
+				uint32_t mant = f.Mantissa | 0x800000;
+				h.Mantissa = mant >> (14 - newexp);
+				if ((mant >> (13 - newexp)) & 1)
+				{
+					h.u++;
+				}
+			}
+		}
+		else
+		{
+			h.Exponent = newexp;
+			h.Mantissa = f.Mantissa >> 13;
+			if (f.Mantissa & 0x1000)
+			{
+				h.u++;
+			}
+		}
+	}
+
+	h.Sign = f.Sign;
+	return h.u;
+}
+
+inline float ToHalfFloat(const float (&value)[2])
+{
+	FP32 bits;
+	bits.u = ToHalfFloat(value[0]) | ToHalfFloat(value[1]) << 16;
+	return bits.f;
+}
+
+inline void SafeReleaseRID(godot::RenderingServer* rs, godot::RID& rid)
+{
+	if (rid.is_valid())
+	{
+		rs->free_rid(rid);
+		rid = godot::RID();
+	}
+}
 
 inline int64_t RIDToInt64(godot::RID rid)
 {
@@ -35,6 +124,11 @@ inline Effekseer::Vector2D ToEfkVector2(godot::Vector2 v)
 inline godot::Vector2 ToGdVector2(Effekseer::Vector2D v)
 {
 	return { v.X, v.Y };
+}
+
+inline godot::Vector2 ToGdVector2(const std::array<float, 2>& v)
+{
+	return godot::Vector2(v[0], v[1]);
 }
 
 inline Effekseer::Vector3D ToEfkVector3(godot::Vector3 v)
@@ -161,7 +255,7 @@ inline Effekseer::Matrix43 ToEfkMatrix43(const godot::Transform2D& transform,
 	return ToStruct(orientationMatrix * transformMatrix);
 }
 
-inline godot::Transform3D ToGdMatrix(Effekseer::Matrix44 matrix)
+inline godot::Transform3D ToGdTransform3D(Effekseer::Matrix44 matrix)
 {
 	godot::Transform3D transform;
 	transform.basis[0][0] = matrix.Values[0][0];
@@ -179,6 +273,35 @@ inline godot::Transform3D ToGdMatrix(Effekseer::Matrix44 matrix)
 	return transform;
 }
 
+inline godot::Transform3D ToGdTransform3D(Effekseer::Matrix43 matrix)
+{
+	godot::Transform3D transform;
+	transform.basis[0][0] = matrix.Value[0][0];
+	transform.basis[1][0] = matrix.Value[0][1];
+	transform.basis[2][0] = matrix.Value[0][2];
+	transform.basis[0][1] = matrix.Value[1][0];
+	transform.basis[1][1] = matrix.Value[1][1];
+	transform.basis[2][1] = matrix.Value[1][2];
+	transform.basis[0][2] = matrix.Value[2][0];
+	transform.basis[1][2] = matrix.Value[2][1];
+	transform.basis[2][2] = matrix.Value[2][2];
+	transform.origin.x = matrix.Value[3][0];
+	transform.origin.y = matrix.Value[3][1];
+	transform.origin.z = matrix.Value[3][2];
+	return transform;
+}
+
+inline void ToGdMatrix4(float* mem, const Effekseer::Matrix44& matrix)
+{
+	using namespace Effekseer::SIMD;
+	Mat44f mat(matrix);
+	memcpy(mem, &matrix, sizeof(matrix));
+	//Float4::Store4(&mem[4 * 0], mat.X);
+	//Float4::Store4(&mem[4 * 1], mat.Y);
+	//Float4::Store4(&mem[4 * 2], mat.Z);
+	//Float4::Store4(&mem[4 * 3], mat.W);
+}
+
 inline Effekseer::Color ToEfkColor(godot::Color c)
 {
 	return {
@@ -194,9 +317,14 @@ inline godot::Color ToGdColor(Effekseer::Color c)
 	return { c.R / 255.0f, c.G / 255.0f, c.B / 255.0f, c.A / 255.0f };
 }
 
-inline godot::Color ToGdColor(const float c[4])
+inline godot::Color ToGdColor(const float (&c)[4])
 {
 	return { c[0], c[1], c[2], c[3] };
+}
+
+inline godot::Color ToGdColor(uint32_t c)
+{
+	return { (uint8_t)(c >> 24) / 255.0f, (uint8_t)(c >> 16) / 255.0f, (uint8_t)(c >> 8) / 255.0f, (uint8_t)(c) / 255.0f };
 }
 
 size_t ToEfkString(char16_t* to, const godot::String& from, size_t size);
@@ -210,17 +338,46 @@ godot::Variant ScriptNew(godot::Ref<godot::Script> script);
 // for RenderingServer
 //----------------------------
 
-struct GdSimpleVertex {
+struct GdVertexPos2D {
+	Effekseer::Vector2D pos;
+};
+
+struct GdVertexPos3D {
 	Effekseer::Vector3D pos;
 };
 
-struct GdLitVertex {
+// For 3D
+struct GdVertexNrmTan {
+	uint32_t normal;
+	uint32_t tangent;
+};
+
+struct GdAttributeColUV {
+	Effekseer::Color color;
+	Effekseer::Vector2D uv;
+};
+
+// For 2D
+struct GdAttributeNrmTan {
+	uint32_t normal;
+	uint32_t tangent;
+};
+
+struct GdAttributeAdvance {
+	std::array<float, 6> advance;
+};
+
+struct GdAttributeCustom {
+	std::array<uint16_t, 8> custom;
+};
+
+struct GdLitVertex3D {
 	Effekseer::Vector3D pos;
 	uint32_t normal;
 	uint32_t tangent;
 };
 
-struct GdAttribute {
+struct GdBasicAttribute {
 	Effekseer::Color color;
 	Effekseer::Vector2D uv;
 };
@@ -229,13 +386,25 @@ struct GdAdvancedAttribute {
 	Effekseer::Color color;
 	Effekseer::Vector2D uv;
 
-	float alphaUV[2];
-	float uvDistortionUV[2];
-	float blendUV[2];
-	float blendAlphaUV[2];
-	float blendUVDistortionUV[2];
-	float flipbookIndexAndNextRate;
-	float alphaThreshold;
+	std::array<float, 4> custom0;
+	std::array<float, 4> custom1;
+};
+
+struct GdMeshVertexPos {
+	Effekseer::Vector3D pos;
+};
+struct GdMeshVertexNrmTan {
+	uint32_t normal;
+	uint32_t tangent;
+};
+
+struct GdMeshAttribute {
+	Effekseer::Color color;
+	Effekseer::Vector2D uv;
+
+	float depth;      // For 2D
+	uint32_t normal;  // For 2D 
+	uint32_t tangent; // For 2D
 };
 
 uint32_t ToGdNormal(const Effekseer::Vector3D& v);

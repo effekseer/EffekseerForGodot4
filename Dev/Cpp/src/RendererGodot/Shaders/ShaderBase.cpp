@@ -44,6 +44,7 @@ void Shader::GenerateHeader(std::string& code, NodeType nodeType, RenderSettings
 	}
 	code += GodotBlendMode[static_cast<size_t>(renderSettings.blendType)];
 	code += GodotShading[static_cast<size_t>(unshaded)];
+	code += "render_mode skip_vertex_transform;\n";
 }
 
 Shader::Shader(const char* name, EffekseerRenderer::RendererShaderType renderershaderType)

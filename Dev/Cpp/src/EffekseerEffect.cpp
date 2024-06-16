@@ -170,23 +170,25 @@ void EffekseerEffect::setup_node_render(Effekseer::EffectNode* node, TargetLayer
 			settings.renderSettings = renderSettings;
 			settings.geometryType = (isModel) ? GeometryType::Model : GeometryType::Sprite;
 
-			auto material = m_native->GetMaterial(renderParams.MaterialIndex);
-			auto shader = static_cast<MaterialShader*>(isModel ? material->ModelUserPtr : material->UserPtr);
-
 			auto renderingHandle = node->GetRenderingUserData().DownCast<EffekseerGodot::RenderingHandle>();
-			if (renderingHandle.Get() == nullptr) {
-				renderingHandle = MakeRefPtr<EffekseerGodot::RenderingHandle>();
+			if (renderingHandle == nullptr) {
+				auto material = m_native->GetMaterial(renderParams.MaterialIndex);
+				if (material != nullptr) {
+					auto shader = static_cast<MaterialShader*>(isModel ? material->ModelUserPtr : material->UserPtr);
 
-				if (targetLayer == TargetLayer::Both || targetLayer == TargetLayer::World3D) {
-					settings.nodeType = NodeType::Node3D;
-					renderingHandle->SetShader3D(shader->GetRID(settings));
-				}
-				if (targetLayer == TargetLayer::Both || targetLayer == TargetLayer::World2D) {
-					settings.nodeType = NodeType::Node2D;
-					renderingHandle->SetShader2D(shader->GetRID(settings));
-				}
+					renderingHandle = MakeRefPtr<EffekseerGodot::RenderingHandle>();
 
-				node->SetRenderingUserData(renderingHandle);
+					if (targetLayer == TargetLayer::Both || targetLayer == TargetLayer::World3D) {
+						settings.nodeType = NodeType::Node3D;
+						renderingHandle->SetShader3D(shader->GetRID(settings));
+					}
+					if (targetLayer == TargetLayer::Both || targetLayer == TargetLayer::World2D) {
+						settings.nodeType = NodeType::Node2D;
+						renderingHandle->SetShader2D(shader->GetRID(settings));
+					}
+
+					node->SetRenderingUserData(renderingHandle);
+				}
 			}
 		}
 		else {
@@ -227,24 +229,25 @@ void EffekseerEffect::setup_node_render(Effekseer::EffectNode* node, TargetLayer
 				settings.SetTextureWrap(static_cast<BuiltinTextures>(i), renderParams.TextureWraps[i]);
 			}
 
-			EffekseerRenderer::RendererShaderType rendererShaderType =
-				(EffekseerRenderer::RendererShaderType)((int)settings.shaderType + (int)settings.advancedShader * 3);
-			auto shader = system->get_builtin_shader(isModel, rendererShaderType);
-
 			auto renderingHandle = node->GetRenderingUserData().DownCast<EffekseerGodot::RenderingHandle>();
-			if (renderingHandle.Get() == nullptr) {
-				renderingHandle = MakeRefPtr<EffekseerGodot::RenderingHandle>();
-				
-				if (targetLayer == TargetLayer::Both || targetLayer == TargetLayer::World3D) {
-					settings.nodeType = NodeType::Node3D;
-					renderingHandle->SetShader3D(shader->GetRID(settings));
-				}
-				if (targetLayer == TargetLayer::Both || targetLayer == TargetLayer::World2D) {
-					settings.nodeType = NodeType::Node2D;
-					renderingHandle->SetShader2D(shader->GetRID(settings));
-				}
+			if (renderingHandle == nullptr) {
+				EffekseerRenderer::RendererShaderType rendererShaderType =
+					(EffekseerRenderer::RendererShaderType)((int)settings.shaderType + (int)settings.advancedShader * 3);
+				auto shader = system->get_builtin_shader(isModel, rendererShaderType);
+				if (shader) {
+					renderingHandle = MakeRefPtr<EffekseerGodot::RenderingHandle>();
 
-				node->SetRenderingUserData(renderingHandle);
+					if (targetLayer == TargetLayer::Both || targetLayer == TargetLayer::World3D) {
+						settings.nodeType = NodeType::Node3D;
+						renderingHandle->SetShader3D(shader->GetRID(settings));
+					}
+					if (targetLayer == TargetLayer::Both || targetLayer == TargetLayer::World2D) {
+						settings.nodeType = NodeType::Node2D;
+						renderingHandle->SetShader2D(shader->GetRID(settings));
+					}
+
+					node->SetRenderingUserData(renderingHandle);
+				}
 			}
 		}
 	}

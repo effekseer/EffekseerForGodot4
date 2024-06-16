@@ -58,10 +58,12 @@ public:
 	void SetupSprites(godot::Node2D* parent);
 	void SetupModels(godot::Node2D* parent, godot::RID mesh, int32_t instanceCount);
 
+	godot::RID GetBase() { return m_base; }
 	godot::RID GetCanvasItem() { return m_canvasItem; }
 	godot::RID GetMaterial() { return m_material; }
 
 private:
+	godot::RID m_base;
 	godot::RID m_canvasItem;
 	godot::RID m_material;
 };
@@ -123,11 +125,6 @@ private:
 		Effekseer::ModelRef model = nullptr;
 	};
 	ModelRenderState m_modelRenderState;
-
-	DynamicTexture m_tangentTexture;
-	DynamicTexture m_customData1Texture;
-	DynamicTexture m_customData2Texture;
-	size_t m_vertexTextureOffset = 0;
 
 	std::unique_ptr<StandardRenderer> m_standardRenderer;
 	std::unique_ptr<RenderState> m_renderState;
@@ -227,14 +224,11 @@ public:
 private:
 	bool IsSoftParticleEnabled();
 
-	void TransferVertexToMesh(godot::RID immediate,
-		const void* vertexData, size_t spriteCount);
+	void TransferVertexToMesh3D(godot::RID mesh, const void* vertexData, size_t spriteCount);
 
-	void TransferVertexToCanvasItem2D(godot::RID canvas_item,
-		const void* vertexData, size_t spriteCount, godot::Vector2 baseScale);
+	void TransferVertexToMesh2D(godot::RID mesh, const void* vertexData, size_t spriteCount);
 
-	void TransferModelToCanvasItem2D(godot::RID canvas_item, Effekseer::Model* model,
-		godot::Vector2 baseScale, bool flipPolygon, Effekseer::CullingType cullingType);
+	void TransferVertexToMesh(godot::RID mesh, const uint8_t* vertexData, size_t spriteCount, bool is3d);
 
 	void ApplyParametersToMaterial(godot::RID material, godot::RID shaderRID, const std::vector<ParamDecl>& paramDecls);
 };

@@ -15,6 +15,32 @@ float atan2(float y, float x) {
 }
 )";
 
+static const char* src_common_sprite_custom = R"(
+vec4 UnpackCustom(vec2 fBits) {
+	uvec2 uBits = floatBitsToUint(fBits);
+	return vec4(unpackHalf2x16(uBits.x), unpackHalf2x16(uBits.y));
+}
+)";
+
+static const char src_common_normal_2d[] =
+R"(
+vec3 UnpackNormal(float fbits) {
+	vec2 e = unpackUnorm2x16(floatBitsToUint(fbits));
+	e = e * 2.0 - 1.0;
+	vec3 v = vec3(e.xy, 1.0 - abs(e.x) - abs(e.y));
+	float t = max(-v.z, 0.0);
+	v.xy += t * -sign(v.xy);
+	return normalize(v);
+}
+)";
+
+static const char src_common_model[] =
+R"(
+vec2 ApplyModelUV(vec2 meshUV, vec4 modelUV) {
+	return (meshUV * modelUV.zw) + modelUV.xy;
+}
+)";
+
 static const char* src_common_calcdepthfade = R"(
 uniform sampler2D DepthTexture : hint_depth_texture, filter_linear_mipmap, repeat_disable;
 
@@ -166,119 +192,108 @@ vec3 GetLightAmbientColor() {
 }
 )";
 
-static const char src_spatial_vertex_sprite_pre[] = R"(
+static const char src_vertex_sprite_head_3d[] = R"(
 void vertex() {
 	vec3 worldNormal = NORMAL;
 	vec3 worldTangent = TANGENT;
 	vec3 worldBinormal = BINORMAL;
 	vec3 worldPos = VERTEX;
+	vec3 pixelNormalDir = (VIEW_MATRIX * vec4(worldNormal, 0.0)).xyz;
 	vec2 uv1 = UV;
 	vec2 uv2 = UV;
 	vec4 vcolor = COLOR;
-)";
-
-static const char src_spatial_vertex_model_pre[] = R"(
-void vertex() {
-	mat3 normalMatrix = mat3(MODEL_MATRIX);
-	vec3 worldNormal = normalize(normalMatrix * NORMAL);
-	vec3 worldTangent = normalize(normalMatrix * TANGENT);
-	vec3 worldBinormal = normalize(normalMatrix * BINORMAL);
-	vec3 worldPos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
-	vec2 uv1 = (UV * INSTANCE_CUSTOM.zw) + INSTANCE_CUSTOM.xy;
-	vec2 uv2 = UV;
-	vec4 vcolor = COLOR;
-)";
-
-static const char src_spatial_vertex_common[] = R"(
-	v_WorldN_PX.xyz = worldNormal;
-	v_WorldB_PY.xyz = worldBinormal;
-	v_WorldT_PZ.xyz = worldTangent;
-	vec3 pixelNormalDir = worldNormal;
-	vec3 objectScale = vec3(1.0, 1.0, 1.0);
-
+	vec3 objectScale = vec3(1.0);
 	vec2 screenUV = vec2(0.0);
 	float meshZ = 0.0;
 )";
 
-static const char src_spatial_vertex_post[] = R"(
+static const char src_vertex_model_head_3d[] = R"(
+void vertex() {
+	vec3 worldNormal = MODEL_NORMAL_MATRIX * normalize(NORMAL);
+	vec3 worldTangent = MODEL_NORMAL_MATRIX * normalize(TANGENT);
+	vec3 worldBinormal = MODEL_NORMAL_MATRIX * normalize(BINORMAL);
+	vec3 worldPos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	vec3 pixelNormalDir = (VIEW_MATRIX * vec4(worldNormal, 0.0)).xyz;
+	vec2 uv1 = ApplyModelUV(UV, INSTANCE_CUSTOM);
+	vec2 uv2 = UV;
+	vec4 vcolor = COLOR;
+	vec3 objectScale = vec3(1.0);
+	vec2 screenUV = vec2(0.0);
+	float meshZ = 0.0;
+)";
+
+static const char src_vertex_tail_3d[] = R"(
 	worldPos += worldPositionOffset;
-	v_WorldN_PX.w = worldPos.x;
-	v_WorldB_PY.w = worldPos.y;
-	v_WorldT_PZ.w = worldPos.z;
-	POSITION = PROJECTION_MATRIX * VIEW_MATRIX * vec4(worldPos, 1.0);
+	v_WorldN_PX = vec4(worldNormal, worldPos.x);
+	v_WorldB_PY = vec4(worldBinormal, worldPos.y);
+	v_WorldT_PZ = vec4(worldTangent, worldPos.z);
+	v_PixelNormal = pixelNormalDir;
+	VERTEX = (VIEW_MATRIX * vec4(worldPos, 1.0)).xyz;
 	UV = uv1;
 	UV2 = uv2;
 	COLOR = vcolor;
 }
 )";
 
-static const char src_canvasitem_vertex_sprite_pre[] = R"(
+static const char src_vertex_sprite_head_2d[] = R"(
 void vertex() {
-	ivec2 texSize = textureSize(TangentTexture, 0);
-	int texOffset = VERTEX_ID + VertexTextureOffset;
-	ivec2 texUV2 = ivec2(texOffset % texSize.x, texOffset / texSize.y);
-	vec4 tangent = texelFetch(TangentTexture, texUV2, 0);
-	vec3 worldNormal = vec3(0.0, 0.0, 1.0);
-	vec3 worldTangent = vec3(tangent.xy * 2.0 - 1.0, 0.0);
+	vec3 worldNormal = normalize(UnpackNormal(CUSTOM0.x));
+	vec3 worldTangent = normalize(UnpackNormal(CUSTOM0.y));
 	vec3 worldBinormal = cross(worldNormal, worldTangent);
 	vec3 worldPos = vec3(VERTEX, 0.0);
+	vec3 pixelNormalDir = worldNormal;
 	vec2 uv1 = UV;
 	vec2 uv2 = uv1;
 	vec4 vcolor = COLOR;
-)";
-
-static const char src_canvasitem_vertex_model_pre[] = R"(
-void vertex() {
-	vec3 worldNormal = vec3(0.0, 0.0, 1.0);
-	vec3 worldTangent = vec3(1.0, 0.0, 0.0);
-	vec3 worldBinormal = vec3(0.0, 1.0, 0.0);
-	vec3 worldPos = vec3(VERTEX, 0.0);
-	vec2 uv1 = (UV * ModelUV.zw) + ModelUV.xy;
-	vec2 uv2 = UV;
-	vec4 vcolor = COLOR * ModelColor;
-)";
-
-static const char src_canvasitem_vertex_common[] = R"(
-	v_WorldN_PX.xyz = worldNormal;
-	v_WorldB_PY.xyz = worldBinormal;
-	v_WorldT_PZ.xyz = worldTangent;
-	vec3 pixelNormalDir = worldNormal;
-	vec3 objectScale = vec3(1.0, 1.0, 1.0);
-
+	vec3 objectScale = vec3(1.0);
 	vec2 screenUV = vec2(0.0);
 	float meshZ = 0.0;
 )";
 
-static const char src_canvasitem_vertex_post[] = R"(
+static const char src_vertex_model_head_2d[] = R"(
+void vertex() {
+	mat3 normalMatrix = mat3(ModelMatrix[INSTANCE_ID]);
+	vec3 worldNormal = normalMatrix * normalize(UnpackNormal(CUSTOM0.y));
+	vec3 worldTangent = normalMatrix * normalize(UnpackNormal(CUSTOM0.z));
+	vec3 worldBinormal = cross(worldNormal, worldTangent);
+	vec3 worldPos = (ModelMatrix[INSTANCE_ID] * vec4(VERTEX, CUSTOM0.x, 1.0)).xyz;
+	vec3 pixelNormalDir = worldNormal;
+	vec2 uv1 = ApplyModelUV(UV, INSTANCE_CUSTOM);
+	vec2 uv2 = UV;
+	vec4 vcolor = COLOR;
+	vec3 objectScale = vec3(1.0);
+	vec2 screenUV = vec2(0.0);
+	float meshZ = 0.0;
+)";
+
+static const char src_vertex_tail_2d[] = R"(
 	worldPos += worldPositionOffset;
-	v_WorldN_PX.w = worldPos.x;
-	v_WorldB_PY.w = worldPos.y;
-	v_WorldT_PZ.w = worldPos.z;
-	VERTEX = worldPos.xy;
+	v_WorldN_PX = vec4(worldNormal, worldPos.x);
+	v_WorldB_PY = vec4(worldBinormal, worldPos.y);
+	v_WorldT_PZ = vec4(worldTangent, worldPos.z);
+	v_PixelNormal = pixelNormalDir;
+	VERTEX = worldPos.xy * BaseScale;
 	UV = uv1;
-	v_uv2 = uv2;
 	COLOR = vcolor;
 }
 )";
 
-static const char src_spatial_fragment_pre[] = R"(
+static const char src_fragment_head_3d[] = R"(
 void fragment() {
-	vec2 uv1 = UV;
-	vec2 uv2 = uv1;
-	vec4 vcolor = COLOR;
-
 	vec3 worldPos = vec3(v_WorldN_PX.w, v_WorldB_PY.w, v_WorldT_PZ.w);
 	vec3 worldNormal = v_WorldN_PX.xyz;
 	vec3 worldTangent = v_WorldT_PZ.xyz;
 	vec3 worldBinormal = v_WorldB_PY.xyz;
-	vec3 pixelNormalDir = worldNormal;
-	vec3 objectScale = vec3(1.0, 1.0, 1.0);
-
+	vec3 pixelNormalDir = v_PixelNormal;
+	vec2 uv1 = UV;
+	vec2 uv2 = UV;
+	vec4 vcolor = COLOR;
+	vec3 objectScale = vec3(1.0);
 	vec2 screenUV = SCREEN_UV;
 	float meshZ = FRAGCOORD.z;
 )";
 
-static const char src_spatial_fragment_lit_post[] = R"(
+static const char src_fragment_lit_tail_3d[] = R"(
 	ALBEDO = SRGBToLinear(baseColor);
 	EMISSION = SRGBToLinear(emissive);
 	METALLIC = metallic;
@@ -291,7 +306,7 @@ static const char src_spatial_fragment_lit_post[] = R"(
 }
 )";
 
-static const char src_spatial_fragment_unlit_post[] = R"(
+static const char src_fragment_unlit_tail_3d[] = R"(
 	ALBEDO = SRGBToLinear(emissive);
 	ALPHA = clamp(opacity, 0.0, 1.0);
 	
@@ -300,7 +315,7 @@ static const char src_spatial_fragment_unlit_post[] = R"(
 }
 )";
 
-static const char src_canvasitem_fragment_pre[] = R"(
+static const char src_fragment_head_2d[] = R"(
 void fragment() {
 	vec2 uv1 = UV;
 	vec2 uv2 = uv1;
@@ -310,21 +325,29 @@ void fragment() {
 	vec3 worldNormal = v_WorldN_PX.xyz;
 	vec3 worldTangent = v_WorldT_PZ.xyz;
 	vec3 worldBinormal = v_WorldB_PY.xyz;
-	vec3 pixelNormalDir = worldNormal;
+	vec3 pixelNormalDir = v_PixelNormal;
 	vec3 objectScale = vec3(1.0, 1.0, 1.0);
 
 	vec2 screenUV = SCREEN_UV;
 	float meshZ = FRAGCOORD.z;
 )";
 
-static const char src_canvasitem_fragment_lit_post[] = R"(
+static const char src_fragment_head_model_2d[] = R"(
+if (CullingType == 0) {
+	if (pixelNormalDir.z < 0.0) discard;
+} else if (CullingType == 1) {
+	if (pixelNormalDir.z > 0.0) discard;
+}
+)";
+
+static const char src_fragment_lit_tail_2d[] = R"(
 	COLOR = vec4(SRGBToLinear(baseColor + emissive), clamp(opacity, 0.0, 1.0));
 
 	if (opacityMask <= 0.0) discard;
 }
 )";
 
-static const char src_canvasitem_fragment_unlit_post[] = R"(
+static const char src_fragment_unlit_tail_2d[] = R"(
 	COLOR = vec4(emissive, clamp(opacity, 0.0, 1.0));
 	
 	if (opacityMask <= 0.0) discard;
@@ -335,6 +358,7 @@ static const char varying_common[] = R"(
 varying mediump vec4 v_WorldN_PX;
 varying mediump vec4 v_WorldB_PY;
 varying mediump vec4 v_WorldT_PZ;
+varying mediump vec3 v_PixelNormal;
 )";
 
 static const char uniforms_common[] = R"(
@@ -342,14 +366,6 @@ uniform vec4 PredefinedData;
 uniform vec3 CameraPosition;
 uniform vec4 ReconstructionParam1;
 uniform vec4 ReconstructionParam2;
-)";
-
-static const char uniforms_sprite[] = R"(
-)";
-
-static const char uniforms_model[] = R"(
-uniform vec4 ModelUV;
-uniform vec4 ModelColor;
 )";
 
 static inline constexpr size_t GradientElements = 13;
@@ -403,42 +419,24 @@ void GenerateShaderCode(std::string& code, const Effekseer::MaterialFile& materi
 	// Output builtin varyings
 	code += varying_common;
 
-	if (nodeType == NodeType::Node2D) {
-		code += "varying vec2 v_uv2;\n";
-	}
-
 	if (customData1Count > 0) AppendFormat(code, "varying %s v_CustomData1;\n", customData1Type);
 	if (customData2Count > 0) AppendFormat(code, "varying %s v_CustomData2;\n", customData2Type);
 
 	// Output builtin uniforms
 	{
 		code += uniforms_common;
-
-		if (nodeType == NodeType::Node3D) {
-			// for 3D uniforms
-			if (geometryType == GeometryType::Sprite) {
-				code += uniforms_sprite;
-			}
-			else {
-				if (customData1Count > 0) AppendFormat(code, "uniform vec4 CustomData1[%d];\n", ModelRenderer::InstanceCount);
-				if (customData2Count > 0) AppendFormat(code, "uniform vec4 CustomData2[%d];\n", ModelRenderer::InstanceCount);
-				code += uniforms_model;
-			}
+		
+		if (geometryType == GeometryType::Model) {
+			if (customData1Count > 0) AppendFormat(code, "uniform vec4 CustomData1[%d];\n", ModelRenderer::InstanceCount);
+			if (customData2Count > 0) AppendFormat(code, "uniform vec4 CustomData2[%d];\n", ModelRenderer::InstanceCount);
 		}
-		else {
-			// for 2D uniforms
-			if (geometryType == GeometryType::Sprite) {
-				if (customData1Count > 0) code += "uniform sampler2D CustomData1;\n";
-				if (customData2Count > 0) code += "uniform sampler2D CustomData2;\n";
-				code += uniforms_sprite;
+
+		if (nodeType == NodeType::Node2D) {
+			if (geometryType == GeometryType::Model) {
+				AppendFormat(code, "uniform mat4 ModelMatrix[%d];\n", ModelRenderer::InstanceCount);
+				AppendFormat(code, "uniform int CullingType = 0;\n");
 			}
-			else {
-				if (customData1Count > 0) AppendFormat(code, "uniform vec4 CustomData1;\n");
-				if (customData2Count > 0) AppendFormat(code, "uniform vec4 CustomData2;\n");
-				code += uniforms_model;
-			}
-			code += "uniform sampler2D TangentTexture;\n";
-			code += "uniform int VertexTextureOffset;\n";
+			AppendFormat(code, "uniform vec2 BaseScale;\n");
 		}
 	}
 
@@ -465,6 +463,19 @@ void GenerateShaderCode(std::string& code, const Effekseer::MaterialFile& materi
 
 	// Output builtin functions
 	code += src_common_srgb_to_linear;
+
+	if (nodeType == NodeType::Node2D) {
+		code += src_common_normal_2d;
+	}
+
+	if (geometryType == GeometryType::Sprite) {
+		if (customData1Count > 0 || customData2Count > 0) {
+			AppendFormat(code, src_common_sprite_custom);
+		}
+	}
+	if (geometryType == GeometryType::Model) {
+		AppendFormat(code, src_common_model);
+	}
 
 	auto isRequired = [&materialFile](Effekseer::MaterialFile::RequiredPredefinedMethodType type) {
 		return std::find(materialFile.RequiredMethods.begin(), materialFile.RequiredMethods.end(), type) != materialFile.RequiredMethods.end();
@@ -538,95 +549,75 @@ void GenerateShaderCode(std::string& code, const Effekseer::MaterialFile& materi
 	if (nodeType == NodeType::Node3D) {
 		// Vertex shader (3D)
 		if (geometryType == GeometryType::Sprite) {
-			code += src_spatial_vertex_sprite_pre;
+			code += src_vertex_sprite_head_3d;
 		}
 		else {
-			code += src_spatial_vertex_model_pre;
+			code += src_vertex_model_head_3d;
 		}
-
-		code += src_spatial_vertex_common;
-
-		if (geometryType == GeometryType::Sprite) {
-			if (customData1Count > 0) AppendFormat(code, "\t%s customData1 = CUSTOM0.%s;\n", customData1Type, customData1Element);
-			if (customData2Count > 0) AppendFormat(code, "\t%s customData2 = CUSTOM1.%s;\n", customData2Type, customData2Element);
-		}
-		else {
-			if (customData1Count > 0) AppendFormat(code, "\t%s customData1 = CustomData1[INSTANCE_ID].%s;\n", customData1Type, customData1Element);
-			if (customData2Count > 0) AppendFormat(code, "\t%s customData2 = CustomData2[INSTANCE_ID].%s;\n", customData2Type, customData1Element);
-		}
-
-		std::string vertCode = baseCode;
-
-		Replace(vertCode, src_common_calcdepthfade_caller, "1.0");
-
-		code += vertCode;
-
-		if (customData1Count > 0) code += "\tv_CustomData1 = customData1;\n";
-		if (customData2Count > 0) code += "\tv_CustomData2 = customData2;\n";
-
-		code += src_spatial_vertex_post;
 	}
 	else {
 		// Vertex shader (2D)
 		if (geometryType == GeometryType::Sprite) {
-			code += src_canvasitem_vertex_sprite_pre;
+			code += src_vertex_sprite_head_2d;
 		}
 		else {
-			code += src_canvasitem_vertex_model_pre;
+			code += src_vertex_model_head_2d;
 		}
-
-		code += src_canvasitem_vertex_common;
-
-		if (geometryType == GeometryType::Sprite) {
-			if (customData1Count > 0) AppendFormat(code, "\t%s customData1 = texelFetch(CustomData1, texUV2, 0).%s;\n", customData1Type, customData1Element);
-			if (customData2Count > 0) AppendFormat(code, "\t%s customData2 = texelFetch(CustomData2, texUV2, 0).%s;\n", customData2Type, customData2Element);
-		}
-		else {
-			if (customData1Count > 0) AppendFormat(code, "\t%s customData1 = CustomData1.%s;\n", customData1Type, customData1Element);
-			if (customData2Count > 0) AppendFormat(code, "\t%s customData2 = CustomData2.%s;\n", customData2Type, customData2Element);
-		}
-
-		std::string vertCode = baseCode;
-
-		Replace(vertCode, src_common_calcdepthfade_caller, "1.0");
-
-		code += vertCode;
-
-		if (customData1Count > 0) code += "\tv_CustomData1 = customData1;\n";
-		if (customData2Count > 0) code += "\tv_CustomData2 = customData2;\n";
-
-		code += src_canvasitem_vertex_post;
 	}
 
-	if (nodeType == NodeType::Node3D) {
-		// Fragment shader (3D)
-		code += src_spatial_fragment_pre;
-
-		if (customData1Count > 0) AppendFormat(code, "\t%s customData1 = v_CustomData1;\n", customData1Type);
-		if (customData2Count > 0) AppendFormat(code, "\t%s customData2 = v_CustomData2;\n", customData2Type);
-
-		std::string fragCode = baseCode;
-
-		Replace(fragCode, src_common_calcdepthfade_caller, src_common_calcdepthfade_replaced);
-
-		code += fragCode;
-
-		code += (unshaded) ? src_spatial_fragment_unlit_post : src_spatial_fragment_lit_post;
+	// Vertex shader (Common)
+	if (geometryType == GeometryType::Sprite) {
+		if (customData1Count > 0) AppendFormat(code, "\t%s customData1 = UnpackCustom(CUSTOM1.xy).%s;\n", customData1Type, customData1Element);
+		if (customData2Count > 0) AppendFormat(code, "\t%s customData2 = UnpackCustom(CUSTOM1.zw).%s;\n", customData2Type, customData2Element);
 	}
 	else {
+		if (customData1Count > 0) AppendFormat(code, "\t%s customData1 = CustomData1[INSTANCE_ID].%s;\n", customData1Type, customData1Element);
+		if (customData2Count > 0) AppendFormat(code, "\t%s customData2 = CustomData2[INSTANCE_ID].%s;\n", customData2Type, customData1Element);
+	}
+
+	std::string vertCode = baseCode;
+
+	Replace(vertCode, src_common_calcdepthfade_caller, "1.0");
+
+	code += vertCode;
+
+	if (customData1Count > 0) code += "\tv_CustomData1 = customData1;\n";
+	if (customData2Count > 0) code += "\tv_CustomData2 = customData2;\n";
+
+	if (nodeType == NodeType::Node3D) {
+		// Vertex shader (3D)
+		code += src_vertex_tail_3d;
+
+		// Fragment shader (3D)
+		code += src_fragment_head_3d;
+	}
+	else {
+		// Vertex shader (2D)
+		code += src_vertex_tail_2d;
+
 		// Fragment shader (2D)
-		code += src_canvasitem_fragment_pre;
+		code += src_fragment_head_2d;
 
-		if (customData1Count > 0) AppendFormat(code, "\t%s customData1 = v_CustomData1;\n", customData1Type);
-		if (customData2Count > 0) AppendFormat(code, "\t%s customData2 = v_CustomData2;\n", customData2Type);
-		
-		std::string fragCode = baseCode;
+		if (geometryType == GeometryType::Model) {
+			code += src_fragment_head_model_2d;
+		}
+	}
 
-		Replace(fragCode, src_common_calcdepthfade_caller, "1.0");
 
-		code += fragCode;
+	if (customData1Count > 0) AppendFormat(code, "\t%s customData1 = v_CustomData1;\n", customData1Type);
+	if (customData2Count > 0) AppendFormat(code, "\t%s customData2 = v_CustomData2;\n", customData2Type);
 
-		code += (unshaded) ? src_canvasitem_fragment_unlit_post : src_canvasitem_fragment_lit_post;
+	std::string fragCode = baseCode;
+
+	Replace(fragCode, src_common_calcdepthfade_caller, "1.0");
+
+	code += fragCode;
+
+	if (nodeType == NodeType::Node3D) {
+		code += (unshaded) ? src_fragment_unlit_tail_3d : src_fragment_lit_tail_3d;
+	}
+	else {
+		code += (unshaded) ? src_fragment_unlit_tail_2d : src_fragment_lit_tail_2d;
 	}
 }
 
@@ -695,7 +686,7 @@ std::tuple<int32_t, int32_t> GenerateParamDecls(std::vector<ParamDecl>& paramDec
 
 		appendDecls("PredefinedData", ParamType::Vector4, 1, parameterGenerator.PixelPredefinedOffset);
 		appendDecls("CameraPosition", ParamType::Vector3, 1, parameterGenerator.PixelCameraPositionOffset);
-		//appendCustomDataDecls(materialFile, parameterGenerator, !forModel);
+
 		appendUserUniformDecls(materialFile, parameterGenerator);
 		appendTextureDecls(materialFile);
 
@@ -703,18 +694,18 @@ std::tuple<int32_t, int32_t> GenerateParamDecls(std::vector<ParamDecl>& paramDec
 	}
 	else
 	{
-		const bool isInstanced = nodeType == NodeType::Node3D;
+		uint32_t instanceCount = ModelRenderer::InstanceCount;
 
-		auto parameterGenerator = MaterialShaderParameterGenerator(materialFile, true, 0, isInstanced ? ModelRenderer::InstanceCount : 1);
+		auto parameterGenerator = MaterialShaderParameterGenerator(materialFile, true, 0, instanceCount);
 
 		appendDecls("PredefinedData", ParamType::Vector4, 1, parameterGenerator.PixelPredefinedOffset);
 		appendDecls("CameraPosition", ParamType::Vector3, 1, parameterGenerator.PixelCameraPositionOffset);
-		if (!isInstanced)
-		{
-			appendDecls("ModelUV", ParamType::Vector4, 0, parameterGenerator.VertexModelUVOffset);
-			appendDecls("ModelColor", ParamType::Vector4, 0, parameterGenerator.VertexModelColorOffset);
+
+		if (nodeType == NodeType::Node2D) {
+			appendDecls("ModelMatrix", ParamType::Matrix44, 0, parameterGenerator.VertexModelMatrixOffset, instanceCount);
 		}
-		appendCustomDataDecls(materialFile, parameterGenerator, isInstanced ? ModelRenderer::InstanceCount : 0);
+
+		appendCustomDataDecls(materialFile, parameterGenerator, instanceCount);
 		appendUserUniformDecls(materialFile, parameterGenerator);
 		appendTextureDecls(materialFile);
 

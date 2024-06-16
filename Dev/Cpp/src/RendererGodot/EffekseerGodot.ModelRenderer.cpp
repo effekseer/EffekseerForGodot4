@@ -52,18 +52,8 @@ void ModelRenderer::BeginRendering(const efkModelNodeParam& parameter, int32_t c
 {
 	using namespace EffekseerRenderer;
 
-	godot::Object* godotObj = reinterpret_cast<godot::Object*>(userData);
-
-	if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter3D>(godotObj))
-	{
-		// 3D instancing is supported
-		VertexType = ModelRendererVertexType::Instancing;
-	}
-	else if (auto emitter = godot::Object::cast_to<godot::EffekseerEmitter2D>(godotObj))
-	{
-		// 2D instancing is not supported
-		VertexType = ModelRendererVertexType::Single;
-	}
+	// Instancing is supported
+	VertexType = ModelRendererVertexType::Instancing;
 
 	BeginRendering_(m_renderer, parameter, count, userData);
 }
