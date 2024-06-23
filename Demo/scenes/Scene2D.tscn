@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://30enxyxxrg2i"]
+[gd_scene load_steps=8 format=3 uid="uid://30enxyxxrg2i"]
 
 [ext_resource type="Texture2D" uid="uid://7qnlb6vc3vxh" path="res://icon.png" id="2"]
 [ext_resource type="PackedScene" uid="uid://3yy8se2knnd6" path="res://shared/gui.tscn" id="4"]
+[ext_resource type="EffekseerEffect" uid="uid://dfsyswa63i5xn" path="res://effects/samples/Laser01.efkefc" id="4_pf7tm"]
 [ext_resource type="Texture2D" uid="uid://dod84ervtfcm1" path="res://effects/tests/Textures/Particle02.png" id="5"]
 [ext_resource type="Texture2D" uid="uid://cq0rnvcuc6xwp" path="res://shared/grid.png" id="7"]
 [ext_resource type="Script" path="res://scripts/Scene2D.gd" id="8"]
@@ -31,6 +32,8 @@ position = Vector2(171.514, 105.967)
 texture = ExtResource("2")
 
 [node name="Effect" type="EffekseerEmitter2D" parent="."]
+effect = ExtResource("4_pf7tm")
+orientation = Vector3(45, 0, 0)
 position = Vector2(229.379, 184.932)
 scale = Vector2(30, 30)
 

@@ -9,7 +9,6 @@ func _ready():
 func _on_item_pressed(id):
 	match get_popup().get_item_text(id):
 		"Scene2D":
-			get_tree().change_scene_to_file("res://Scene2D.tscn")
+			get_tree().change_scene_to_file("res://scenes/Scene2D.tscn")
 		"Scene3D":
-			get_tree().change_scene_to_file("res://Scene3D.tscn")
-
+			get_tree().change_scene_to_file("res://scenes/Scene3D.tscn")

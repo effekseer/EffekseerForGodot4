@@ -20,8 +20,8 @@ func setup_menu(path: String, menu: PopupMenu):
 			if dir.current_is_dir():
 				var submenu := PopupMenu.new()
 				if setup_menu(path + "/" + asset_name, submenu) > 0:
-					menu.add_submenu_item(asset_name, submenu.name)
 					menu.add_child(submenu)
+					menu.add_submenu_item(asset_name, submenu.name)
 			elif asset_name.ends_with("efkefc.import"):
 				asset_name = asset_name.substr(0, asset_name.rfind(".import"))
 				file_count += 1
