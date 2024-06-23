@@ -12,7 +12,7 @@ namespace EffekseerGodot
 class GpuParticlesShader
 {
 public:
-	static godot::RID GenerateProcessShader(const Effekseer::GpuParticles::ParamSet& paramSet);
+	static godot::RID GenerateProcessShader(bool glcompatibleMode, const Effekseer::GpuParticles::ParamSet& paramSet);
 
 	static godot::RID GenerateRenderShader(NodeType nodeType, const Effekseer::GpuParticles::ParamSet& paramSet);
 };

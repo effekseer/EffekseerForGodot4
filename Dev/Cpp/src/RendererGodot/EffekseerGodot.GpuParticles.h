@@ -49,9 +49,12 @@ using ResourceRef = Effekseer::RefPtr<Resource>;
 class GpuParticleFactory : public Effekseer::GpuParticleFactory
 {
 public:
+	GpuParticleFactory();
 	virtual Effekseer::GpuParticles::ResourceRef CreateResource(
 		const Effekseer::GpuParticles::ParamSet& paramSet,
 		const Effekseer::Effect* effect) override;
+private:
+	bool m_glcompatibleMode = false;
 };
 using GpuParticleFactoryRef = Effekseer::RefPtr<GpuParticleFactory>;
 

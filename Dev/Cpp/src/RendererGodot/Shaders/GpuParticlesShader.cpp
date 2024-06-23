@@ -8,10 +8,34 @@ namespace EffekseerGodot
 namespace
 {
 
-static const char src_process_code[] = R"(
-shader_type particles;
-render_mode disable_velocity;
+const char src_common_unpack_normalized_float3[] = R"(
+vec3 UnpackNormalizedFloat3(float fbits) {
+	uint bits = floatBitsToUint(fbits);
+	vec3 v = vec3(uvec3(bits, bits >> 10u, bits >> 20u) & uvec3(1023u));
+	return v * 0.001955034213098729227761485826 - 1.0f;
+}
+)";
 
+const char src_common_pack_unpack_color_glsl330[] = R"(
+uint PackColor(vec4 color) {
+	uvec4 col = uvec4(clamp(ivec4(color * 255.0), 0, 255));
+	return col.x | (col.y << 8u) | (col.z << 16u) | (col.w << 24u);
+}
+vec4 UnpackColor(uint color32) {
+	return vec4(uvec4(color32, color32 >> 8u, color32 >> 16u, color32 >> 24u) & uvec4(255u)) / 255.0;
+}
+)";
+
+const char src_common_pack_unpack_color_latest[] = R"(
+uint PackColor(vec4 color) {
+	return packUnorm4x8(color);
+}
+vec4 UnpackColor(uint color32) {
+	return unpackUnorm4x8(color32);
+}
+)";
+
+static const char src_process_uniforms[] = R"(
 uniform vec2 paramLifeTime;
 uniform uint paramEmitShapeType;
 uniform vec4 paramEmitShapeData1;
@@ -61,17 +85,9 @@ uniform sampler3D fieldTexture : repeat_enable, filter_linear;
 uniform sampler2D gradientTexture : repeat_disable, filter_linear;
 uniform sampler2D emitPointTexture1;
 uniform sampler2D emitPointTexture2;
+)";
 
-float PackNormalizedFloat3(vec3 v) {
-	uvec3 i = uvec3((normalize(v) + 1.0) * 0.5 * 1023.0);
-	uint bits = i.x | (i.y << 10u) | (i.z << 20u);
-	return uintBitsToFloat(bits);
-}
-vec3 UnpackNormalizedFloat3(float fbits) {
-	uint bits = floatBitsToUint(fbits);
-	vec3 v = vec3(uvec3(bits, bits >> 10u, bits >> 20u) & uvec3(1023u));
-	return v * 0.001955034213098729227761485826 - 1.0f;
-}
+static const char src_process_functions[] = R"(
 uint RandomUint(inout uint seed) {
 	uint state = seed;
 	seed = seed * 747796405u + 2891336453u;
@@ -89,15 +105,6 @@ vec3 RandomFloat3Range(inout uint seed, vec3 maxValue, vec3 minValue) {
 }
 vec4 RandomFloat4Range(inout uint seed, vec4 maxValue, vec4 minValue) {
 	return mix(minValue, maxValue, RandomFloat(seed));
-}
-uint PackColor(vec4 color) {
-	uvec4 col = uvec4(clamp(ivec4(color * 255.0), 0, 255));
-	return col.x | (col.y << 8u) | (col.z << 16u) | (col.w << 24u);
-	//return packUnorm4x8(color);
-}
-vec4 UnpackColor(uint color32) {
-	return vec4(uvec4(color32, color32 >> 8u, color32 >> 16u, color32 >> 24u) & uvec4(255u)) / 255.0;
-	//return unpackUnorm4x8(color32);
 }
 vec4 RandomColorRange(inout uint seed, uint value1, uint value2) {
 	return mix(UnpackColor(value1), UnpackColor(value2), RandomFloat(seed));
@@ -169,64 +176,9 @@ mat4 TRSMatrix(vec3 translation, vec3 rotation, vec3 scale) {
 	m[3][3] = 1.0;
 	return m;
 }
+)";
 
-void start() {
-	uint seed = emitterSeed ^ INDEX;
-	vec3 position = emitterTransform[3].xyz;
-	vec3 direction = RandomSpread(seed, paramDirection, paramSpread * 3.141592 / 180.0);
-	float speed = RandomFloatRange(seed, paramInitialSpeed.x, paramInitialSpeed.y);
-	
-	if (paramEmitShapeType == 1u) {
-		vec3 lineStart = (emitterTransform * vec4(paramEmitShapeData1.xyz, 0.0)).xyz;
-		vec3 lineEnd = (emitterTransform * vec4(paramEmitShapeData2.xyz, 0.0)).xyz;
-		float lineWidth = paramEmitShapeData2.w;
-		position += mix(lineStart, lineEnd, RandomFloat(seed));
-		position += RandomDirection(seed) * lineWidth * 0.5;
-	} else if (paramEmitShapeType == 2u) {
-		vec3 circleAxis = (emitterTransform * vec4(paramEmitShapeData1.xyz, 0.0)).xyz;
-		float circleInner = paramEmitShapeData2.x;
-		float circleOuter = paramEmitShapeData2.y;
-		float circleRadius = mix(circleInner, circleOuter, RandomFloat(seed));
-		vec3 circleDirection = RandomCircle(seed, circleAxis);
-		position += circleDirection * circleRadius;
-		if (paramEmitRotationApplied) {
-			direction = mat3(cross(circleAxis, circleDirection), circleAxis, circleDirection) * direction;
-		}
-	} else if (paramEmitShapeType == 3u) {
-		float sphereRadius = paramEmitShapeData1.x;
-		vec3 sphereDirection = RandomDirection(seed);
-		position += sphereDirection * sphereRadius;
-		if (paramEmitRotationApplied) {
-			vec3 sphereUp = vec3(0.0f, 1.0f, 0.0f);
-			direction = mat3(cross(sphereUp, sphereDirection), sphereUp, sphereDirection) * direction;
-		}
-	} else if (paramEmitShapeType == 4u) {
-		float modelSize = paramEmitShapeData1.y;
-		uint emitIndex = RandomUint(seed) % (emitPointSize.x * emitPointSize.y);
-		ivec2 emitUV = ivec2(int(emitIndex % emitPointSize.x), int(emitIndex / emitPointSize.x));
-		vec3 emitPoint = texelFetch(emitPointTexture1, emitUV, 0).xyz;
-		position += (emitterTransform * vec4(emitPoint * modelSize, 0.0)).xyz;
-		if (paramEmitRotationApplied) {
-			vec4 emitAttrib = texelFetch(emitPointTexture2, emitUV, 0);
-			vec3 emitNormal = normalize(UnpackNormalizedFloat3(emitAttrib.x));
-			vec3 emitTangent = normalize(UnpackNormalizedFloat3(emitAttrib.y));
-			vec3 emitBinormal = normalize(cross(emitTangent, emitNormal));
-			direction = mat3(emitTangent, emitBinormal, emitNormal) * direction;
-		}
-	}
-
-	direction = (emitterTransform * vec4(direction, 0.0)).xyz;
-	
-	if (RESTART_CUSTOM) {
-		CUSTOM = vec4(0.0);
-		CUSTOM.x = uintBitsToFloat(seed);
-		CUSTOM.y = uintBitsToFloat(emitterColor);
-		CUSTOM.z = PackNormalizedFloat3(direction);
-	}
-	TRANSFORM[3].xyz = position;
-	VELOCITY = direction * speed;
-}
-
+static const char src_process_vortex[] = R"(
 vec3 Vortex(float rotation, float attraction, vec3 center, vec3 axis, vec3 position, mat4 transform) {
 	center = transform[3].xyz + center;
 	axis = normalize((transform * vec4(axis, 0.0)).xyz);
@@ -242,25 +194,85 @@ vec3 Vortex(float rotation, float attraction, vec3 center, vec3 axis, vec3 posit
 	vec3 tangent = cross(axis, radial);
 	return tangent * rotation - radial * attraction;
 }
+)";
 
-void process() {
-	uint seed = floatBitsToUint(CUSTOM.x);
-	uint inheritColor = floatBitsToUint(CUSTOM.y);
+static const char src_process_start_head[] = R"(
+	uint seed = emitterSeed ^ INDEX;
+	vec3 position = emitterTransform[3].xyz;
+	vec3 direction = RandomSpread(seed, paramDirection, paramSpread * 3.141592 / 180.0);
+	float speed = RandomFloatRange(seed, paramInitialSpeed.x, paramInitialSpeed.y);
+)";
+
+static const char src_process_start_tail[] = R"(
+	direction = (emitterTransform * vec4(direction, 0.0)).xyz;
+	if (RESTART_CUSTOM) {
+		USERDATA1 = vec4(uintBitsToFloat(seed), uintBitsToFloat(emitterColor), 0.0, 0.0);
+		CUSTOM = vec4(direction, 0);
+	}
+	TRANSFORM[3].xyz = position;
+	VELOCITY = direction * speed;
+)";
+
+static const char src_process_start_emit_line[] = R"(
+	vec3 lineStart = (emitterTransform * vec4(paramEmitShapeData1.xyz, 0.0)).xyz;
+	vec3 lineEnd = (emitterTransform * vec4(paramEmitShapeData2.xyz, 0.0)).xyz;
+	float lineWidth = paramEmitShapeData2.w;
+	position += mix(lineStart, lineEnd, RandomFloat(seed));
+	position += RandomDirection(seed) * lineWidth * 0.5;
+)";
+
+static const char src_process_start_emit_circle[] = R"(
+	vec3 circleAxis = (emitterTransform * vec4(paramEmitShapeData1.xyz, 0.0)).xyz;
+	float circleInner = paramEmitShapeData2.x;
+	float circleOuter = paramEmitShapeData2.y;
+	float circleRadius = mix(circleInner, circleOuter, RandomFloat(seed));
+	vec3 circleDirection = RandomCircle(seed, circleAxis);
+	position += circleDirection * circleRadius;
+	if (paramEmitRotationApplied) {
+		direction = mat3(cross(circleAxis, circleDirection), circleAxis, circleDirection) * direction;
+	}
+)";
+
+static const char src_process_start_emit_sphere[] = R"(
+	float sphereRadius = paramEmitShapeData1.x;
+	vec3 sphereDirection = RandomDirection(seed);
+	position += sphereDirection * sphereRadius;
+	if (paramEmitRotationApplied) {
+		vec3 sphereUp = vec3(0.0f, 1.0f, 0.0f);
+		direction = mat3(cross(sphereUp, sphereDirection), sphereUp, sphereDirection) * direction;
+	}
+)";
+
+static const char src_process_start_emit_model[] = R"(
+	float modelSize = paramEmitShapeData1.y;
+	uint emitIndex = RandomUint(seed) % (emitPointSize.x * emitPointSize.y);
+	ivec2 emitUV = ivec2(int(emitIndex % emitPointSize.x), int(emitIndex / emitPointSize.x));
+	vec3 emitPoint = texelFetch(emitPointTexture1, emitUV, 0).xyz;
+	position += (emitterTransform * vec4(emitPoint * modelSize, 0.0)).xyz;
+	if (paramEmitRotationApplied) {
+		vec4 emitAttrib = texelFetch(emitPointTexture2, emitUV, 0);
+		vec3 emitNormal = normalize(UnpackNormalizedFloat3(emitAttrib.x));
+		vec3 emitTangent = normalize(UnpackNormalizedFloat3(emitAttrib.y));
+		vec3 emitBinormal = normalize(cross(emitTangent, emitNormal));
+		direction = mat3(emitTangent, emitBinormal, emitNormal) * direction;
+	}
+)";
+
+static const char src_process_code[] = R"(
+	uint seed = floatBitsToUint(USERDATA1.x);
 	float lifeTime = RandomFloatRange(seed, paramLifeTime.x, paramLifeTime.y);
-	float lifeAge = CUSTOM.w;
+	float lifeAge = USERDATA1.z;
 	float lifeRatio = lifeAge / lifeTime;
-	float damping = RandomFloatRange(seed, paramDamping.x, paramDamping.y) * 0.01;
-	vec3 angularOffset = RandomFloat3Range(seed, paramAngularOffsetMax, paramAngularOffsetMin);
-	vec3 angularVelocity = RandomFloat3Range(seed, paramAngularVelocityMax, paramAngularVelocityMin);
 
 	vec3 position = TRANSFORM[3].xyz;
 	vec3 lastPosition = position;
-	vec3 direction = normalize(UnpackNormalizedFloat3(CUSTOM.z));
+	vec3 direction = normalize(CUSTOM.xyz);
 
 	// Gravity
 	VELOCITY += paramGravity * DELTA;
 
 	// Damping
+	float damping = RandomFloatRange(seed, paramDamping.x, paramDamping.y) * 0.01;
 	float speed = length(VELOCITY);
 	if (speed > 0.0) {
 		float newSpeed = max(0.0, speed - damping * DELTA);
@@ -289,6 +301,8 @@ void process() {
 	}
 
 	// Rotation (Euler)
+	vec3 angularOffset = RandomFloat3Range(seed, paramAngularOffsetMax, paramAngularOffsetMin);
+	vec3 angularVelocity = RandomFloat3Range(seed, paramAngularVelocityMax, paramAngularVelocityMin);
     vec3 rotation = angularOffset.xyz + angularVelocity.xyz * lifeAge;
 
     // Scale (XYZ+Single)
@@ -327,6 +341,7 @@ void process() {
     if (colorInherit == 2u || colorInherit == 3u) {
         color *= UnpackColor(emitterColor);
     } else {
+		uint inheritColor = floatBitsToUint(USERDATA1.y);
         color *= UnpackColor(inheritColor);
     }
 
@@ -334,23 +349,14 @@ void process() {
     color.a *= clamp(lifeAge / paramFadeIn, 0.0, 1.0);
     color.a *= clamp((lifeTime - lifeAge) / paramFadeOut, 0.0, 1.0);
 
-	CUSTOM.z = PackNormalizedFloat3(direction);
+	CUSTOM = vec4(direction, 0.0);
 	TRANSFORM = TRSMatrix(position, rotation, scale.xyz * scale.w);
 	COLOR = color;
 
-	CUSTOM.w = lifeAge + DELTA;
-	if (CUSTOM.w >= lifeTime) {
+	USERDATA1.z = lifeAge + DELTA;
+	if (USERDATA1.z >= lifeTime) {
 		ACTIVE = false;
 	}
-}
-)";
-
-const char src_common_unpack_normalized_float3[] = R"(
-vec3 UnpackNormalizedFloat3(float fbits) {
-	uint bits = floatBitsToUint(fbits);
-	vec3 v = vec3(uvec3(bits, bits >> 10u, bits >> 20u) & uvec3(1023u));
-	return v * 0.001955034213098729227761485826 - 1.0f;
-}
 )";
 
 const char src_render_uniforms[] = R"(
@@ -370,7 +376,7 @@ const char src_render_transform_rotated_billboard_3d[] = R"(
 
 const char src_render_transform_directional_3d[] = R"(
 	VERTEX = (MODEL_MATRIX * vec4(VERTEX, 0.0)).xyz;
-	vec3 direction = UnpackNormalizedFloat3(INSTANCE_CUSTOM.z);
+	vec3 direction = normalize(INSTANCE_CUSTOM.xyz);
 	vec3 U = normalize(direction);
 	vec3 R = normalize(cross(U, INV_VIEW_MATRIX[2].xyz));
 	vec3 F = normalize(cross(R, U));
@@ -396,7 +402,7 @@ const char src_render_transform_fixed_3d[] = R"(
 
 const char src_render_transform_directional_2d[] = R"(
 	VERTEX = (MODEL_MATRIX * vec4(VERTEX, 0.0, 0.0)).xy;
-	vec3 direction = -UnpackNormalizedFloat3(INSTANCE_CUSTOM.z);
+	vec3 direction = -normalize(INSTANCE_CUSTOM.xyz);
 	VERTEX = mat2(direction.yx, vec2(direction.x, -direction.y)) * VERTEX;
 	VERTEX += MODEL_MATRIX[3].xy;
 )";
@@ -418,10 +424,51 @@ const char src_render_fragment_2d[] = R"(
 
 }
 
-godot::RID GpuParticlesShader::GenerateProcessShader(const Effekseer::GpuParticles::ParamSet& paramSet)
+godot::RID GpuParticlesShader::GenerateProcessShader(bool glcompatibleMode, const Effekseer::GpuParticles::ParamSet& paramSet)
 {
+	using namespace Effekseer::GpuParticles;
+
 	std::string code;
-    code += src_process_code;
+
+	code += "shader_type particles;\n";
+	code += "render_mode disable_velocity;\n";
+
+	code += src_process_uniforms;
+	code += src_common_unpack_normalized_float3;
+
+	code += (glcompatibleMode) ? src_common_pack_unpack_color_glsl330 : src_common_pack_unpack_color_latest;
+	
+	code += src_process_functions;
+
+	code += "void start() {\n";
+	code += src_process_start_head;
+
+	switch (paramSet.EmitShape.Type)
+	{
+	case EmitShapeT::Line:
+		code += src_process_start_emit_line;
+		break;
+	case EmitShapeT::Circle:
+		code += src_process_start_emit_circle;
+		break;
+	case EmitShapeT::Sphere:
+		code += src_process_start_emit_sphere;
+		break;
+	case EmitShapeT::Model:
+		code += src_process_start_emit_model;
+		break;
+	}
+
+	code += src_process_start_tail;
+	code += "}\n";
+
+	//if (paramSet.Force.VortexRotation != 0.0f || paramSet.Force.VortexAttraction != 0.0f) {
+		code += src_process_vortex;
+	//}
+
+	code += "void process() {\n";
+	code += src_process_code;
+	code += "}\n";
 
     auto rs = godot::RenderingServer::get_singleton();
     auto shader = rs->shader_create();

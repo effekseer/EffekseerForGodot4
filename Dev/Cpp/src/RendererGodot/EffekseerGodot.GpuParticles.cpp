@@ -1,5 +1,6 @@
 ﻿#include <godot_cpp/godot.hpp>
 #include <godot_cpp/classes/rendering_server.hpp>
+#include <godot_cpp/classes/project_settings.hpp>
 
 #include "Effekseer.h"
 #include "Effekseer/Effekseer.InstanceGlobal.h"
@@ -73,6 +74,16 @@ void Resource::SetupPointCache()
 
 }
 
+GpuParticleFactory::GpuParticleFactory()
+{
+	auto settings = godot::ProjectSettings::get_singleton();
+	godot::String rendering_method = settings->get_setting_with_override("rendering/renderer/rendering_method");
+	if (rendering_method == "gl_compatibility")
+	{
+		m_glcompatibleMode = true;
+	}
+}
+
 Effekseer::GpuParticles::ResourceRef GpuParticleFactory::CreateResource(
 	const Effekseer::GpuParticles::ParamSet& paramSet,
 	const Effekseer::Effect* effect)
@@ -85,7 +96,7 @@ Effekseer::GpuParticles::ResourceRef GpuParticleFactory::CreateResource(
 	resource->paramSet = paramSet;
 	resource->effect = effect;
 
-	resource->processShader = GpuParticlesShader::GenerateProcessShader(paramSet);
+	resource->processShader = GpuParticlesShader::GenerateProcessShader(m_glcompatibleMode, paramSet);
 	resource->renderShader2d = GpuParticlesShader::GenerateRenderShader(NodeType::Node2D, paramSet);
 	resource->renderShader3d = GpuParticlesShader::GenerateRenderShader(NodeType::Node3D, paramSet);
 
