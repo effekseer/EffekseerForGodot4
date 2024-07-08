@@ -37,6 +37,8 @@ void EffekseerSystem::_bind_methods()
 {
 	GDBIND_METHOD(EffekseerSystem, _init_modules);
 	GDBIND_METHOD(EffekseerSystem, _register_to_scenetree);
+	GDBIND_METHOD(EffekseerSystem, _enter_tree);
+	GDBIND_METHOD(EffekseerSystem, _exit_tree);
 	GDBIND_METHOD(EffekseerSystem, _update_pre_draw);
 	GDBIND_METHOD(EffekseerSystem, spawn_effect_2d, "effect", "parent", "xform");
 	GDBIND_METHOD(EffekseerSystem, spawn_effect_3d, "effect", "parent", "xform");
@@ -54,13 +56,15 @@ EffekseerSystem::EffekseerSystem()
 	assert(s_singleton == nullptr);
 	s_singleton = this;
 
-	set_name("EffekseerSystem");
 	call_deferred("_init_modules");
 	call_deferred("_register_to_scenetree");
 }
 
 EffekseerSystem::~EffekseerSystem()
 {
+	if (m_internal_node) {
+		m_internal_node->queue_free();
+	}
 	s_singleton = nullptr;
 }
 
@@ -144,14 +148,17 @@ void EffekseerSystem::_init_modules()
 
 void EffekseerSystem::_register_to_scenetree()
 {
+	m_internal_node = memnew(Node());
+	m_internal_node->set_name("Effekseer");
+	m_internal_node->connect("tree_entered", Callable(this, "_enter_tree"));
+	m_internal_node->connect("tree_exited", Callable(this, "_exit_tree"));
+
 	auto tree = Object::cast_to<SceneTree>(Engine::get_singleton()->get_main_loop());
-	tree->get_root()->add_child(this);
+	tree->get_root()->add_child(m_internal_node);
 }
 
 void EffekseerSystem::_enter_tree()
 {
-	Node::_enter_tree();
-
 	RenderingServer::get_singleton()->connect("frame_pre_draw", Callable(this, "_update_pre_draw"));
 }
 
@@ -161,13 +168,12 @@ void EffekseerSystem::_exit_tree()
 
 	m_manager.Reset();
 	m_renderer.Reset();
-
-	Node::_exit_tree();
+	m_internal_node = nullptr;
 }
 
 void EffekseerSystem::_update_pre_draw()
 {
-	double delta = get_process_delta_time();
+	double delta = m_internal_node->get_process_delta_time();
 
 	for (size_t i = 0; i < m_render_layers.size(); i++) {
 		auto& layer = m_render_layers[i];
@@ -287,7 +293,7 @@ void EffekseerSystem::detach_layer(Viewport* viewport, LayerType layer_type)
 EffekseerEmitter2D* EffekseerSystem::spawn_effect_2d(EffekseerEffect* effect, Node* parent, Transform2D xform)
 {
 	if (parent == nullptr) {
-		parent = this;
+		parent = m_internal_node;
 	}
 
 	EffekseerEmitter2D* emitter = memnew(EffekseerEmitter2D());
@@ -302,7 +308,7 @@ EffekseerEmitter2D* EffekseerSystem::spawn_effect_2d(EffekseerEffect* effect, No
 EffekseerEmitter3D* EffekseerSystem::spawn_effect_3d(EffekseerEffect* effect, Node* parent, Transform3D xform)
 {
 	if (parent == nullptr) {
-		parent = this;
+		parent = m_internal_node;
 	}
 
 	EffekseerEmitter3D* emitter = memnew(EffekseerEmitter3D());
@@ -424,7 +430,7 @@ void EffekseerSystem::_process_shader_loader()
 			loader.instance = rs->canvas_item_create();
 			rs->canvas_item_set_material(loader.instance, loader.matarial);
 			rs->canvas_item_add_rect(loader.instance, Rect2(0.0f, 0.0f, 0.0f, 0.0f), Color());
-			rs->canvas_item_set_parent(loader.instance, get_viewport()->find_world_2d()->get_canvas());
+			rs->canvas_item_set_parent(loader.instance, m_internal_node->get_viewport()->find_world_2d()->get_canvas());
 			m_shader_loaders.push_back(loader);
 		}
 		else {
@@ -441,7 +447,7 @@ void EffekseerSystem::_process_shader_loader()
 			rs->mesh_add_surface_from_arrays(loader.mesh, RenderingServer::PRIMITIVE_POINTS, arrays);
 			rs->mesh_surface_set_material(loader.mesh, 0, loader.matarial);
 			rs->instance_set_base(loader.instance, loader.mesh);
-			rs->instance_set_scenario(loader.instance, get_viewport()->find_world_3d()->get_scenario());
+			rs->instance_set_scenario(loader.instance, m_internal_node->get_viewport()->find_world_3d()->get_scenario());
 		}
 
 		m_shader_loaders.push_back(loader);
