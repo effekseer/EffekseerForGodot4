@@ -27,62 +27,44 @@ import_generate_bindings()
 
 os.chdir(os.path.dirname(script_path))
 
-job_opt = " -j" + str(multiprocessing.cpu_count())
-
 if "platform=windows" in sys.argv:
-    replace_word("godot-cpp/Sconstruct", "/MD", "/MT")
-
-    subprocess.run("scons platform=windows bits=32 target=release" + job_opt, shell = True)
-    subprocess.run("scons platform=windows bits=64 target=release" + job_opt, shell = True)
-
     os.makedirs("../Godot/addons/effekseer/bin/windows", exist_ok = True)
 
-    shutil.copy2("bin/libeffekseer.x86_32.dll", "../Godot/addons/effekseer/bin/windows/")
-    shutil.copy2("bin/libeffekseer.x86_64.dll", "../Godot/addons/effekseer/bin/windows/")
+    subprocess.run("scons platform=windows arch=x86_32 target=template_release", shell = True, check=True)
+    subprocess.run("scons platform=windows arch=x86_64 target=template_release", shell = True, check=True)
 
 elif "platform=macos" in sys.argv:
-    subprocess.run("scons platform=macos bits=64 target=release" + job_opt, shell = True)
-
     os.makedirs("../Godot/addons/effekseer/bin/macos", exist_ok = True)
 
-    shutil.copy2("bin/libeffekseer.dylib", "../Godot/addons/effekseer/bin/macos/")
+    subprocess.run("scons platform=macos arch=x86_64 target=template_release", shell = True, check=True)
+    
+    subprocess.run("lipo -create ../Godot/addons/effekseer/bin/macos/libeffekseer.x86_64.dylib -output ../Godot/addons/effekseer/bin/macos/libeffekseer.dylib", shell = True, check=True)
+    os.remove("../Godot/addons/effekseer/bin/macos/libeffekseer.x86_64.dylib")
 
 elif "platform=android" in sys.argv:
-    subprocess.run("scons platform=android android_arch=armv7 target=release" + job_opt, shell = True)
-    subprocess.run("scons platform=android android_arch=arm64v8 target=release" + job_opt, shell = True)
-    subprocess.run("scons platform=android android_arch=x86 target=release" + job_opt, shell = True)
-    subprocess.run("scons platform=android android_arch=x86_64 target=release" + job_opt, shell = True)
-
     os.makedirs("../Godot/addons/effekseer/bin/android", exist_ok = True)
 
-    shutil.copy2("bin/libeffekseer.arm32.so", "../Godot/addons/effekseer/bin/android/")
-    shutil.copy2("bin/libeffekseer.arm64.so", "../Godot/addons/effekseer/bin/android/")
-    shutil.copy2("bin/libeffekseer.x86_32.so", "../Godot/addons/effekseer/bin/android/")
-    shutil.copy2("bin/libeffekseer.x86_64.so", "../Godot/addons/effekseer/bin/android/")
+    subprocess.run("scons platform=android arch=arm32 target=template_release", shell = True, check=True)
+    subprocess.run("scons platform=android arch=arm64 target=template_release", shell = True, check=True)
+    subprocess.run("scons platform=android arch=x86_32 target=template_release", shell = True, check=True)
+    subprocess.run("scons platform=android arch=x86_64 target=template_release", shell = True, check=True)
 
 elif "platform=ios" in sys.argv:
-    subprocess.run("scons platform=ios ios_arch=arm64 target=release" + job_opt, shell = True)
-    # subprocess.run("scons platform=ios ios_arch=x86_64 target=release" + job_opt, shell = True)
-
-    subprocess.run("lipo -create bin/libeffekseer.arm64.dylib -output bin/libeffekseer.dylib", shell = True)
-    # subprocess.run("lipo -create bin/libeffekseer.arm64.dylib bin/libeffekseer.x86_64.dylib -output bin/libeffekseer.dylib", shell = True)
-
     os.makedirs("../Godot/addons/effekseer/bin/ios", exist_ok = True)
-    
-    shutil.copy2("bin/libeffekseer.dylib", "../Godot/addons/effekseer/bin/ios/")
+
+    subprocess.run("scons platform=ios arch=arm64 target=template_release", shell = True, check=True)
+
+    subprocess.run("lipo -create ../Godot/addons/effekseer/bin/ios/libeffekseer.arm64.dylib -output ../Godot/addons/effekseer/bin/ios/libeffekseer.dylib", shell = True, check=True)
+    os.remove("../Godot/addons/effekseer/bin/ios/libeffekseer.arm64.dylib")
 
 elif "platform=linux" in sys.argv:
-    subprocess.run("scons platform=linux bits=32 target=release use_llvm=1" + job_opt, shell = True)
-    subprocess.run("scons platform=linux bits=64 target=release use_llvm=1" + job_opt, shell = True)
-
     os.makedirs("../Godot/addons/effekseer/bin/linux", exist_ok = True)
 
-    shutil.copy2("bin/libeffekseer.x86_32.so", "../Godot/addons/effekseer/bin/linux/")
-    shutil.copy2("bin/libeffekseer.x86_64.so", "../Godot/addons/effekseer/bin/linux/")
+    subprocess.run("scons platform=linux arch=x86_32 target=template_release", shell = True, check=True)
+    subprocess.run("scons platform=linux arch=x86_64 target=template_release", shell = True, check=True)
 
 elif "platform=web" in sys.argv:
-    subprocess.run("scons platform=web bits=32 target=release" + job_opt, shell = True)
-
     os.makedirs("../Godot/addons/effekseer/bin/web", exist_ok = True)
 
-    shutil.copy2("bin/libeffekseer.wasm", "../Godot/addons/effekseer/bin/web/")
+    subprocess.run("scons platform=web arch=wasm32 target=template_release", shell = True, check=True)
+    os.rename("../Godot/addons/effekseer/bin/web/libeffekseer.wasm32.wasm", "../Godot/addons/effekseer/bin/web/libeffekseer.wasm")
