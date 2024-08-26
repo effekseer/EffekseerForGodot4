@@ -100,6 +100,10 @@ void EffekseerEffect::load()
 	}
 
 	String path = get_path();
+	if (path.is_empty()) {
+		return;  // when during import
+	}
+
 	String basePath = path.substr(0, path.rfind("/") + 1);
 	char16_t materialPath[1024];
 	EffekseerGodot::ToEfkString(materialPath, basePath, sizeof(materialPath) / sizeof(materialPath[0]));
