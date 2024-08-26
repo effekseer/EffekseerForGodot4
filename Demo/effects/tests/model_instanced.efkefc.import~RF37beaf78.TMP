@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://ix8w283s7cb0"
+path="res://.godot/imported/model_instanced.efkefc-04391b6dbc4f5644e9629b3d4439d7d5.res"
+
+[deps]
+
+source_file="res://effects/tests/model_instanced.efkefc"
+dest_files=["res://.godot/imported/model_instanced.efkefc-04391b6dbc4f5644e9629b3d4439d7d5.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true
