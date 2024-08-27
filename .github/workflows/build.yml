@@ -101,6 +101,24 @@ jobs:
           name: bin_windows
           path: ./Dev/Godot/addons/effekseer/bin
 
+  windows-debug:
+    name: Build for Windows (Debug)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update Submodules
+        run: git submodule update --init
+      - name: Build binaries
+        run: |
+          python -m pip install scons
+          python Dev/Cpp/build.py platform=windows debug=yes
+        shell: cmd
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: bin_windows_debug
+          path: ./Dev/Godot/addons/effekseer/bin
+
   web:
     name: Build for Web
     runs-on: ubuntu-latest
