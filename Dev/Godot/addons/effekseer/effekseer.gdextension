@@ -5,12 +5,17 @@ compatibility_minimum = 4.2
 [libraries]
 windows.x86_64 = "res://addons/effekseer/bin/windows/libeffekseer.x86_64.dll"
 windows.x86_32 = "res://addons/effekseer/bin/windows/libeffekseer.x86_32.dll"
+windows.arm64 = "res://addons/effekseer/bin/windows/libeffekseer.arm64.dll"
 linux.x86_32 = "res://addons/effekseer/bin/linux/libeffekseer.x86_32.so"
 linux.x86_64 = "res://addons/effekseer/bin/linux/libeffekseer.x86_64.so"
 macos = "res://addons/effekseer/bin/macos/libeffekseer.dylib"
-ios = "res://addons/effekseer/bin/ios/libeffekseer.dylib"
+ios = "res://addons/effekseer/bin/ios/libeffekseer.xcframework"
 android.arm32 = "res://addons/effekseer/bin/android/libeffekseer.arm32.so"
 android.arm64 = "res://addons/effekseer/bin/android/libeffekseer.arm64.so"
 android.x86_32 = "res://addons/effekseer/bin/android/libeffekseer.x86_32.so"
 android.x86_64 = "res://addons/effekseer/bin/android/libeffekseer.x86_64.so"
-web = "res://addons/effekseer/bin/web/libeffekseer.wasm"
+web.wasm32.nothreads = "res://addons/effekseer/bin/web/libeffekseer.nothreads.wasm"
+web.wasm32 = "res://addons/effekseer/bin/web/libeffekseer.threads.wasm"
+
+[dependencies]
+ios = {"res://addons/effekseer/bin/ios/libgodot-cpp.xcframework": ""}

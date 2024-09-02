@@ -70,16 +70,22 @@ sources += Glob("src/RendererGodot/Shaders/*.cpp")
 sources += Glob("src/SoundGodot/*.cpp")
 sources += Glob("src/Utils/*.cpp")
 
+if env["platform"] == "web":
+    env.Append(CCFLAGS=["-DAVOID_USING_CHRONO"])
 
-libfile = f"lib{libname}.{env['arch']}{env['SHLIBSUFFIX']}"
-
-# if env["platform"] == "macos" or env["platform"] == "ios":
+# if env["platform"] == "macos":
 #     libfile = f"{libname}.framework/{env['platform']}/{libname}"
-
-library = env.SharedLibrary(
-    f"bin/{env['platform']}/{libfile}",
-    source=sources,
-)
+#     library = env.SharedLibrary(f"bin/{env['platform']}/{libfile}", source=sources)
+if env["platform"] == "ios":
+    if env["ios_simulator"]:
+        libfile = f"lib{libname}.{env['arch']}.simulator.a"
+        library = env.StaticLibrary(f"bin/{env['platform']}/{libfile}", source=sources)
+    else:
+        libfile = f"lib{libname}.{env['arch']}.a"
+        library = env.StaticLibrary(f"bin/{env['platform']}/{libfile}", source=sources)
+else:
+    libfile = f"lib{libname}.{env['arch']}{env['SHLIBSUFFIX']}"
+    library = env.SharedLibrary(f"bin/{env['platform']}/{libfile}", source=sources)
 
 copy = env.InstallAs(
     f"{projectdir}/addons/{libname}/bin/{env['platform']}/{libfile}", 
