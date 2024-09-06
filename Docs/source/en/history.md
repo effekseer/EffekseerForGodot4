@@ -6,6 +6,9 @@
 - Advanced render material is now available in 2D.
 - Model instancing rendering is now enabled in 2D.
 - Performance of the vertex data transfer process has been improved.
+- [iOS] Added support for simulators (x86_64, arm64).
+- [iOS] Changed binaries to static libraries and included them in xcframework.
+- [Web] Included the nothreads version of the wasm binary.
 
 ## 1.70e.5
 - Fix a rendering bug when used custom data in material

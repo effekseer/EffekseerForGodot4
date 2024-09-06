@@ -21,12 +21,12 @@ The support status for each target of EffekseerForGodot4 is as follows.
 
 | Target | Status | Architectures |
 |-----------|:-------:|---------------|
-| Windows   | ✅ | x86, x86_64 |
+| Windows   | ✅ | x86_32, x86_64 |
 | macOS     | ✅ | x86_64, arm64 |
-| Linux     | ✅ | x86, x86_64 |
-| Android   | ✅ | armv7, arm64, x86, x86_64 |
-| iOS       | ✅ | arm64, x86_64(Simulator) |
-| Web       | ✅ | wasm32 |
+| Linux     | ✅ | x86_32, x86_64 |
+| Android   | ✅ | armv7, arm64, x86_32, x86_64 |
+| iOS       | ✅ | arm64, simulator(x86_64, arm64) |
+| Web       | ✅ | wasm32 (threads, nothreads) |
 | Others    | ❓ | User needs to build | 
 
 
