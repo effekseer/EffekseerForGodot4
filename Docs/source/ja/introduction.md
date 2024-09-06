@@ -25,7 +25,7 @@ EffekseerForGodot4のターゲットごとのサポート状況は以下の通�
 | macOS     | ✅ | x86_64, arm64 |
 | Linux     | ✅ | x86, x86_64 |
 | Android   | ✅ | armv7, arm64, x86, x86_64 |
-| iOS       | ✅ | arm64 |
+| iOS       | ✅ | arm64, simulator(x86_64, arm64) |
 | Web       | ✅ | wasm32 |
 | Others    | ❓ | ユーザー側でビルドが必要 | 
 

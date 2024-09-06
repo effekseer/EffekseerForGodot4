@@ -1,5 +1,22 @@
 ﻿# Release notes
 
+## 1.70e.6
+- godot-cpp updated to 4.3 (it no longer works under Godot 4.3)
+- Change base class of EffekseerSystem to Object.
+- Advanced render material is now available in 2D.
+- Model instancing rendering is now enabled in 2D.
+- Performance of the vertex data transfer process has been improved.
+
+## 1.70e.5
+- Fix a rendering bug when used custom data in material
+
+## 1.70e.4
+- Fix a bug 1frame delay in transform updates.
+- Fix a bug 3d reverse rotation
+
+## 1.70e.3
+- godot-cpp updated to 4.2 (it no longer works under Godot 4.2)
+
 ## 1.70e.2
 - godot-cpp updated to 4.1 (it no longer works under Godot 4.1)
 
