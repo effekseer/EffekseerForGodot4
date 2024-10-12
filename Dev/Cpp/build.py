@@ -54,7 +54,7 @@ elif "platform=macos" in sys.argv:
     import_generate_bindings("64")
     subprocess.run(["scons", "platform=macos", "arch=universal"] + options, check=True)
 
-    os.rename(f"{output_dir}/macos/libeffekseer.universal.dylib", f"{output_dir}/macos/libeffekseer.dylib")
+    os.rename(f"{output_dir}/macos/libeffekseer.universal.dylib", f"{output_dir}/macos/libeffekseer.framework/libeffekseer")
 
 elif "platform=android" in sys.argv:
     os.makedirs(f"{output_dir}/android", exist_ok = True)

@@ -60,6 +60,18 @@ jobs:
         run: |
           brew install scons
           python3 Dev/Cpp/build.py platform=macos
+      - name: Sign binaries
+        env:
+          APPLE_CERT_BASE64: ${{ secrets.MACOS_CERT_BASE64 }}
+        uses: ./.github/actions/sign
+        with:
+          FRAMEWORK_PATH: ./Dev/Godot/addons/effekseer/bin/macos/libeffekseer.framework
+          APPLE_CERT_BASE64: ${{ secrets.MACOS_CERT_BASE64 }}
+          APPLE_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+          APPLE_DEV_ID: ${{ secrets.MACOS_DEV_ID }}
+          APPLE_DEV_TEAM_ID: ${{ secrets.MACOS_DEV_TEAM_ID }}
+          APPLE_DEV_APP_ID: ${{ secrets.MACOS_DEV_APP_ID }}
+          APPLE_DEV_PASSWORD: ${{ secrets.MACOS_DEV_PASSWORD }}
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
