@@ -25,9 +25,7 @@ class MaterialShader;
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-/**
-	@brief	描画コマンド
-*/
+
 class RenderCommand3D {
 public:
 	RenderCommand3D();
@@ -46,9 +44,6 @@ private:
 	godot::RID m_material;
 };
 
-/**
-	@brief	2D描画コマンド
-*/
 class RenderCommand2D {
 public:
 	RenderCommand2D();
@@ -72,34 +67,9 @@ private:
 //
 //----------------------------------------------------------------------------------
 
-/**
-	@brief	ダイナミックテクスチャ
-*/
-class DynamicTexture
-{
-public:
-	DynamicTexture();
-	~DynamicTexture();
-	void Init(size_t width, size_t height);
-	float* Pixels(size_t x, size_t y);
-	void Update();
-
-	godot::RID GetRID() { return m_texture2D; }
-
-private:
-	godot::RID m_texture2D;
-	godot::PackedByteArray m_pixels;
-	size_t m_textureWidth;
-	size_t m_textureHeight;
-	bool m_dirty = false;
-};
-
 class Renderer;
 using RendererRef = Effekseer::RefPtr<Renderer>;
 
-/**
-	@brief	描画クラス
-*/
 class Renderer
 	: public EffekseerRenderer::Renderer
 	, public Effekseer::ReferenceObject
@@ -223,10 +193,6 @@ public:
 
 private:
 	bool IsSoftParticleEnabled();
-
-	void TransferVertexToMesh3D(godot::RID mesh, const void* vertexData, size_t spriteCount);
-
-	void TransferVertexToMesh2D(godot::RID mesh, const void* vertexData, size_t spriteCount);
 
 	void TransferVertexToMesh(godot::RID mesh, const uint8_t* vertexData, size_t spriteCount, bool is3d);
 

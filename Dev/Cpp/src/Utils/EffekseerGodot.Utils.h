@@ -364,30 +364,11 @@ struct GdAttributeNrmTan {
 };
 
 struct GdAttributeAdvance {
-	std::array<float, 6> advance;
+	std::array<uint16_t, 12> advance;
 };
 
 struct GdAttributeCustom {
 	std::array<uint16_t, 8> custom;
-};
-
-struct GdLitVertex3D {
-	Effekseer::Vector3D pos;
-	uint32_t normal;
-	uint32_t tangent;
-};
-
-struct GdBasicAttribute {
-	Effekseer::Color color;
-	Effekseer::Vector2D uv;
-};
-
-struct GdAdvancedAttribute {
-	Effekseer::Color color;
-	Effekseer::Vector2D uv;
-
-	std::array<float, 4> custom0;
-	std::array<float, 4> custom1;
 };
 
 struct GdMeshVertexPos {

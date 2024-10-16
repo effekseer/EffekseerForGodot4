@@ -20,11 +20,11 @@ static const char* GdTextureWrap[] = {
 static const char uniform_3D[] =
 R"(
 )";
-static const char vertex_Sprite_Unlit_3D[] =
+static const char vertex_Sprite_Simple_3D[] =
 R"(
 	VERTEX = (VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
 )";
-static const char vertex_Sprite_Lit_3D[] =
+static const char vertex_Sprite_Complex_3D[] =
 R"(
 	VERTEX = (VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	NORMAL = (VIEW_MATRIX * vec4(NORMAL, 0.0)).xyz;
@@ -50,12 +50,13 @@ vec3 UnpackNormal(float fbits) {
 }
 )";
 
-static const char vertex_Model_Unlit_3D[] =
+static const char vertex_Model_Simple_3D[] =
 R"(
 	VERTEX = (MODELVIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
     UV = ApplyModelUV(UV, INSTANCE_CUSTOM);
+	NORMAL = (MODELVIEW_MATRIX * vec4(NORMAL, 0.0)).xyz;
 )";
-static const char vertex_Model_Lit_3D[] =
+static const char vertex_Model_Complex_3D[] =
 R"(
 	VERTEX = (MODELVIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
     UV = ApplyModelUV(UV, INSTANCE_CUSTOM);
@@ -73,28 +74,28 @@ R"(
 uniform mat4 ModelMatrix[16];
 uniform int CullingType = 0;
 )";
-static const char varying_Model_Unlit_2D[] =
+static const char varying_Model_Simple_2D[] =
 R"(
 varying vec3 v_Normal;
 )";
-static const char varying_Lit_2D[] =
+static const char varying_Complex_2D[] =
 R"(
 varying vec3 v_Normal;
 varying vec3 v_Tangent;
 varying vec3 v_Binormal;
 )";
-static const char vertex_Sprite_Unlit_2D[] =
+static const char vertex_Sprite_Simple_2D[] =
 R"(
 	VERTEX = VERTEX * BaseScale;
 )";
-static const char vertex_Sprite_Lit_2D[] =
+static const char vertex_Sprite_Complex_2D[] =
 R"(
 	VERTEX = VERTEX * BaseScale;
 	v_Normal = normalize(UnpackNormal(CUSTOM0.x));
 	v_Tangent = normalize(UnpackNormal(CUSTOM0.y));
 	v_Binormal = cross(v_Normal, v_Tangent);
 )";
-static const char vertex_Model_Unlit_2D[] =
+static const char vertex_Model_Simple_2D[] =
 R"(
 	VERTEX = (ModelMatrix[INSTANCE_ID] * vec4(VERTEX, CUSTOM0.x, 1.0)).xy;
 	VERTEX = VERTEX * BaseScale;
@@ -102,7 +103,7 @@ R"(
 	mat3 normal_matrix = mat3(ModelMatrix[INSTANCE_ID]);
 	v_Normal = normalize(normal_matrix * UnpackNormal(CUSTOM0.y));
 )";
-static const char vertex_Model_Lit_2D[] =
+static const char vertex_Model_Complex_2D[] =
 R"(
 	VERTEX = (ModelMatrix[INSTANCE_ID] * vec4(VERTEX, CUSTOM0.x, 1.0)).xy;
 	VERTEX = VERTEX * BaseScale;
@@ -123,34 +124,21 @@ uniform sampler2D ColorTexture : source_color, %s, %s;
 static const char fragment_Model_2D[] =
 R"(
 	if (CullingType == 0) {
-		if (v_Normal.z < 0.0) discard;
+		if (normal.z < 0.0) discard;
 	} else if (CullingType == 1) {
-		if (v_Normal.z > 0.0) discard;
+		if (normal.z > 0.0) discard;
 	}
 )";
 
-static const char fragment_ColorMap_3D[] =
+static const char fragment_ColorMap[] =
 R"(
-	vec4 colorTexel = texture(ColorTexture, UV);
-	ALBEDO = colorTexel.rgb * COLOR.rgb;
-	ALPHA = colorTexel.a * COLOR.a;
+	vec4 color = texture(ColorTexture, UV);
+	color *= COLOR;
 )";
 
-static const char fragment_EmissiveScale_3D[] =
+static const char fragment_EmissiveScale[] =
 R"(
-	ALBEDO *= EmissiveScale;
-)";
-
-static const char fragment_EmissiveScale_2D[] =
-R"(
-	COLOR.rgb *= EmissiveScale;
-)";
-
-static const char fragment_ColorMap_2D[] =
-R"(
-	vec4 colorTexel = texture(ColorTexture, UV);
-	COLOR.rgb = colorTexel.rgb * COLOR.rgb;
-	COLOR.a = colorTexel.a * COLOR.a;
+	color.rgb *= EmissiveScale;
 )";
 
 static const char uniform_NormalMap[] =
@@ -158,18 +146,9 @@ R"(
 uniform sampler2D NormalTexture : hint_normal, %s, %s;
 )";
 
-static const char fragment_NormalMap_3D[] =
+static const char fragment_NormalMap[] =
 R"(
 	vec3 normalTexel = texture(NormalTexture, UV).xyz * 2.0 - 1.0;
-	NORMAL = normalize(mat3(TANGENT, BINORMAL, NORMAL) * normalTexel);
-)";
-
-static const char fragment_NormalMap_2D[] =
-R"(
-	vec3 normalTexel = texture(NormalTexture, UV).xyz * 2.0 - 1.0;
-	vec3 normal = normalize(v_Normal);
-	vec3 tangent = normalize(v_Tangent);
-	vec3 binormal = normalize(v_Binormal);
 	NORMAL = normalize(mat3(tangent, binormal, normal) * normalTexel);
 )";
 
@@ -190,23 +169,12 @@ vec2 DistortionMap(vec4 texel, float intencity, vec2 offset, vec3 tangent, vec3 
 }
 )";
 
-static const char fragment_DistortionMap_3D[] =
+static const char fragment_DistortionMap[] =
 R"(
-	vec4 distTexel = texture(DistortionTexture, UV);
-	vec2 distUV = DistortionMap(distTexel, DistortionIntensity, COLOR.xy, TANGENT, BINORMAL);
-	vec4 colorTexel = texture(ScreenTexture, SCREEN_UV + distUV);
-	colorTexel.a = distTexel.a;
-	ALBEDO = colorTexel.rgb;
-	ALPHA = colorTexel.a * COLOR.a;
-)";
-
-static const char fragment_DistortionMap_2D[] =
-R"(
-	vec4 distTexel = texture(DistortionTexture, UV);
-	vec2 distUV = DistortionMap(distTexel, DistortionIntensity, COLOR.xy, v_Tangent, v_Binormal);
-	vec4 colorTexel = texture(ScreenTexture, SCREEN_UV + distUV);
-	colorTexel.a = distTexel.a;
-	COLOR = vec4(colorTexel.rgb, colorTexel.a * COLOR.a);
+	vec4 dist = texture(DistortionTexture, UV);
+	vec2 uv = DistortionMap(dist, DistortionIntensity, COLOR.xy, tangent, binormal);
+	vec4 color = texture(ScreenTexture, SCREEN_UV + uv);
+	color.a = dist.a * COLOR.a;
 )";
 
 static const char uniform_SoftParticle[] =
@@ -234,7 +202,7 @@ float SoftParticle(vec4 texel, float fragZ, vec4 params, vec4 reconstruct1, vec4
 static const char fragment_SoftParticle[] =
 R"(
 	vec4 reconstruct2 = vec4(PROJECTION_MATRIX[2][2], PROJECTION_MATRIX[3][2], PROJECTION_MATRIX[2][3], PROJECTION_MATRIX[3][3]);
-	ALPHA *= SoftParticle(texture(DepthTexture, SCREEN_UV), FRAGCOORD.z, SoftParticleParams, SoftParticleReco, reconstruct2);
+	color.a *= SoftParticle(texture(DepthTexture, SCREEN_UV), FRAGCOORD.z, SoftParticleParams, SoftParticleReco, reconstruct2);
 )";
 
 static const char uniform_Advanced[] =
@@ -245,10 +213,10 @@ uniform vec4 UVDistortionParam;
 uniform vec4 BlendTextureParam;
 uniform vec4 EdgeColor;
 uniform vec2 EdgeParam;
-uniform sampler2D AlphaTexture : source_color, %s, %s;
+uniform sampler2D AlphaTexture : hint_default_white, %s, %s;
 uniform sampler2D UVDistTexture : hint_normal, %s, %s;
-uniform sampler2D BlendTexture : source_color, %s, %s;
-uniform sampler2D BlendAlphaTexture : source_color, %s, %s;
+uniform sampler2D BlendTexture : %s, %s, %s;
+uniform sampler2D BlendAlphaTexture : hint_default_white, %s, %s;
 uniform sampler2D BlendUVDistTexture : hint_normal, %s, %s;
 )";
 
@@ -372,20 +340,27 @@ R"(
 varying vec4 v_alphaDistUV;
 varying vec4 v_blendAlphaDistUV;
 varying vec4 v_blendFBNextUV;
+varying vec2 v_fbRateAlphaThr;
 )";
 
 static const char vertex_Advanced_Sprite[] =
 R"(
-	v_alphaDistUV = vec4(unpackHalf2x16(floatBitsToUint(CUSTOM0.x)), unpackHalf2x16(floatBitsToUint(CUSTOM0.y)));
-	v_blendAlphaDistUV = vec4(unpackHalf2x16(floatBitsToUint(CUSTOM0.z)), unpackHalf2x16(floatBitsToUint(CUSTOM0.w)));
+	vec2 alphaUV = unpackHalf2x16(floatBitsToUint(CUSTOM0.x));
+	vec2 distUV = unpackHalf2x16(floatBitsToUint(CUSTOM0.y));
+	vec2 blendAlphaUV = unpackHalf2x16(floatBitsToUint(CUSTOM0.z));
+	vec2 blendDistUV = unpackHalf2x16(floatBitsToUint(CUSTOM0.w));
+	vec2 blendUV = unpackHalf2x16(floatBitsToUint(CUSTOM1.x));
+	vec2 flipbookAlphaThr = unpackHalf2x16(floatBitsToUint(CUSTOM1.y));
+)";
 
-	float flipbookRate = 0.0f;
-	vec2 flipbookNextIndexUV = vec2(0.0f);
-	if (FlipbookParameter1.x > 0.0) {
-		ApplyFlipbookVS(flipbookRate, flipbookNextIndexUV, FlipbookParameter1, FlipbookParameter2, CUSTOM1.z, UV);
-	}
-	v_blendFBNextUV = vec4(CUSTOM1.xy, flipbookNextIndexUV);
-	UV2 = vec2(flipbookRate, CUSTOM1.w);
+static const char vertex_Advanced_Sprite_Normal_2D[] =
+R"(
+	vec2 alphaUV = unpackHalf2x16(floatBitsToUint(CUSTOM0.z));
+	vec2 distUV = unpackHalf2x16(floatBitsToUint(CUSTOM0.w));
+	vec2 blendAlphaUV = unpackHalf2x16(floatBitsToUint(CUSTOM1.x));
+	vec2 blendDistUV = unpackHalf2x16(floatBitsToUint(CUSTOM1.y));
+	vec2 blendUV = unpackHalf2x16(floatBitsToUint(CUSTOM1.z));
+	vec2 flipbookAlphaThr = unpackHalf2x16(floatBitsToUint(CUSTOM1.w));
 )";
 
 static const char vertex_Advanced_Model[] =
@@ -395,66 +370,63 @@ R"(
 	vec2 blendAlphaUV = ApplyModelUV(UV, ModelBlendAlphaUV[INSTANCE_ID]);
 	vec2 blendDistUV = ApplyModelUV(UV, ModelBlendDistUV[INSTANCE_ID]);
 	vec2 blendUV = ApplyModelUV(UV, ModelBlendUV[INSTANCE_ID]);
+	vec2 flipbookAlphaThr = vec2(FlipbookIndexNextRate[INSTANCE_ID].r, AlphaThreshold[INSTANCE_ID].r);
+)";
 
+static const char vertex_Advanced_Common[] =
+R"(
 	float flipbookRate = 0.0f;
 	vec2 flipbookNextIndexUV = vec2(0.0f);
 	if (FlipbookParameter1.x > 0.0) {
-		float flipbookIndex = FlipbookIndexNextRate[INSTANCE_ID].r;
-		ApplyFlipbookVS(flipbookRate, flipbookNextIndexUV, FlipbookParameter1, FlipbookParameter2, flipbookIndex, UV);
+		ApplyFlipbookVS(flipbookRate, flipbookNextIndexUV, FlipbookParameter1, FlipbookParameter2, flipbookAlphaThr.x, UV);
 	}
-	float alphaThreshold = AlphaThreshold[INSTANCE_ID].r;
-	UV2 = vec2(flipbookRate, alphaThreshold);
 	v_alphaDistUV = vec4(alphaUV, distUV);
 	v_blendAlphaDistUV = vec4(blendAlphaUV, blendDistUV);
 	v_blendFBNextUV = vec4(blendUV, flipbookNextIndexUV);
+	v_fbRateAlphaThr = vec2(flipbookRate, flipbookAlphaThr.y);
 )";
 
 static const char fragment_Advanced_Distortion[] =
 R"(
 	vec2 uvOffset = texture(UVDistTexture, v_alphaDistUV.zw).xy * 2.0 - 1.0;
 	uvOffset *= UVDistortionParam.x;
-	vec4 distTexel = texture(DistortionTexture, UV);
-	vec2 distUV = DistortionMap(distTexel, DistortionIntensity, COLOR.xy, TANGENT, BINORMAL);
-	vec4 colorTexel = texture(ScreenTexture, SCREEN_UV + distUV);
-	colorTexel.a = distTexel.a;
+	vec4 dist = texture(DistortionTexture, UV + uvOffset);
 
 	if (FlipbookParameter1.x > 0.0) {
-		vec4 distTexelNext = texture(DistortionTexture, v_blendFBNextUV.zw + uvOffset);
-		vec2 distUVNext = DistortionMap(distTexelNext, DistortionIntensity, COLOR.xy, TANGENT, BINORMAL);
-		vec4 colorTexelNext = texture(ScreenTexture, SCREEN_UV + distUVNext);
-		colorTexelNext.a = distTexelNext.a;
-		colorTexel = ApplyFlipbookFS(colorTexel, colorTexelNext, UV2.x);
+		vec4 distNext = texture(DistortionTexture, v_blendFBNextUV.zw);
+		dist = ApplyFlipbookFS(dist, distNext, v_fbRateAlphaThr.x);
 	}
 
-	vec4 alphaTexColor = texture(AlphaTexture, v_alphaDistUV.xy + uvOffset);
-	colorTexel.a *= alphaTexColor.r * alphaTexColor.a;
+	vec4 alphaTexel = texture(AlphaTexture, v_alphaDistUV.xy + uvOffset);
+	dist.a *= alphaTexel.r * alphaTexel.a;
 
 	vec2 blendUVOffset = texture(BlendUVDistTexture, v_blendAlphaDistUV.zw).xy * 2.0 - 1.0;
 	blendUVOffset *= UVDistortionParam.y;
 
-	vec4 blendColor = texture(BlendTexture, v_blendFBNextUV.xy + blendUVOffset);
+	vec4 blendDist = texture(BlendTexture, v_blendFBNextUV.xy + blendUVOffset);
 	vec4 blendAlpha = texture(BlendAlphaTexture, v_blendAlphaDistUV.xy + blendUVOffset);
-	blendColor.a *= blendAlpha.r * blendAlpha.a;
+	blendDist.a *= blendAlpha.r * blendAlpha.a;
+	
+	ApplyTextureBlending(dist, blendDist, int(BlendTextureParam.x));
 
-	ApplyTextureBlending(colorTexel, blendColor, int(BlendTextureParam.x));
-
-	ALBEDO = colorTexel.rgb;
-	ALPHA = colorTexel.a * COLOR.a;
+	vec2 uv = DistortionMap(dist, DistortionIntensity, COLOR.xy, tangent, binormal);
+	vec4 color = texture(ScreenTexture, SCREEN_UV + uv);
+	color.a = dist.a * COLOR.a;
 )";
 
 static const char fragment_Advanced_NotDistortion[] =
 R"(
 	vec2 uvOffset = texture(UVDistTexture, v_alphaDistUV.zw).xy * 2.0 - 1.0;
 	uvOffset *= UVDistortionParam.x;
-	vec4 colorTexel = texture(ColorTexture, UV + uvOffset);
+	vec4 color = texture(ColorTexture, UV + uvOffset);
 
 	if (FlipbookParameter1.x > 0.0) {
-		vec4 colorTexelNext = texture(ColorTexture, v_blendFBNextUV.zw);
-		colorTexel = ApplyFlipbookFS(colorTexel, colorTexelNext, UV2.x);
+		vec4 colorNext = texture(ColorTexture, v_blendFBNextUV.zw);
+		color = ApplyFlipbookFS(color, colorNext, v_fbRateAlphaThr.x);
 	}
 
-	vec4 alphaTexColor = texture(AlphaTexture, v_alphaDistUV.xy + uvOffset);
-	colorTexel.a *= alphaTexColor.r * alphaTexColor.a;
+	vec4 alphaTexel = texture(AlphaTexture, v_alphaDistUV.xy + uvOffset);
+	color.a *= alphaTexel.r * alphaTexel.a;
 
 	vec2 blendUVOffset = texture(BlendUVDistTexture, v_blendAlphaDistUV.zw).xy * 2.0 - 1.0;
 	blendUVOffset *= UVDistortionParam.y;
@@ -463,34 +435,33 @@ R"(
 	vec4 blendAlpha = texture(BlendAlphaTexture, v_blendAlphaDistUV.xy + blendUVOffset);
 	blendColor.a *= blendAlpha.r * blendAlpha.a;
 	
-	ApplyTextureBlending(colorTexel, blendColor, int(BlendTextureParam.x));
+	ApplyTextureBlending(color, blendColor, int(BlendTextureParam.x));
 
-	ALBEDO = colorTexel.rgb * COLOR.rgb;
-	ALPHA = colorTexel.a * COLOR.a;
+	color *= COLOR;
 )";
 
 static const char fragment_Falloff_Model_NotDistortion[] =
 R"(
 	if (FalloffParam.x != 0.0) {
-		float cdotN = clamp(dot(VIEW, NORMAL), 0.0, 1.0);
+		float cdotN = clamp(dot(view, normal), 0.0, 1.0);
 		vec4 falloffBlendColor = mix(FalloffEndColor, FalloffBeginColor, pow(cdotN, FalloffParam.z));
 		if (FalloffParam.y == 0.0) {
-			ALBEDO += falloffBlendColor.rgb;
+			color.rgb += falloffBlendColor.rgb;
 		} else if (FalloffParam.y == 1.0) {
-			ALBEDO -= falloffBlendColor.rgb;
+			color.rgb -= falloffBlendColor.rgb;
 		} else if (FalloffParam.y == 2.0) {
-			ALBEDO *= falloffBlendColor.rgb;
+			color.rgb *= falloffBlendColor.rgb;
 		}
-		ALPHA *= falloffBlendColor.a;
+		color.a *= falloffBlendColor.a;
 	}
 )";
 
 static const char fragment_EdgeColor[] =
 R"(
-	if (ALPHA <= max(0.0, UV2.y)) {
+	if (color.a <= max(0.0, v_fbRateAlphaThr.y)) {
 		discard;
 	}
-	ALBEDO = mix(EdgeColor.rgb * EdgeParam.y, ALBEDO, ceil((ALPHA - UV2.y) - EdgeParam.x));
+	color.rgb = mix(EdgeColor.rgb * EdgeParam.y, color.rgb, ceil((color.a - v_fbRateAlphaThr.y) - EdgeParam.x));
 )";
 
 void GeneratePredefined(std::string& code, BuiltinShader::Settings settings)
@@ -530,6 +501,7 @@ void GeneratePredefined(std::string& code, BuiltinShader::Settings settings)
 			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(BuiltinTextures::Alpha))],
 			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(BuiltinTextures::UVDist))],
 			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(BuiltinTextures::UVDist))],
+			settings.shaderType == BuiltinShaderType::Distortion ? "hint_normal" : "source_color",
 			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(BuiltinTextures::Blend))],
 			GdTextureWrap[static_cast<int>(settings.GetTextureWrap(BuiltinTextures::Blend))],
 			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(BuiltinTextures::BlendAlpha))],
@@ -558,11 +530,11 @@ void GeneratePredefined(std::string& code, BuiltinShader::Settings settings)
 	if (settings.IsNode2D()) {
 		if (settings.shaderType != BuiltinShaderType::Unlit) {
 			code += func_Normal_2D;
-			code += varying_Lit_2D;
+			code += varying_Complex_2D;
 		}
 		else if (settings.IsModel()) {
 			code += func_Normal_2D;
-			code += varying_Model_Unlit_2D;
+			code += varying_Model_Simple_2D;
 		}
 	}
 
@@ -578,23 +550,34 @@ void GenerateVertexCode(std::string& code, BuiltinShader::Settings settings)
 	code += "\nvoid vertex() {";
 
 	if (settings.IsUsingAdvanced()) {
-		code += (settings.IsSprite()) ? vertex_Advanced_Sprite : vertex_Advanced_Model;
+		if (settings.IsSprite()) {
+			if (settings.IsNode2D() && settings.shaderType != BuiltinShaderType::Unlit) {
+				code += vertex_Advanced_Sprite_Normal_2D;
+			}
+			else {
+				code += vertex_Advanced_Sprite;
+			}
+		}
+		else {
+			code += vertex_Advanced_Model;
+		}
+		code += vertex_Advanced_Common;
 	}
 
 	if (settings.IsNode3D()) {
 		if (settings.IsSprite()) {
-			code += (settings.shaderType == BuiltinShaderType::Unlit) ? vertex_Sprite_Unlit_3D : vertex_Sprite_Lit_3D;
+			code += (settings.shaderType == BuiltinShaderType::Unlit) ? vertex_Sprite_Simple_3D : vertex_Sprite_Complex_3D;
 		}
 		else if (settings.IsModel()) {
-			code += (settings.shaderType == BuiltinShaderType::Unlit) ? vertex_Model_Unlit_3D : vertex_Model_Lit_3D;
+			code += (settings.shaderType == BuiltinShaderType::Unlit) ? vertex_Model_Simple_3D : vertex_Model_Complex_3D;
 		}
 	}
 	else if (settings.IsNode2D()) {
 		if (settings.IsSprite()) {
-			code += (settings.shaderType == BuiltinShaderType::Unlit) ? vertex_Sprite_Unlit_2D : vertex_Sprite_Lit_2D;
+			code += (settings.shaderType == BuiltinShaderType::Unlit) ? vertex_Sprite_Simple_2D : vertex_Sprite_Complex_2D;
 		}
 		else if (settings.IsModel()) {
-			code += (settings.shaderType == BuiltinShaderType::Unlit) ? vertex_Model_Unlit_2D : vertex_Model_Lit_2D;
+			code += (settings.shaderType == BuiltinShaderType::Unlit) ? vertex_Model_Simple_2D : vertex_Model_Complex_2D;
 		}
 	}
 
@@ -605,10 +588,35 @@ void GenerateFragmentCode(std::string& code, BuiltinShader::Settings settings)
 {
 	using namespace EffekseerRenderer;
 
-	code += "\nvoid fragment() {";
+	code += "\nvoid fragment() {\n";
 
-	if (settings.IsNode2D() && settings.IsModel()) {
-		code += fragment_Model_2D;
+	if (settings.IsNode3D()) {
+		if (settings.shaderType != BuiltinShaderType::Unlit) {
+			code += "\tvec3 view = VIEW;\n";
+			code += "\tvec3 normal = NORMAL;\n";
+			code += "\tvec3 tangent = TANGENT;\n";
+			code += "\tvec3 binormal = BINORMAL;\n";
+		}
+		else if (settings.IsModel()) {
+			code += "\tvec3 view = vec3(0.0, 0.0, 1.0);\n";
+			code += "\tvec3 normal = NORMAL;\n";
+		}
+	}
+	else {
+		if (settings.shaderType != BuiltinShaderType::Unlit) {
+			code += "\tvec3 view = vec3(0.0, 0.0, 1.0);\n";
+			code += "\tvec3 normal = normalize(v_Normal);\n";
+			code += "\tvec3 tangent = normalize(v_Tangent);\n";
+			code += "\tvec3 binormal = normalize(v_Binormal);\n";
+		}
+		else if (settings.IsModel()) {
+			code += "\tvec3 view = vec3(0.0, 0.0, 1.0);\n";
+			code += "\tvec3 normal = normalize(v_Normal);\n";
+		}
+
+		if (settings.IsModel()) {
+			code += fragment_Model_2D;
+		}
 	}
 
 	if (settings.shaderType == BuiltinShaderType::Distortion) {
@@ -616,7 +624,7 @@ void GenerateFragmentCode(std::string& code, BuiltinShader::Settings settings)
 			code += fragment_Advanced_Distortion;
 		}
 		else {
-			code += settings.IsNode3D() ? fragment_DistortionMap_3D : fragment_DistortionMap_2D;
+			code += fragment_DistortionMap;
 		}
 	}
 	else {
@@ -624,18 +632,18 @@ void GenerateFragmentCode(std::string& code, BuiltinShader::Settings settings)
 			code += fragment_Advanced_NotDistortion;
 		}
 		else {
-			code += settings.IsNode3D() ? fragment_ColorMap_3D : fragment_ColorMap_2D;
+			code += fragment_ColorMap;
 		}
 
 		if (settings.shaderType == BuiltinShaderType::Lighting) {
-			code += settings.IsNode3D() ? fragment_NormalMap_3D : fragment_NormalMap_2D;
+			code += fragment_NormalMap;
 		}
 
 		if (settings.IsUsingAdvanced() && settings.IsModel()) {
 			code += fragment_Falloff_Model_NotDistortion;
 		}
 
-		code += settings.IsNode3D() ? fragment_EmissiveScale_3D : fragment_EmissiveScale_2D;
+		code += fragment_EmissiveScale;
 	}
 
 	if (settings.IsUsingAdvanced()) {
@@ -644,6 +652,14 @@ void GenerateFragmentCode(std::string& code, BuiltinShader::Settings settings)
 
 	if (settings.IsUsingSoftParticle()) {
 		code += fragment_SoftParticle;
+	}
+
+	if (settings.IsNode3D()) {
+		code += "\tALBEDO = color.rgb;\n";
+		code += "\tALPHA = color.a;\n";
+	}
+	else {
+		code += "\tCOLOR = color;\n";
 	}
 
 	code += "}\n";
@@ -714,13 +730,13 @@ void GenerateParamDecls(std::vector<ParamDecl>& paramDecls, NodeType nodeType, G
 				paramDecls.push_back({ "FalloffEndColor", ParamType::Vector4, 0, 1, offsetof(PCBNormal, FalloffParam) + 32 });
 			}
 		}
-		
-		size_t textureOffset = (shaderType == BuiltinShaderType::Lighting) ? 1 : 0;
-		paramDecls.push_back({ "AlphaTexture", ParamType::Texture, 0, uint8_t(1 + textureOffset), 0 });
-		paramDecls.push_back({ "UVDistTexture", ParamType::Texture, 0, uint8_t(2 + textureOffset), 0 });
-		paramDecls.push_back({ "BlendTexture", ParamType::Texture, 0, uint8_t(3 + textureOffset), 0 });
-		paramDecls.push_back({ "BlendAlphaTexture", ParamType::Texture, 0, uint8_t(4 + textureOffset), 0 });
-		paramDecls.push_back({ "BlendUVDistTexture", ParamType::Texture, 0, uint8_t(5 + textureOffset), 0 });
+
+		size_t textureOffset = (shaderType == BuiltinShaderType::Unlit) ? 1 : 2;
+		paramDecls.push_back({ "AlphaTexture", ParamType::Texture, 0, uint8_t(textureOffset + 0), 0 });
+		paramDecls.push_back({ "UVDistTexture", ParamType::Texture, 0, uint8_t(textureOffset + 1), 0 });
+		paramDecls.push_back({ "BlendTexture", ParamType::Texture, 0, uint8_t(textureOffset + 2), 0 });
+		paramDecls.push_back({ "BlendAlphaTexture", ParamType::Texture, 0, uint8_t(textureOffset + 3), 0 });
+		paramDecls.push_back({ "BlendUVDistTexture", ParamType::Texture, 0, uint8_t(textureOffset + 4), 0 });
 	}
 
 	if (nodeType == NodeType::Node3D) {
