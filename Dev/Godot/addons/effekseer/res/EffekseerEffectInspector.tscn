@@ -34,16 +34,11 @@ script = ExtResource("3")
 
 [node name="Label-Subject" type="Label" parent="."]
 layout_mode = 2
-offset_right = 240.0
-offset_bottom = 26.0
 text = "Effekseer Effect Preview"
 
 [node name="Previewer" type="SubViewportContainer" parent="."]
-custom_minimum_size = Vector2i(240, 240)
+custom_minimum_size = Vector2(240, 240)
 layout_mode = 2
-offset_top = 30.0
-offset_right = 240.0
-offset_bottom = 270.0
 stretch = true
 
 [node name="SubViewport" type="SubViewport" parent="Previewer"]
@@ -116,42 +111,28 @@ mesh = SubResource("7")
 [node name="EffekseerEmitter2D" type="EffekseerEmitter2D" parent="Previewer/SubViewport/Preview2D"]
 
 [node name="Camera2D" type="Camera2D" parent="Previewer/SubViewport/Preview2D"]
-current = true
 editor_draw_screen = false
 
 [node name="Controller" type="HBoxContainer" parent="."]
 layout_mode = 2
-offset_top = 274.0
-offset_right = 240.0
-offset_bottom = 305.0
 
 [node name="PlayButton" type="Button" parent="Controller"]
 layout_mode = 2
-offset_right = 77.0
-offset_bottom = 31.0
 size_flags_horizontal = 3
 text = "Play"
 
 [node name="StopButton" type="Button" parent="Controller"]
 layout_mode = 2
-offset_left = 81.0
-offset_right = 158.0
-offset_bottom = 31.0
 size_flags_horizontal = 3
 text = "Stop"
 
 [node name="OptionsButton" type="MenuButton" parent="Controller"]
 layout_mode = 2
-offset_left = 162.0
-offset_right = 240.0
-offset_bottom = 31.0
 size_flags_horizontal = 3
 text = "Options"
 flat = false
 item_count = 3
 popup/item_0/text = "Reset Camera3D"
-popup/item_0/id = 0
-popup/item_1/text = ""
 popup/item_1/id = -1
 popup/item_1/separator = true
 popup/item_2/text = "View Mode"
@@ -159,63 +140,37 @@ popup/item_2/id = 2
 
 [node name="OpenEditorButton" type="Button" parent="."]
 layout_mode = 2
-offset_top = 309.0
-offset_right = 240.0
-offset_bottom = 340.0
 text = "Open in Effekseer"
 
 [node name="HSeparator1" type="HSeparator" parent="."]
 layout_mode = 2
-offset_top = 344.0
-offset_right = 240.0
-offset_bottom = 348.0
 
 [node name="Label-Triggers" type="Label" parent="."]
 layout_mode = 2
-offset_top = 352.0
-offset_right = 240.0
-offset_bottom = 378.0
 text = "Triggers"
 
 [node name="Triggers" type="HBoxContainer" parent="."]
 layout_mode = 2
-offset_top = 382.0
-offset_right = 240.0
-offset_bottom = 413.0
 
 [node name="Trigger0" type="Button" parent="Triggers"]
 layout_mode = 2
-offset_right = 57.0
-offset_bottom = 31.0
 size_flags_horizontal = 3
 text = "0"
 
 [node name="Trigger1" type="Button" parent="Triggers"]
 layout_mode = 2
-offset_left = 61.0
-offset_right = 118.0
-offset_bottom = 31.0
 size_flags_horizontal = 3
 text = "1"
 
 [node name="Trigger2" type="Button" parent="Triggers"]
 layout_mode = 2
-offset_left = 122.0
-offset_right = 179.0
-offset_bottom = 31.0
 size_flags_horizontal = 3
 text = "2"
 
 [node name="Trigger3" type="Button" parent="Triggers"]
 layout_mode = 2
-offset_left = 183.0
-offset_right = 240.0
-offset_bottom = 31.0
 size_flags_horizontal = 3
 text = "3"
 
 [node name="HSeparator2" type="HSeparator" parent="."]
 layout_mode = 2
-offset_top = 417.0
-offset_right = 240.0
-offset_bottom = 421.0

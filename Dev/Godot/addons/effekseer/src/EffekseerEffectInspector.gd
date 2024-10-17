@@ -12,9 +12,11 @@ var effect
 @onready var emitter2d := $Previewer/SubViewport/Preview2D/EffekseerEmitter2D
 @onready var camera2d := $Previewer/SubViewport/Preview2D/Camera2D
 
+const VIEW_MODE_3D: int = 0
+const VIEW_MODE_2D: int = 1
+
 var popup_menu: PopupMenu
-var view_menu: PopupMenu
-var view_mode: int = 0
+var view_mode: int = VIEW_MODE_3D
 
 func _enter_tree():
 	if editor:
@@ -179,47 +181,44 @@ func _update_camera_2d():
 		viewport.canvas_transform.x = Vector2(scale, 0)
 		viewport.canvas_transform.y = Vector2(0, scale)
 
+const MENU_ID_RESET_CAMERA: int = 0
+const MENU_ID_VIEW_3D: int = 2
+const MENU_ID_VIEW_2D: int = 3
+
 func _setup_option_menu():
 	popup_menu = $Controller/OptionsButton.get_popup()
 	popup_menu.clear()
 	popup_menu.connect("id_pressed",Callable(self,"_menu_pressed"))
-	popup_menu.add_item("Reset Camera3D", 0)
+	popup_menu.add_item("Reset Camera", MENU_ID_RESET_CAMERA)
 	popup_menu.add_separator()
-	
-	view_menu = PopupMenu.new()
-	view_menu.name = "View Mode"
-	view_menu.add_radio_check_item("3D", 0)
-	view_menu.add_radio_check_item("2D", 1)
-	view_menu.set_item_checked(0, view_mode == 0)
-	view_menu.set_item_checked(1, view_mode == 1)
-	view_menu.connect("id_pressed",Callable(self,"_view_mode_changed"))
-	popup_menu.add_submenu_item("View Mode", "View Mode")
-	popup_menu.add_child(view_menu)
+	popup_menu.add_radio_check_item("3D View", MENU_ID_VIEW_3D)
+	popup_menu.add_radio_check_item("2D View", MENU_ID_VIEW_2D)
+	popup_menu.set_item_checked(MENU_ID_VIEW_3D, view_mode == VIEW_MODE_3D)
+	popup_menu.set_item_checked(MENU_ID_VIEW_2D, view_mode == VIEW_MODE_2D)
 
 func _menu_pressed(id: int):
-	if id == 0:
-		if view_mode == 0:
-			target_pos3d = Vector3.ZERO
-			zoom3d = 0
-			azimuth = 45.0
-			elevation = 20.0
-			_update_camera_3d()
-		else:
-			target_pos2d = Vector2.ZERO
-			zoom2d = 0
-			_update_camera_2d()
-
-func _view_mode_changed(id: int):
-	print("_view_mode_changed")
-	view_mode = id
-	view_menu.set_item_checked(0, id == 0)
-	view_menu.set_item_checked(1, id == 1)
-	preview3d.visible = view_mode == 0
-	preview2d.visible = view_mode == 1
-	
-	if view_mode == 0:
-		camera3d.make_current()
-		_update_camera_3d()
-	else:
-		camera2d.make_current()
-		_update_camera_2d()
+	match id:
+		MENU_ID_RESET_CAMERA:
+			if view_mode == 0:
+				target_pos3d = Vector3.ZERO
+				zoom3d = 0
+				azimuth = 45.0
+				elevation = 20.0
+				_update_camera_3d()
+			else:
+				target_pos2d = Vector2.ZERO
+				zoom2d = 0
+				_update_camera_2d()
+		MENU_ID_VIEW_3D, MENU_ID_VIEW_2D:
+			view_mode = id - MENU_ID_VIEW_3D
+			popup_menu.set_item_checked(MENU_ID_VIEW_3D, view_mode == VIEW_MODE_3D)
+			popup_menu.set_item_checked(MENU_ID_VIEW_2D, view_mode == VIEW_MODE_2D)
+			preview3d.visible = view_mode == VIEW_MODE_3D
+			preview2d.visible = view_mode == VIEW_MODE_2D
+			
+			if view_mode == VIEW_MODE_3D:
+				camera3d.make_current()
+				_update_camera_3d()
+			else:
+				camera2d.make_current()
+				_update_camera_2d()
