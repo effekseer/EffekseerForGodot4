@@ -106,6 +106,8 @@ private:
 	godot::PackedByteArray m_attributeData;
 	godot::PackedByteArray m_indexData;
 
+	bool m_verticalFlipped = false;
+
 public:
 	static RendererRef Create(int32_t squareMaxCount, int32_t drawMaxCount);
 
@@ -186,6 +188,9 @@ public:
 	Effekseer::Backend::TextureRef CreateProxyTexture(EffekseerRenderer::ProxyTextureType type) override;
 
 	void DeleteProxyTexture(Effekseer::Backend::TextureRef& texture) override;
+
+	void SetVerticalFlipped(bool flipped) { m_verticalFlipped = flipped; }
+	bool IsVerticalFlipped() const { return m_verticalFlipped; }
 
 	virtual int GetRef() override { return Effekseer::ReferenceObject::GetRef(); }
 	virtual int AddRef() override { return Effekseer::ReferenceObject::AddRef(); }

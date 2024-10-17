@@ -222,6 +222,7 @@ void EffekseerSystem::_update_pre_draw()
 					Transform3D camera_transform = camera->get_camera_transform();
 					Effekseer::Matrix44 matrix = EffekseerGodot::ToEfkMatrix44(camera_transform.inverse());
 					m_renderer->SetCameraMatrix(matrix);
+					m_renderer->SetVerticalFlipped(false);
 				}
 			}
 			else if (layer.layer_type == LayerType::Render2D) {
@@ -229,16 +230,19 @@ void EffekseerSystem::_update_pre_draw()
 				Effekseer::Matrix44 matrix = EffekseerGodot::ToEfkMatrix44(camera_transform.inverse());
 				matrix.Values[3][2] = -1.0f; // Z offset
 				m_renderer->SetCameraMatrix(matrix);
+				m_renderer->SetVerticalFlipped(true);
 			}
 		}
 		else if (i == LAYER_EDITOR_3D) {
 			Effekseer::Matrix44 matrix = EffekseerGodot::ToEfkMatrix44(m_editor3d_camera_transform.inverse());
 			m_renderer->SetCameraMatrix(matrix);
+			m_renderer->SetVerticalFlipped(false);
 		}
 		else if (i == LAYER_EDITOR_2D) {
 			Effekseer::Matrix44 matrix = EffekseerGodot::ToEfkMatrix44(m_editor2d_camera_transform.inverse());
 			matrix.Values[3][2] = -1.0f; // Z offset
 			m_renderer->SetCameraMatrix(matrix);
+			m_renderer->SetVerticalFlipped(true);
 		}
 
 		m_renderer->BeginRendering();
