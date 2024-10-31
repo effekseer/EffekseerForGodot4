@@ -12,4 +12,5 @@ func _parse_begin(object: Object) -> void:
 	var inspector = load("res://addons/effekseer/res/EffekseerEffectInspector.tscn").instantiate()
 	inspector.editor = editor
 	inspector.effect = object
+	inspector.active = true
 	add_custom_control(inspector)

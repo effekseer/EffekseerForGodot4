@@ -18,6 +18,7 @@ void EffekseerEffect::_bind_methods()
 	GDBIND_METHOD(EffekseerEffect, import, "path", "shrink_binary");
 	GDBIND_METHOD(EffekseerEffect, load);
 	GDBIND_METHOD(EffekseerEffect, release);
+	GDBIND_METHOD(EffekseerEffect, calculate_duration);
 
 	GDBIND_PROPERTY_SET_GET(EffekseerEffect, data_bytes, Variant::PACKED_BYTE_ARRAY);
 	GDBIND_PROPERTY_SET_GET(EffekseerEffect, subresources, Variant::DICTIONARY);
@@ -138,6 +139,15 @@ void EffekseerEffect::set_scale(float scale)
 {
 	m_scale = scale;
 	release();
+}
+
+float EffekseerEffect::calculate_duration() const
+{
+	if (m_native == nullptr) {
+		return 0.0f;
+	}
+	auto term = m_native->CalculateTerm();
+	return (float)term.TermMax / 60.0f;
 }
 
 void EffekseerEffect::setup_node_render(Effekseer::EffectNode* node, TargetLayer targetLayer)

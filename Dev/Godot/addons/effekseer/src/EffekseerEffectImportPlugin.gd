@@ -10,7 +10,7 @@ func _get_recognized_extensions():
 	return ["efkefc"]
 
 func _get_import_order():
-	return 5
+	return 10
 
 func _get_save_extension():
 	return "res";

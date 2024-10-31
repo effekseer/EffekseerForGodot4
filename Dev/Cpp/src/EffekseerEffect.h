@@ -43,6 +43,8 @@ public:
 
 	void set_scale(float scale);
 
+	float calculate_duration() const;
+
 	Effekseer::EffectRef& get_native() { return m_native; }
 
 	bool is_ready() const { return m_native != nullptr; }

@@ -9,14 +9,21 @@ var _editor_viewport_2d: Array[SubViewport] = []
 var _editor_viewport_3d: Array[SubViewport] = []
 var _editor_play_button: Button = null
 
-func _init():
+
+func _enter_tree() -> void:
 	_editor_play_button = Button.new()
 	_editor_play_button.hide()
 	_editor_play_button.pressed.connect(_on_editor_play_button_pressed)
 	set_process(true)
 
 
-func set_editor(editor_plugin: EditorPlugin):
+func _exit_tree() -> void:
+	if _editor_play_button:
+		_editor_play_button.queue_free()
+		_editor_play_button = null
+
+
+func set_editor(editor_plugin: EditorPlugin) -> void:
 	_editor_plugin = editor_plugin
 	_find_viewports(editor_plugin.get_editor_interface().get_base_control())
 

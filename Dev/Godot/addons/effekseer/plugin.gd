@@ -16,7 +16,6 @@ func _enter_tree():
 	add_project_setting("effekseer/draw_max_count", 256, TYPE_INT, PROPERTY_HINT_RANGE, "16,1024")
 	add_project_setting("effekseer/sound_script", plugin_source_path + "/EffekseerSound.gd", TYPE_STRING, PROPERTY_HINT_FILE, "*.gd,*.cs")
 	add_editor_setting("effekseer/editor_path", "", TYPE_STRING, PROPERTY_HINT_GLOBAL_FILE, get_editor_file_name())
-	add_editor_setting("effekseer/preview_mode", "", TYPE_INT, PROPERTY_HINT_ENUM, "3D,2D")
 	
 	var icon = load(plugin_path + "/icon16.png") as Texture2D
 	var theme = EditorInterface.get_editor_theme()
@@ -51,7 +50,6 @@ func _exit_tree():
 	
 func _disable_plugin():
 	remove_editor_setting("effekseer/editor_path")
-	remove_editor_setting("effekseer/preview_mode")
 	remove_project_setting("effekseer/sound_script")
 	remove_project_setting("effekseer/draw_max_count")
 	remove_project_setting("effekseer/square_max_count")

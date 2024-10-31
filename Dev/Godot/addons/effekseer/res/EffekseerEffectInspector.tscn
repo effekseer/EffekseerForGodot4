@@ -1,7 +1,8 @@
-[gd_scene load_steps=9 format=3 uid="uid://ckpyb8jcaxnmy"]
+[gd_scene load_steps=10 format=3 uid="uid://ckpyb8jcaxnmy"]
 
-[ext_resource type="Shader" path="res://addons/effekseer/res/EffekseerEffectInspector.gdshader" id="2_mfcjt"]
+[ext_resource type="Shader" path="res://addons/effekseer/res/EffekseerEffectInspector3D.gdshader" id="2_mfcjt"]
 [ext_resource type="Script" path="res://addons/effekseer/src/EffekseerEffectInspector.gd" id="3"]
+[ext_resource type="Shader" path="res://addons/effekseer/res/EffekseerEffectInspector2D.gdshader" id="3_bby3q"]
 
 [sub_resource type="World3D" id="World3D_3kb0j"]
 
@@ -11,30 +12,65 @@ shader = ExtResource("2_mfcjt")
 
 [sub_resource type="PlaneMesh" id="2"]
 
-[sub_resource type="Shader" id="5"]
-code = "shader_type canvas_item;
-render_mode unshaded;
-
-void fragment() {
-	vec2 pos = UV * 32.0;
-	float lum = abs(step(0.5, fract(pos.x)) - step(0.5, fract(pos.y))) * 0.2 + 0.2;
-	COLOR = vec4(vec3(lum), 1.0);
-}
-"
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_f17e1"]
+shading_mode = 0
+vertex_color_use_as_albedo = true
+vertex_color_is_srgb = true
 
 [sub_resource type="ShaderMaterial" id="6"]
-shader = SubResource("5")
+shader = ExtResource("3_bby3q")
 
-[sub_resource type="PlaneMesh" id="7"]
+[sub_resource type="QuadMesh" id="QuadMesh_74fko"]
+size = Vector2(10, 10)
 
 [node name="EffekseerEffectInspector" type="VBoxContainer"]
 offset_right = 240.0
 offset_bottom = 368.0
+theme_override_constants/separation = 0
 script = ExtResource("3")
 
 [node name="Label-Subject" type="Label" parent="."]
 layout_mode = 2
 text = "Effekseer Effect Preview"
+
+[node name="ToolBar" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="ViewModeButton" type="Button" parent="ToolBar"]
+layout_mode = 2
+tooltip_text = "Switch view mode (2D/3D)"
+theme_override_font_sizes/font_size = 12
+text = "3D"
+
+[node name="ResetCameraButton" type="Button" parent="ToolBar"]
+layout_mode = 2
+tooltip_text = "Reset camera"
+theme_override_font_sizes/font_size = 12
+
+[node name="GridVisibleToggle" type="Button" parent="ToolBar"]
+layout_mode = 2
+tooltip_text = "Switch grid visible"
+toggle_mode = true
+
+[node name="MeshVisibleToggle" type="Button" parent="ToolBar"]
+layout_mode = 2
+tooltip_text = "Switch mesh visible"
+toggle_mode = true
+
+[node name="OptionButton" type="MenuButton" parent="ToolBar"]
+visible = false
+layout_mode = 2
+tooltip_text = "Other viewer settings"
+flat = false
+
+[node name="Spacer" type="Control" parent="ToolBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EditButton" type="Button" parent="ToolBar"]
+layout_mode = 2
+tooltip_text = "Open in Effekseer editor"
+theme_override_font_sizes/font_size = 12
 
 [node name="Previewer" type="SubViewportContainer" parent="."]
 custom_minimum_size = Vector2(240, 240)
@@ -44,12 +80,14 @@ stretch = true
 [node name="SubViewport" type="SubViewport" parent="Previewer"]
 world_3d = SubResource("World3D_3kb0j")
 handle_input_locally = false
+msaa_3d = 1
 audio_listener_enable_2d = true
 audio_listener_enable_3d = true
 size = Vector2i(240, 240)
 render_target_update_mode = 4
 
 [node name="Preview3D" type="Node3D" parent="Previewer/SubViewport"]
+visible = false
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Previewer/SubViewport/Preview3D"]
 transform = Transform3D(1, 0, 0, 0, 0.34202, 0.939693, 0, -0.939693, 0.34202, 0, 10, 0)
@@ -60,117 +98,66 @@ omni_range = 100.0
 omni_attenuation = 0.4
 
 [node name="Camera3D" type="Camera3D" parent="Previewer/SubViewport/Preview3D"]
-transform = Transform3D(0.707107, -0.241845, 0.664463, 0, 0.939692, 0.342021, -0.707107, -0.241845, 0.664463, 10.6314, 5.47232, 10.6314)
+transform = Transform3D(0.707107, -0.241845, 0.664463, 0, 0.939692, 0.34202, -0.707107, -0.241845, 0.664463, 10.6314, 5.47232, 10.6314)
 current = true
 fov = 45.0
 far = 1000.0
 
-[node name="Box" type="Node3D" parent="Previewer/SubViewport/Preview3D"]
-transform = Transform3D(50, 0, 0, 0, 50, 0, 0, 0, 50, 0, 0, 0)
-
-[node name="Quad1" type="MeshInstance3D" parent="Previewer/SubViewport/Preview3D/Box"]
-transform = Transform3D(0.5, 0, 0, 0, -2.18557e-08, -0.5, 0, 0.5, -2.18557e-08, 0, 0, -0.5)
+[node name="Mesh3D" type="MeshInstance3D" parent="Previewer/SubViewport/Preview3D"]
+transform = Transform3D(25, 0, 0, 0, 25, 0, 0, 0, 25, 0, 0, 0)
 material_override = SubResource("ShaderMaterial_2nyyn")
 mesh = SubResource("2")
+skeleton = NodePath("")
 
-[node name="Quad2" type="MeshInstance3D" parent="Previewer/SubViewport/Preview3D/Box"]
-transform = Transform3D(-0.5, 4.37114e-08, -1.91069e-15, 0, -2.18557e-08, -0.5, -4.37114e-08, -0.5, 2.18557e-08, 0, 0, 0.5)
-material_override = SubResource("ShaderMaterial_2nyyn")
-mesh = SubResource("2")
-
-[node name="Quad3" type="MeshInstance3D" parent="Previewer/SubViewport/Preview3D/Box"]
-transform = Transform3D(-2.18557e-08, -0.5, 0, 0.5, -2.18557e-08, 0, 0, 0, 0.5, 0.5, 0, 0)
-material_override = SubResource("ShaderMaterial_2nyyn")
-mesh = SubResource("2")
-
-[node name="Quad4" type="MeshInstance3D" parent="Previewer/SubViewport/Preview3D/Box"]
-transform = Transform3D(-2.18557e-08, 0.5, 0, -0.5, -2.18557e-08, 0, 0, 0, 0.5, -0.5, 0, 0)
-material_override = SubResource("ShaderMaterial_2nyyn")
-mesh = SubResource("2")
-
-[node name="Quad5" type="MeshInstance3D" parent="Previewer/SubViewport/Preview3D/Box"]
-transform = Transform3D(0.5, 0, 0, 0, -0.5, 4.37114e-08, 0, -4.37114e-08, -0.5, 0, 0.5, 0)
-material_override = SubResource("ShaderMaterial_2nyyn")
-mesh = SubResource("2")
-
-[node name="Quad6" type="MeshInstance3D" parent="Previewer/SubViewport/Preview3D/Box"]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, -0.5, 0)
-material_override = SubResource("ShaderMaterial_2nyyn")
-mesh = SubResource("2")
+[node name="Grid3D" type="MeshInstance3D" parent="Previewer/SubViewport/Preview3D"]
+material_override = SubResource("StandardMaterial3D_f17e1")
 
 [node name="EffekseerEmitter3D" type="EffekseerEmitter3D" parent="Previewer/SubViewport/Preview3D"]
 
 [node name="Preview2D" type="Node2D" parent="Previewer/SubViewport"]
 visible = false
 
-[node name="Background" type="MeshInstance2D" parent="Previewer/SubViewport/Preview2D"]
+[node name="Camera2D" type="Camera2D" parent="Previewer/SubViewport/Preview2D"]
+zoom = Vector2(10, 10)
+editor_draw_screen = false
+
+[node name="Mesh2D" type="MeshInstance2D" parent="Previewer/SubViewport/Preview2D"]
 material = SubResource("6")
 scale = Vector2(100, 100)
-mesh = SubResource("7")
+mesh = SubResource("QuadMesh_74fko")
+
+[node name="Grid2D" type="MeshInstance2D" parent="Previewer/SubViewport/Preview2D"]
 
 [node name="EffekseerEmitter2D" type="EffekseerEmitter2D" parent="Previewer/SubViewport/Preview2D"]
-
-[node name="Camera2D" type="Camera2D" parent="Previewer/SubViewport/Preview2D"]
-editor_draw_screen = false
 
 [node name="Controller" type="HBoxContainer" parent="."]
 layout_mode = 2
 
 [node name="PlayButton" type="Button" parent="Controller"]
 layout_mode = 2
-size_flags_horizontal = 3
-text = "Play"
 
-[node name="StopButton" type="Button" parent="Controller"]
+[node name="ProgressBar" type="ProgressBar" parent="Controller"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Stop"
-
-[node name="OptionsButton" type="MenuButton" parent="Controller"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Options"
-flat = false
-item_count = 3
-popup/item_0/text = "Reset Camera3D"
-popup/item_1/id = -1
-popup/item_1/separator = true
-popup/item_2/text = "View Mode"
-popup/item_2/id = 2
-
-[node name="OpenEditorButton" type="Button" parent="."]
-layout_mode = 2
-text = "Open in Effekseer"
+size_flags_vertical = 4
+max_value = 100.1
+show_percentage = false
 
 [node name="HSeparator1" type="HSeparator" parent="."]
 layout_mode = 2
 
-[node name="Label-Triggers" type="Label" parent="."]
+[node name="Properties" type="GridContainer" parent="."]
 layout_mode = 2
+columns = 2
+
+[node name="LabelTriggers" type="Label" parent="Properties"]
+layout_mode = 2
+size_flags_horizontal = 3
 text = "Triggers"
 
-[node name="Triggers" type="HBoxContainer" parent="."]
-layout_mode = 2
-
-[node name="Trigger0" type="Button" parent="Triggers"]
+[node name="PropTriggers" type="HBoxContainer" parent="Properties"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "0"
-
-[node name="Trigger1" type="Button" parent="Triggers"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "1"
-
-[node name="Trigger2" type="Button" parent="Triggers"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "2"
-
-[node name="Trigger3" type="Button" parent="Triggers"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "3"
 
 [node name="HSeparator2" type="HSeparator" parent="."]
 layout_mode = 2
