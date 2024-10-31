@@ -96,10 +96,8 @@ void EffekseerSystem::_init_modules()
 		drawMaxCount = (int32_t)settings->get_setting("effekseer/draw_max_count");
 	}
 	if (settings->has_setting("effekseer/sound_script")) {
-		soundScript = Ref<Script>(settings->get_setting("effekseer/sound_script"));
-	}
-	else {
-		soundScript = ResourceLoader::get_singleton()->load("res://addons/effekseer/src/EffekseerSound.gd", "");
+		String soundScriptPath = (String)settings->get_setting("effekseer/sound_script");
+		soundScript = ResourceLoader::get_singleton()->load(soundScriptPath, "");
 	}
 
 	Ref<RefCounted> sound;
