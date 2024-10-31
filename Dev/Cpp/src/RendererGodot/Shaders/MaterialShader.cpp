@@ -739,14 +739,12 @@ MaterialShader::~MaterialShader()
 
 godot::RID MaterialShader::GetRID(Settings settings)
 {
-	auto it = m_cachedRID.find(settings.value);
-	if (it != m_cachedRID.end()) {
-		return it->second;
+	godot::RID rid = Shader::GetRID(settings.value);
+	if (rid.is_valid()) {
+		return rid;
 	}
 
-	godot::RID rid = GenerateShader(settings);
-	m_cachedRID.emplace(settings.value, rid);
-	return rid;
+	return GenerateShader(settings);
 }
 
 godot::RID MaterialShader::GenerateShader(Settings settings)
@@ -755,7 +753,7 @@ godot::RID MaterialShader::GenerateShader(Settings settings)
 	GenerateHeader(code, settings.nodeType, settings.renderSettings, m_unshaded);
 	code += settings.IsNode3D() ? m_shaderCode3D : m_shaderCode2D;
 
-	return CompileShader(code.c_str());
+	return AddCode(settings.value, code.c_str());
 }
 
 }

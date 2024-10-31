@@ -55,13 +55,28 @@ Shader::Shader(const char* name, EffekseerRenderer::RendererShaderType renderers
 
 Shader::~Shader()
 {
+	auto rs = godot::RenderingServer::get_singleton();
+	for (auto [key, rid] : m_cachedRID) {
+		rs->free_rid(rid);
+	}
+	m_cachedRID.clear();
 }
 
-godot::RID Shader::CompileShader(const char* code)
+godot::RID Shader::GetRID(uint32_t key)
+{
+	auto it = m_cachedRID.find(key);
+	if (it != m_cachedRID.end()) {
+		return it->second;
+	}
+	return {};
+}
+
+godot::RID Shader::AddCode(uint32_t key, const char* code)
 {
 	auto rs = godot::RenderingServer::get_singleton();
 	godot::RID rid = rs->shader_create();
 	rs->shader_set_code(rid, code);
+	m_cachedRID[key] = rid;
 	return rid;
 }
 

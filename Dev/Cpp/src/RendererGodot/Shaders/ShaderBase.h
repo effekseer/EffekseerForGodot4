@@ -59,7 +59,9 @@ public:
 
 	virtual ~Shader();
 
-	godot::RID CompileShader(const char* code);
+	godot::RID GetRID(uint32_t key);
+
+	godot::RID AddCode(uint32_t key, const char* code);
 
 	const std::vector<ParamDecl>& GetParamDecls3D() const { return m_paramDecls3D; }
 
@@ -107,6 +109,8 @@ public:
 
 protected:
 	void GenerateHeader(std::string& code, NodeType nodeType, RenderSettings renderSettings, bool unshaded);
+
+	std::unordered_map<uint32_t, godot::RID> m_cachedRID;
 
 	std::array<std::vector<uint8_t>, 2> m_constantBuffers;
 	std::vector<ParamDecl> m_paramDecls3D;

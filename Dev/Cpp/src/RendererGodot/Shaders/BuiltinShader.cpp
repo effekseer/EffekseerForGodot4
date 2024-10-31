@@ -813,14 +813,12 @@ BuiltinShader::~BuiltinShader()
 
 godot::RID BuiltinShader::GetRID(Settings settings)
 {
-	auto it = m_cachedRID.find(settings.value);
-	if (it != m_cachedRID.end()) {
-		return it->second;
+	godot::RID rid = Shader::GetRID(settings.value);
+	if (rid.is_valid()) {
+		return rid;
 	}
 
-	godot::RID rid = GenerateShader(settings);
-	m_cachedRID.emplace(settings.value, rid);
-	return rid;
+	return GenerateShader(settings);
 }
 
 godot::RID BuiltinShader::GenerateShader(Settings settings)
@@ -836,7 +834,7 @@ godot::RID BuiltinShader::GenerateShader(Settings settings)
 	GenerateVertexCode(code, settings);
 	GenerateFragmentCode(code, settings);
 
-	return CompileShader(code.c_str());
+	return AddCode(settings.value, code.c_str());
 }
 
 }

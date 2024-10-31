@@ -46,7 +46,6 @@ private:
 	godot::RID GenerateShader(Settings settings);
 
 private:
-	std::unordered_map<uint32_t, godot::RID> m_cachedRID;
 	bool m_unshaded{};
 	std::string m_shaderCode3D;
 	std::string m_shaderCode2D;
