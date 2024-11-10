@@ -2,22 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://beru4avctf1xx"
-path.s3tc="res://.godot/imported/tx_shockring01_256.png-c78ef9589d053552e950df9cc5ec5c17.s3tc.ctex"
-path.etc2="res://.godot/imported/tx_shockring01_256.png-c78ef9589d053552e950df9cc5ec5c17.etc2.ctex"
+uid="uid://bi0ydjxd40gxc"
+path="res://.godot/imported/tx_shockring01_256.png-c78ef9589d053552e950df9cc5ec5c17.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://effects/sample-material3/Textures/tx_shockring01_256.png"
-dest_files=["res://.godot/imported/tx_shockring01_256.png-c78ef9589d053552e950df9cc5ec5c17.s3tc.ctex", "res://.godot/imported/tx_shockring01_256.png-c78ef9589d053552e950df9cc5ec5c17.etc2.ctex"]
+dest_files=["res://.godot/imported/tx_shockring01_256.png-c78ef9589d053552e950df9cc5ec5c17.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

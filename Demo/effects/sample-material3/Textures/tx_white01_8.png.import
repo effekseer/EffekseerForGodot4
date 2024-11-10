@@ -2,22 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dvg08tpshgppx"
-path.s3tc="res://.godot/imported/tx_white01_8.png-a1fe37e90b5f88e6aa49018e0e8fae98.s3tc.ctex"
-path.etc2="res://.godot/imported/tx_white01_8.png-a1fe37e90b5f88e6aa49018e0e8fae98.etc2.ctex"
+uid="uid://b43c7fel7wdg7"
+path="res://.godot/imported/tx_white01_8.png-a1fe37e90b5f88e6aa49018e0e8fae98.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://effects/sample-material3/Textures/tx_white01_8.png"
-dest_files=["res://.godot/imported/tx_white01_8.png-a1fe37e90b5f88e6aa49018e0e8fae98.s3tc.ctex", "res://.godot/imported/tx_white01_8.png-a1fe37e90b5f88e6aa49018e0e8fae98.etc2.ctex"]
+dest_files=["res://.godot/imported/tx_white01_8.png-a1fe37e90b5f88e6aa49018e0e8fae98.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

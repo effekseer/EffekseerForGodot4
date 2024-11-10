@@ -2,22 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dnv15dls6b5tn"
-path.s3tc="res://.godot/imported/tx_aura07_256.png-ac29e00a42568227169e109264c17d10.s3tc.ctex"
-path.etc2="res://.godot/imported/tx_aura07_256.png-ac29e00a42568227169e109264c17d10.etc2.ctex"
+uid="uid://314n7m0n6u1h"
+path="res://.godot/imported/tx_aura07_256.png-ac29e00a42568227169e109264c17d10.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://effects/sample-material3/Textures/tx_aura07_256.png"
-dest_files=["res://.godot/imported/tx_aura07_256.png-ac29e00a42568227169e109264c17d10.s3tc.ctex", "res://.godot/imported/tx_aura07_256.png-ac29e00a42568227169e109264c17d10.etc2.ctex"]
+dest_files=["res://.godot/imported/tx_aura07_256.png-ac29e00a42568227169e109264c17d10.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

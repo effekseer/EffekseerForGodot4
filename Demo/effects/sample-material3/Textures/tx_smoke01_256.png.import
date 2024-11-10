@@ -2,22 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://8gteh52w6jls"
-path.s3tc="res://.godot/imported/tx_smoke01_256.png-94921e9f59d1555d86a398dc0210874d.s3tc.ctex"
-path.etc2="res://.godot/imported/tx_smoke01_256.png-94921e9f59d1555d86a398dc0210874d.etc2.ctex"
+uid="uid://i4igct3wcc1g"
+path="res://.godot/imported/tx_smoke01_256.png-94921e9f59d1555d86a398dc0210874d.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://effects/sample-material3/Textures/tx_smoke01_256.png"
-dest_files=["res://.godot/imported/tx_smoke01_256.png-94921e9f59d1555d86a398dc0210874d.s3tc.ctex", "res://.godot/imported/tx_smoke01_256.png-94921e9f59d1555d86a398dc0210874d.etc2.ctex"]
+dest_files=["res://.godot/imported/tx_smoke01_256.png-94921e9f59d1555d86a398dc0210874d.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

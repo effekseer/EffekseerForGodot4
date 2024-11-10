@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://biotbq03w7qhx"
+path="res://.godot/imported/ms_ice03.efkmodel-94aa06ea1d1df852e89898b2b02aa8fd.res"
+
+[deps]
+
+source_file="res://effects/sample-material3/Meshes/ms_ice03.efkmodel"
+dest_files=["res://.godot/imported/ms_ice03.efkmodel-94aa06ea1d1df852e89898b2b02aa8fd.res"]
+
+[params]
+
+compress=true

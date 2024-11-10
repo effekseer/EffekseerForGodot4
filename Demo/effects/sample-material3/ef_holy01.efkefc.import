@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://csayptyd6dgm3"
+path="res://.godot/imported/ef_holy01.efkefc-058a5693f4fdfe16ba55015d7b32ec4a.res"
+
+[deps]
+
+source_file="res://effects/sample-material3/ef_holy01.efkefc"
+dest_files=["res://.godot/imported/ef_holy01.efkefc-058a5693f4fdfe16ba55015d7b32ec4a.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

@@ -2,22 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://e5l54y420f8t"
-path.s3tc="res://.godot/imported/tx_noise06_256.png-5a4e461875d330ae4a35b8d2e85c6358.s3tc.ctex"
-path.etc2="res://.godot/imported/tx_noise06_256.png-5a4e461875d330ae4a35b8d2e85c6358.etc2.ctex"
+uid="uid://dicfsjyidnc12"
+path="res://.godot/imported/tx_noise06_256.png-5a4e461875d330ae4a35b8d2e85c6358.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://effects/sample-material3/Textures/tx_noise06_256.png"
-dest_files=["res://.godot/imported/tx_noise06_256.png-5a4e461875d330ae4a35b8d2e85c6358.s3tc.ctex", "res://.godot/imported/tx_noise06_256.png-5a4e461875d330ae4a35b8d2e85c6358.etc2.ctex"]
+dest_files=["res://.godot/imported/tx_noise06_256.png-5a4e461875d330ae4a35b8d2e85c6358.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1
@@ -33,4 +31,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

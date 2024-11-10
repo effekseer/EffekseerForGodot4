@@ -1,8 +1,9 @@
-[gd_scene load_steps=25 format=3 uid="uid://3d7kunu3aewa"]
+[gd_scene load_steps=26 format=3 uid="uid://3d7kunu3aewa"]
 
 [ext_resource type="Script" path="res://shared/brush_mesh.gd" id="2_8sywx"]
 [ext_resource type="Texture2D" uid="uid://cq0rnvcuc6xwp" path="res://shared/grid.png" id="2_qsys7"]
 [ext_resource type="Script" path="res://shared/moving_platform.gd" id="3_k68fg"]
+[ext_resource type="EffekseerEffect" uid="uid://bkbmaq2e1kq0e" path="res://effects/samples/Simple_Distortion.efkefc" id="4_siix3"]
 [ext_resource type="PackedScene" uid="uid://ddvisui326ulx" path="res://shared/enemy/walk_enemy.tscn" id="6_ce03d"]
 [ext_resource type="PackedScene" uid="uid://b1hhg61e4pgc" path="res://shared/player/player.tscn" id="6_k6snb"]
 [ext_resource type="Script" path="res://scripts/Stats.gd" id="7_jsj5c"]
@@ -272,6 +273,8 @@ transform = Transform3D(1, 0, 0, 0, 0.504, 0.863703, 0, -0.863703, 0.504, 0, 6.9
 shadow_enabled = true
 
 [node name="Effect" type="EffekseerEmitter3D" parent="."]
+effect = ExtResource("4_siix3")
+autoplay = false
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0.001, 3)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]

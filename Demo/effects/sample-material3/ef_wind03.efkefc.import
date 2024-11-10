@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://bhg42j3qwa2eh"
+path="res://.godot/imported/ef_wind03.efkefc-499f897d2bfcd19831aa6ae18fe45aa4.res"
+
+[deps]
+
+source_file="res://effects/sample-material3/ef_wind03.efkefc"
+dest_files=["res://.godot/imported/ef_wind03.efkefc-499f897d2bfcd19831aa6ae18fe45aa4.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/Scene3D.gd" id="1_2q4v7"]
 [ext_resource type="Texture2D" uid="uid://cq0rnvcuc6xwp" path="res://shared/grid.png" id="2_gwnl2"]
 [ext_resource type="Script" path="res://scripts/CameraController3D.gd" id="3_2wpy0"]
-[ext_resource type="EffekseerEffect" uid="uid://dfsyswa63i5xn" path="res://effects/samples/Laser01.efkefc" id="4_mg8ax"]
+[ext_resource type="EffekseerEffect" uid="uid://dfsyswa63i5xn" path="res://effects/samples/Laser01.efkefc" id="4_qxqi5"]
 [ext_resource type="PackedScene" uid="uid://3yy8se2knnd6" path="res://shared/gui.tscn" id="5_v7deq"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_12xne"]
@@ -57,7 +57,7 @@ mesh = SubResource("PrismMesh_53s0x")
 skeleton = NodePath("../..")
 
 [node name="Effect" type="EffekseerEmitter3D" parent="Player"]
-effect = ExtResource("4_mg8ax")
+effect = ExtResource("4_qxqi5")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("3")

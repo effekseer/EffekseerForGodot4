@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://c8b1lehf4h57y"
+path="res://.godot/imported/mt_wind03_groundCrack.efkmat-a83b174683cc04d0650346f886f8514a.res"
+
+[deps]
+
+source_file="res://effects/sample-material3/Materials/mt_wind03_groundCrack.efkmat"
+dest_files=["res://.godot/imported/mt_wind03_groundCrack.efkmat-a83b174683cc04d0650346f886f8514a.res"]
+
+[params]
+
+compress=true

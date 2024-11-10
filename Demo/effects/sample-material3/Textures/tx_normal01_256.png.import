@@ -2,28 +2,26 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cpvpovesxjwuq"
-path.s3tc="res://.godot/imported/tx_normal01_256.png-7e4b02bda327db8293f29ed85c3cd713.s3tc.ctex"
-path.etc2="res://.godot/imported/tx_normal01_256.png-7e4b02bda327db8293f29ed85c3cd713.etc2.ctex"
+uid="uid://pc4gg2gd6i7q"
+path="res://.godot/imported/tx_normal01_256.png-7e4b02bda327db8293f29ed85c3cd713.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://effects/sample-material3/Textures/tx_normal01_256.png"
-dest_files=["res://.godot/imported/tx_normal01_256.png-7e4b02bda327db8293f29ed85c3cd713.s3tc.ctex", "res://.godot/imported/tx_normal01_256.png-7e4b02bda327db8293f29ed85c3cd713.etc2.ctex"]
+dest_files=["res://.godot/imported/tx_normal01_256.png-7e4b02bda327db8293f29ed85c3cd713.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

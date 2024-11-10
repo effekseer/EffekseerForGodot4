@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://cdg12flv4kj7g"]
 
-[ext_resource type="EffekseerEffect" uid="uid://b3wm2n13noxus" path="res://effects/sample-material3/ef_fire01_throw.efkefc" id="1_8gcco"]
+[ext_resource type="EffekseerEffect" uid="uid://b3wm2n13noxus" path="res://effects/sample-material3/ef_fire01_projectile.efkefc" id="1_8gcco"]
 [ext_resource type="Script" path="res://shared/player/fireball.gd" id="1_smq6c"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_moa1b"]
