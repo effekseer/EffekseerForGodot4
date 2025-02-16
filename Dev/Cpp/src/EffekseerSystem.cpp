@@ -82,6 +82,7 @@ void EffekseerSystem::_init_modules()
 	int32_t instanceMaxCount = 4000;
 	int32_t squareMaxCount = 16000;
 	int32_t drawMaxCount = 256;
+	String soundScriptPath = "res://addons/effekseer/src/EffekseerSound.gd";
 	Ref<Script> soundScript;
 
 	auto settings = ProjectSettings::get_singleton();
@@ -96,11 +97,11 @@ void EffekseerSystem::_init_modules()
 		drawMaxCount = (int32_t)settings->get_setting("effekseer/draw_max_count");
 	}
 	if (settings->has_setting("effekseer/sound_script")) {
-		String soundScriptPath = (String)settings->get_setting("effekseer/sound_script");
-		soundScript = ResourceLoader::get_singleton()->load(soundScriptPath, "");
+		soundScriptPath = (String)settings->get_setting("effekseer/sound_script");
 	}
 
 	Ref<RefCounted> sound;
+	soundScript = ResourceLoader::get_singleton()->load(soundScriptPath, "");
 	if (soundScript.is_valid()) {
 		sound = EffekseerGodot::ScriptNew(soundScript);
 	}

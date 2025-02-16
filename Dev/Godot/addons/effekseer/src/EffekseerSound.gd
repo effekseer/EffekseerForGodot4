@@ -16,7 +16,7 @@ func play(params: Dictionary):
 	if params.positional:
 		if params.emitter is Node3D:
 			player = AudioStreamPlayer3D.new()
-			player.unit_db = volume_db
+			player.volume_db = volume_db
 			player.pitch_scale = pitch_scale
 			player.unit_size = params.distance
 			player.position = params.position
