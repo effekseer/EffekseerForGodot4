@@ -8,6 +8,8 @@
 #include <godot_cpp/classes/viewport.hpp>
 #include <godot_cpp/classes/mesh.hpp>
 #include <godot_cpp/classes/image.hpp>
+#include <godot_cpp/classes/world3d.hpp>
+#include <godot_cpp/classes/visual_instance3d.hpp>
 #include "../EffekseerEmitter3D.h"
 #include "../EffekseerEmitter2D.h"
 #include "../Utils/EffekseerGodot.Utils.h"
@@ -82,17 +84,18 @@ void RenderCommand3D::Reset()
 	}
 }
 
-void RenderCommand3D::SetupSprites(godot::World3D* world, int32_t priority)
+void RenderCommand3D::SetupSprites(godot::VisualInstance3D* parent, int32_t priority)
 {
 	auto rs = godot::RenderingServer::get_singleton();
 
 	m_base = rs->mesh_create();
 	rs->instance_set_base(m_instance, m_base);
-	rs->instance_set_scenario(m_instance, world->get_scenario());
+	rs->instance_set_scenario(m_instance, parent->get_world_3d()->get_scenario());
+	rs->instance_set_layer_mask(m_instance, parent->get_layer_mask());
 	rs->material_set_render_priority(m_material, priority);
 }
 
-void RenderCommand3D::SetupModels(godot::World3D* world, int32_t priority, godot::RID mesh, int32_t instanceCount)
+void RenderCommand3D::SetupModels(godot::VisualInstance3D* parent, int32_t priority, godot::RID mesh, int32_t instanceCount)
 {
 	auto rs = godot::RenderingServer::get_singleton();
 
@@ -100,7 +103,8 @@ void RenderCommand3D::SetupModels(godot::World3D* world, int32_t priority, godot
 	rs->multimesh_set_mesh(m_base, mesh);
 	rs->multimesh_allocate_data(m_base, instanceCount, godot::RenderingServer::MultimeshTransformFormat::MULTIMESH_TRANSFORM_3D, true, true);
 	rs->instance_set_base(m_instance, m_base);
-	rs->instance_set_scenario(m_instance, world->get_scenario());
+	rs->instance_set_scenario(m_instance, parent->get_world_3d()->get_scenario());
+	rs->instance_set_layer_mask(m_instance, parent->get_layer_mask());
 	rs->material_set_render_priority(m_material, priority);
 }
 
@@ -139,6 +143,7 @@ void RenderCommand2D::SetupSprites(godot::Node2D* parent)
 	rs->canvas_item_add_mesh(m_canvasItem, m_base);
 	rs->canvas_item_set_material(m_canvasItem, m_material);
 	rs->canvas_item_set_transform(m_canvasItem, parent->get_global_transform().affine_inverse());
+	rs->canvas_item_set_visibility_layer(m_canvasItem, parent->get_visibility_layer());
 }
 
 void RenderCommand2D::SetupModels(godot::Node2D* parent, godot::RID mesh, int32_t instanceCount)
@@ -152,6 +157,7 @@ void RenderCommand2D::SetupModels(godot::Node2D* parent, godot::RID mesh, int32_
 	rs->canvas_item_add_multimesh(m_canvasItem, m_base);
 	rs->canvas_item_set_material(m_canvasItem, m_material);
 	rs->canvas_item_set_transform(m_canvasItem, parent->get_global_transform().affine_inverse());
+	rs->canvas_item_set_visibility_layer(m_canvasItem, parent->get_visibility_layer());
 }
 
 //----------------------------------------------------------------------------------
@@ -395,7 +401,7 @@ void Renderer::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 		if (m_renderCount3D >= m_renderCommand3Ds.size()) return;
 
 		auto& command = m_renderCommand3Ds[m_renderCount3D];
-		command.SetupSprites(emitter->get_world_3d().ptr(), (int32_t)m_renderCount3D);
+		command.SetupSprites(emitter, (int32_t)m_renderCount3D);
 
 		// Transfer vertex data
 		TransferVertexToMesh(command.GetBase(), vertexDataPtr, spriteCount, true);
@@ -460,7 +466,7 @@ void Renderer::DrawPolygonInstanced(int32_t vertexCount, int32_t indexCount, int
 		if (m_renderCount3D >= m_renderCommand3Ds.size()) return;
 
 		auto& command = m_renderCommand3Ds[m_renderCount3D];
-		command.SetupModels(emitter->get_world_3d().ptr(), (int32_t)m_renderCount3D, meshRID, instanceCount);
+		command.SetupModels(emitter, (int32_t)m_renderCount3D, meshRID, instanceCount);
 		
 		auto multimeshRID = command.GetBase();
 

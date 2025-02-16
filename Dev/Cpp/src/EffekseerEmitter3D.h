@@ -1,15 +1,15 @@
 #pragma once
 
 #include <godot_cpp/godot.hpp>
-#include <godot_cpp/classes/node3d.hpp>
+#include <godot_cpp/classes/visual_instance3d.hpp>
 #include <godot_cpp/classes/viewport.hpp>
 #include "EffekseerEffect.h"
 
 namespace godot {
 
-class EffekseerEmitter3D : public Node3D
+class EffekseerEmitter3D : public VisualInstance3D
 {
-	GDCLASS(EffekseerEmitter3D, Node3D)
+	GDCLASS(EffekseerEmitter3D, VisualInstance3D)
 
 protected:
 	static void _bind_methods();

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <godot_cpp/classes/world3d.hpp>
+#include <godot_cpp/variant/packed_byte_array.hpp>
 #include "EffekseerRenderer.RenderStateBase.h"
 #include "EffekseerRenderer.StandardRenderer.h"
 #include "EffekseerGodot.Base.h"
@@ -14,6 +14,7 @@ namespace godot
 {
 class Node2D;
 class Node3D;
+class VisualInstance3D;
 }
 
 namespace EffekseerGodot
@@ -31,8 +32,8 @@ public:
 	RenderCommand3D();
 	~RenderCommand3D();
 	void Reset();
-	void SetupSprites(godot::World3D* world, int32_t priority);
-	void SetupModels(godot::World3D* world, int32_t priority, godot::RID mesh, int32_t instanceCount);
+	void SetupSprites(godot::VisualInstance3D* parent, int32_t priority);
+	void SetupModels(godot::VisualInstance3D* parent, int32_t priority, godot::RID mesh, int32_t instanceCount);
 
 	godot::RID GetBase() { return m_base; }
 	godot::RID GetInstance() { return m_instance; }
