@@ -572,7 +572,7 @@ void GenerateShaderCode(std::string& code, const Effekseer::MaterialFile& materi
 	}
 	else {
 		if (customData1Count > 0) AppendFormat(code, "\t%s customData1 = CustomData1[INSTANCE_ID].%s;\n", customData1Type, customData1Element);
-		if (customData2Count > 0) AppendFormat(code, "\t%s customData2 = CustomData2[INSTANCE_ID].%s;\n", customData2Type, customData1Element);
+		if (customData2Count > 0) AppendFormat(code, "\t%s customData2 = CustomData2[INSTANCE_ID].%s;\n", customData2Type, customData2Element);
 	}
 
 	std::string vertCode = baseCode;
