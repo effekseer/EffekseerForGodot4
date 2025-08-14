@@ -29,6 +29,7 @@ void EffekseerEmitter3D::_bind_methods()
 	GDBIND_PROPERTY_SET_GET(EffekseerEmitter3D, speed, Variant::FLOAT);
 	GDBIND_PROPERTY_SET_GET(EffekseerEmitter3D, color, Variant::COLOR);
 	GDBIND_PROPERTY_SET_GET(EffekseerEmitter3D, target_position, Variant::VECTOR3);
+	GDBIND_PROPERTY_SET_GET(EffekseerEmitter3D, base_render_priority, Variant::INT);
 
 	GDBIND_SIGNAL(EffekseerEmitter3D, finished);
 }
@@ -296,6 +297,16 @@ void EffekseerEmitter3D::send_trigger(int index)
 	for (int i = 0; i < m_handles.size(); i++) {
 		manager->SendTrigger(m_handles[i], index);
 	}
+}
+
+void EffekseerEmitter3D::set_base_render_priority(int base_render_priority)
+{
+	m_base_render_priority = base_render_priority;
+}
+
+int EffekseerEmitter3D::get_base_render_priority() const
+{
+	return m_base_render_priority;
 }
 
 void _find_viewports(Node* n, Array& viewports)

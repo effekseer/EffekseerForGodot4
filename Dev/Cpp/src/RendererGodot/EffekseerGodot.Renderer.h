@@ -15,6 +15,8 @@ namespace godot
 class Node2D;
 class Node3D;
 class VisualInstance3D;
+class EffekseerEmitter2D;
+class EffekseerEmitter3D;
 }
 
 namespace EffekseerGodot
@@ -64,6 +66,10 @@ private:
 	godot::RID m_material;
 };
 
+struct RenderContext3D {
+	int32_t renderCount = 0;
+};
+
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
@@ -91,6 +97,8 @@ private:
 	size_t m_renderCount3D = 0;
 	std::vector<RenderCommand2D> m_renderCommand2Ds;
 	size_t m_renderCount2D = 0;
+
+	std::unordered_map<godot::EffekseerEmitter3D*, RenderContext3D> m_renderContext3Ds;
 
 	struct ModelRenderState {
 		Effekseer::ModelRef model = nullptr;

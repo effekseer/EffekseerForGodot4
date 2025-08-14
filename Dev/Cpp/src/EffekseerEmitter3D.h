@@ -75,6 +75,10 @@ public:
 
 	void send_trigger(int index);
 
+	void set_base_render_priority(int base_render_priority);
+
+	int get_base_render_priority() const;
+
 	void set_editor_mode(bool enabled);
 
 private:
@@ -87,6 +91,7 @@ private:
 	float m_speed = 1.0f;
 	Effekseer::Color m_color = {255, 255, 255, 255};
 	Vector3 m_target_position = {};
+	int m_base_render_priority = 0;
 	bool m_editor_mode = false;
 };
 

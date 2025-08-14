@@ -218,6 +218,7 @@ bool Renderer::Initialize(int32_t drawMaxCount)
 
 	m_renderCommand3Ds.resize((size_t)drawMaxCount);
 	m_renderCommand2Ds.resize((size_t)drawMaxCount);
+	m_renderContext3Ds.reserve((size_t)drawMaxCount);
 
 	m_standardRenderer.reset(new StandardRenderer(this));
 
@@ -267,6 +268,7 @@ bool Renderer::BeginRendering()
 	// reset a renderer
 	m_standardRenderer->ResetAndRenderingIfRequired();
 	m_vertexStride = 0;
+	m_renderContext3Ds.clear();
 
 	return true;
 }
@@ -400,8 +402,13 @@ void Renderer::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 	{
 		if (m_renderCount3D >= m_renderCommand3Ds.size()) return;
 
+		auto result = m_renderContext3Ds.try_emplace(emitter);
+		RenderContext3D& context = result.first->second;
+		int32_t renderPriority = context.renderCount + emitter->get_base_render_priority();
+		context.renderCount++;
+
 		auto& command = m_renderCommand3Ds[m_renderCount3D];
-		command.SetupSprites(emitter, (int32_t)m_renderCount3D);
+		command.SetupSprites(emitter, renderPriority);
 
 		// Transfer vertex data
 		TransferVertexToMesh(command.GetBase(), vertexDataPtr, spriteCount, true);
@@ -465,8 +472,13 @@ void Renderer::DrawPolygonInstanced(int32_t vertexCount, int32_t indexCount, int
 	{
 		if (m_renderCount3D >= m_renderCommand3Ds.size()) return;
 
+		auto result = m_renderContext3Ds.try_emplace(emitter);
+		RenderContext3D& context = result.first->second;
+		int32_t renderPriority = context.renderCount + emitter->get_base_render_priority();
+		context.renderCount++;
+
 		auto& command = m_renderCommand3Ds[m_renderCount3D];
-		command.SetupModels(emitter, (int32_t)m_renderCount3D, meshRID, instanceCount);
+		command.SetupModels(emitter, renderPriority, meshRID, instanceCount);
 		
 		auto multimeshRID = command.GetBase();
 
