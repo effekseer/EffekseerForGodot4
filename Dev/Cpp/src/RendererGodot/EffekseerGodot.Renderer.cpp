@@ -92,6 +92,7 @@ void RenderCommand3D::SetupSprites(godot::VisualInstance3D* parent, int32_t prio
 	rs->instance_set_base(m_instance, m_base);
 	rs->instance_set_scenario(m_instance, parent->get_world_3d()->get_scenario());
 	rs->instance_set_layer_mask(m_instance, parent->get_layer_mask());
+	rs->instance_set_pivot_data(m_instance, parent->get_sorting_offset(), parent->is_sorting_use_aabb_center());
 	rs->material_set_render_priority(m_material, priority);
 }
 
@@ -105,6 +106,7 @@ void RenderCommand3D::SetupModels(godot::VisualInstance3D* parent, int32_t prior
 	rs->instance_set_base(m_instance, m_base);
 	rs->instance_set_scenario(m_instance, parent->get_world_3d()->get_scenario());
 	rs->instance_set_layer_mask(m_instance, parent->get_layer_mask());
+	rs->instance_set_pivot_data(m_instance, parent->get_sorting_offset(), parent->is_sorting_use_aabb_center());
 	rs->material_set_render_priority(m_material, priority);
 }
 
