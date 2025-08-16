@@ -327,6 +327,30 @@ inline godot::Color ToGdColor(uint32_t c)
 	return { (uint8_t)(c >> 24) / 255.0f, (uint8_t)(c >> 16) / 255.0f, (uint8_t)(c >> 8) / 255.0f, (uint8_t)(c) / 255.0f };
 }
 
+inline void ToGdBuffer(float* dst, Effekseer::Matrix44 matrix)
+{
+	dst[0] = matrix.Values[0][0];
+	dst[1] = matrix.Values[1][0];
+	dst[2] = matrix.Values[2][0];
+	dst[3] = matrix.Values[3][0];
+	dst[4] = matrix.Values[0][1];
+	dst[5] = matrix.Values[1][1];
+	dst[6] = matrix.Values[2][1];
+	dst[7] = matrix.Values[3][1];
+	dst[8] = matrix.Values[0][2];
+	dst[9] = matrix.Values[1][2];
+	dst[10] = matrix.Values[2][2];
+	dst[11] = matrix.Values[3][2];
+}
+
+inline void ToGdBuffer(float* dst, const float (&c)[4])
+{
+	dst[0] = c[0];
+	dst[1] = c[1];
+	dst[2] = c[2];
+	dst[3] = c[3];
+}
+
 size_t ToEfkString(char16_t* to, const godot::String& from, size_t size);
 
 godot::String ToGdString(const char16_t* from);

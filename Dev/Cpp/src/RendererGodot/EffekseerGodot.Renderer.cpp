@@ -39,23 +39,38 @@ namespace EffekseerGodot
 template <class T>
 inline void ApplyMultimeshParams3D(godot::RenderingServer* rs, godot::RID multimeshRID, T* constantBuffer, int32_t instanceCount)
 {
+	constexpr size_t InstanceSize = 20; // 4x3 Matrix + Color + UV
+	godot::PackedFloat32Array buffer;
+	buffer.resize(instanceCount * InstanceSize);
+	float* dst = buffer.ptrw();
+
 	for (int32_t i = 0; i < instanceCount; i++)
 	{
-		rs->multimesh_instance_set_transform(multimeshRID, i, EffekseerGodot::ToGdTransform3D(constantBuffer->ModelMatrix[i]));
-		rs->multimesh_instance_set_color(multimeshRID, i, EffekseerGodot::ToGdColor(constantBuffer->ModelColor[i]));
-		rs->multimesh_instance_set_custom_data(multimeshRID, i, EffekseerGodot::ToGdColor(constantBuffer->ModelUV[i]));
+		EffekseerGodot::ToGdBuffer(dst + 0, constantBuffer->ModelMatrix[i]);
+		EffekseerGodot::ToGdBuffer(dst + 12, constantBuffer->ModelColor[i]);
+		EffekseerGodot::ToGdBuffer(dst + 16, constantBuffer->ModelUV[i]);
+		dst += InstanceSize;
 	}
+
+	rs->multimesh_set_buffer(multimeshRID, buffer);
 }
 
 template <class T>
 inline void ApplyMultimeshParams2D(godot::RenderingServer* rs, godot::RID multimeshRID, T* constantBuffer, int32_t instanceCount)
 {
+	constexpr size_t InstanceSize = 16; // 4x2 Matrix + Color + UV
+	godot::PackedFloat32Array buffer;
+	buffer.resize(instanceCount * InstanceSize);
+	float* dst = buffer.ptrw();
+
 	for (int32_t i = 0; i < instanceCount; i++)
 	{
-		rs->multimesh_instance_set_transform_2d(multimeshRID, i, godot::Transform2D());
-		rs->multimesh_instance_set_color(multimeshRID, i, EffekseerGodot::ToGdColor(constantBuffer->ModelColor[i]));
-		rs->multimesh_instance_set_custom_data(multimeshRID, i, EffekseerGodot::ToGdColor(constantBuffer->ModelUV[i]));
+		dst[0] = dst[5] = 1.0f;  // Set identity matrix
+		EffekseerGodot::ToGdBuffer(dst + 8, constantBuffer->ModelColor[i]);
+		EffekseerGodot::ToGdBuffer(dst + 12, constantBuffer->ModelUV[i]);
 	}
+
+	rs->multimesh_set_buffer(multimeshRID, buffer);
 }
 
 RenderCommand3D::RenderCommand3D()
