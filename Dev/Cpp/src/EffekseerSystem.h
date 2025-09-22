@@ -44,15 +44,17 @@ public:
 
 	~EffekseerSystem();
 
+	void startup();
+
+	void shutdown();
+
 	bool is_ready() const;
 
 	void _init_modules();
+	
+	void _term_modules();
 
 	void _register_to_scenetree();
-
-	void _enter_tree();
-
-	void _exit_tree();
 
 	void _update_pre_draw();
 

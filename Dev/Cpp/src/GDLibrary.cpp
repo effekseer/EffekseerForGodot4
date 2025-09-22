@@ -9,7 +9,7 @@
 
 using namespace godot;
 
-void initialize_effekseer_module(ModuleInitializationLevel p_level)
+void effekseer_initialize(ModuleInitializationLevel p_level)
 {
 	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
 		return;
@@ -25,7 +25,7 @@ void initialize_effekseer_module(ModuleInitializationLevel p_level)
 	Engine::get_singleton()->register_singleton("EffekseerSystem", system);
 }
 
-void uninitialize_effekseer_module(ModuleInitializationLevel p_level)
+void effekseer_terminate(ModuleInitializationLevel p_level)
 {
 	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
 		return;
@@ -37,6 +37,20 @@ void uninitialize_effekseer_module(ModuleInitializationLevel p_level)
 	}
 }
 
+void effekseer_startup()
+{
+	if (auto system = EffekseerSystem::get_singleton()) {
+		system->startup();
+	}
+}
+
+void effekseer_shutdown()
+{
+	if (auto system = EffekseerSystem::get_singleton()) {
+		system->shutdown();
+	}
+}
+
 extern "C" 
 GDExtensionBool GDE_EXPORT effekseer_library_init(
 	GDExtensionInterfaceGetProcAddress p_get_proc_address,
@@ -45,8 +59,11 @@ GDExtensionBool GDE_EXPORT effekseer_library_init(
 {
 	GDExtensionBinding::InitObject init_obj(p_get_proc_address, p_library, r_initialization);
 
-	init_obj.register_initializer(initialize_effekseer_module);
-	init_obj.register_terminator(uninitialize_effekseer_module);
+	init_obj.register_initializer(effekseer_initialize);
+	init_obj.register_terminator(effekseer_terminate);
+	init_obj.register_startup_callback(effekseer_startup);
+	init_obj.register_shutdown_callback(effekseer_shutdown);
+	//init_obj.register_frame_callback(effekseer_frame);
 	init_obj.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_SCENE);
 
 	return init_obj.init();

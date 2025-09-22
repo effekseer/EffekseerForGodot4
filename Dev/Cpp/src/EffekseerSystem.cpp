@@ -35,10 +35,6 @@ EffekseerSystem* EffekseerSystem::s_singleton = nullptr;
 
 void EffekseerSystem::_bind_methods()
 {
-	GDBIND_METHOD(EffekseerSystem, _init_modules);
-	GDBIND_METHOD(EffekseerSystem, _register_to_scenetree);
-	GDBIND_METHOD(EffekseerSystem, _enter_tree);
-	GDBIND_METHOD(EffekseerSystem, _exit_tree);
 	GDBIND_METHOD(EffekseerSystem, _update_pre_draw);
 	GDBIND_METHOD(EffekseerSystem, spawn_effect_2d, "effect", "parent", "xform");
 	GDBIND_METHOD(EffekseerSystem, spawn_effect_3d, "effect", "parent", "xform");
@@ -55,17 +51,25 @@ EffekseerSystem::EffekseerSystem()
 {
 	assert(s_singleton == nullptr);
 	s_singleton = this;
-
-	call_deferred("_init_modules");
-	call_deferred("_register_to_scenetree");
 }
 
 EffekseerSystem::~EffekseerSystem()
 {
-	if (m_internal_node) {
-		m_internal_node->queue_free();
-	}
 	s_singleton = nullptr;
+}
+
+void EffekseerSystem::startup()
+{
+	_init_modules();
+	_register_to_scenetree();
+	RenderingServer::get_singleton()->connect("frame_pre_draw", Callable(this, "_update_pre_draw"));
+}
+
+void EffekseerSystem::shutdown()
+{
+	RenderingServer::get_singleton()->disconnect("frame_pre_draw", Callable(this, "_update_pre_draw"));
+	m_internal_node = nullptr;
+	_term_modules();
 }
 
 bool EffekseerSystem::is_ready() const
@@ -145,29 +149,19 @@ void EffekseerSystem::_init_modules()
 	m_load_list.clear();
 }
 
+void EffekseerSystem::_term_modules()
+{
+	m_manager.Reset();
+	m_renderer.Reset();
+}
+
 void EffekseerSystem::_register_to_scenetree()
 {
 	m_internal_node = memnew(Node());
 	m_internal_node->set_name("Effekseer");
-	m_internal_node->connect("tree_entered", Callable(this, "_enter_tree"));
-	m_internal_node->connect("tree_exited", Callable(this, "_exit_tree"));
 
 	auto tree = Object::cast_to<SceneTree>(Engine::get_singleton()->get_main_loop());
 	tree->get_root()->add_child(m_internal_node);
-}
-
-void EffekseerSystem::_enter_tree()
-{
-	RenderingServer::get_singleton()->connect("frame_pre_draw", Callable(this, "_update_pre_draw"));
-}
-
-void EffekseerSystem::_exit_tree()
-{
-	RenderingServer::get_singleton()->disconnect("frame_pre_draw", Callable(this, "_update_pre_draw"));
-
-	m_manager.Reset();
-	m_renderer.Reset();
-	m_internal_node = nullptr;
 }
 
 void EffekseerSystem::_update_pre_draw()
