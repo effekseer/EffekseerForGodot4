@@ -2,8 +2,8 @@
 
 #include <godot_cpp/variant/rid.hpp>
 #include <godot_cpp/variant/string.hpp>
-#include "EffekseerRenderer.ShaderBase.h"
-#include "EffekseerRenderer.CommonUtils.h"
+#include "EffekseerRendererCommon/EffekseerRenderer.ShaderBase.h"
+#include "EffekseerRendererCommon/EffekseerRenderer.CommonUtils.h"
 
 namespace EffekseerGodot
 {

@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include <godot_cpp/variant/packed_byte_array.hpp>
-#include "EffekseerRenderer.RenderStateBase.h"
-#include "EffekseerRenderer.StandardRenderer.h"
+#include "EffekseerRendererCommon/EffekseerRenderer.RenderStateBase.h"
+#include "EffekseerRendererCommon/EffekseerRenderer.StandardRenderer.h"
 #include "EffekseerGodot.Base.h"
 #include "EffekseerGodot.Renderer.h"
 #include "EffekseerGodot.RenderState.h"

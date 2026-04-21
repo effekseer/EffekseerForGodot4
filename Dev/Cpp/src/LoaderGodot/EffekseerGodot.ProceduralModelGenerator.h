@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include <Effekseer.h>
-#include <Effekseer/Model/ProceduralModelGenerator.h>
+#include <Effekseer/Model/Effekseer.ProceduralModelGenerator.h>
 
 namespace EffekseerGodot
 {

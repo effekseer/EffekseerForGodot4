@@ -77,7 +77,7 @@ void Model::UploadToEngine()
 		*dstVertex2++ = GdMeshVertexNrmTan{ ToGdNormal(v.Normal), ToGdTangent(v.Tangent) };
 
 		// Hacky way to send 3D depth attribute to 2D vertex shader
-		*dstAttribute++ = GdMeshAttribute{ v.VColor, v.UV, v.Position.Z, ToGdNormal(v.Normal), ToGdTangent(v.Tangent) };
+		*dstAttribute++ = GdMeshAttribute{ v.VColor, v.UV1, v.Position.Z, ToGdNormal(v.Normal), ToGdTangent(v.Tangent) };
 
 		aabbMin = Vec3f::Min(aabbMin, v.Position);
 		aabbMax = Vec3f::Max(aabbMax, v.Position);

@@ -1,6 +1,7 @@
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/classes/window.hpp>
+#include <godot_cpp/classes/world3d.hpp>
 #include <godot_cpp/classes/editor_script.hpp>
 #include <godot_cpp/classes/editor_interface.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>

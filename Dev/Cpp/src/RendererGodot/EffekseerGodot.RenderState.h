@@ -3,7 +3,7 @@
 //----------------------------------------------------------------------------------
 // Include
 //----------------------------------------------------------------------------------
-#include "EffekseerRenderer.RenderStateBase.h"
+#include "EffekseerRendererCommon/EffekseerRenderer.RenderStateBase.h"
 #include "EffekseerGodot.Base.h"
 
 //-----------------------------------------------------------------------------------

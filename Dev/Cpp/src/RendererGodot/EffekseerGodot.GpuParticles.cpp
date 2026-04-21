@@ -4,8 +4,8 @@
 
 #include "Effekseer.h"
 #include "Effekseer/Effekseer.InstanceGlobal.h"
-#include "Effekseer/Noise/CurlNoise.h"
-#include "Effekseer/Model/PointCacheGenerator.h"
+#include "Effekseer/Noise/Effekseer.CurlNoise.h"
+#include "Effekseer/Model/Effekseer.PointCacheGenerator.h"
 #include "../EffekseerEmitter3D.h"
 #include "../EffekseerEmitter2D.h"
 #include "../Utils/EffekseerGodot.Utils.h"

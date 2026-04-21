@@ -3,7 +3,7 @@
 #include <godot_cpp/classes/gd_script.hpp>
 #include <godot_cpp/classes/rendering_server.hpp>
 #include "EffekseerGodot.Utils.h"
-#include "EffekseerRenderer.CommonUtils.h"
+#include "EffekseerRendererCommon/EffekseerRenderer.CommonUtils.h"
 
 namespace EffekseerGodot
 {

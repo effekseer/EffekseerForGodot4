@@ -17,7 +17,6 @@
 #include <Effekseer.SIMD.h>
 #include "EffekseerGodot.Renderer.h"
 #include "EffekseerGodot.RenderState.h"
-#include "EffekseerGodot.Renderer.h"
 #include "EffekseerGodot.RenderingHandle.h"
 
 #include "EffekseerGodot.ModelRenderer.h"
@@ -25,11 +24,11 @@
 #include "EffekseerGodot.GpuParticles.h"
 #include "Shaders/BuiltinShader.h"
 
-#include "EffekseerRenderer.Renderer_Impl.h"
-#include "EffekseerRenderer.RibbonRendererBase.h"
-#include "EffekseerRenderer.RingRendererBase.h"
-#include "EffekseerRenderer.SpriteRendererBase.h"
-#include "EffekseerRenderer.TrackRendererBase.h"
+#include "EffekseerRendererCommon/EffekseerRenderer.Renderer_Impl.h"
+#include "EffekseerRendererCommon/EffekseerRenderer.RibbonRendererBase.h"
+#include "EffekseerRendererCommon/EffekseerRenderer.RingRendererBase.h"
+#include "EffekseerRendererCommon/EffekseerRenderer.SpriteRendererBase.h"
+#include "EffekseerRendererCommon/EffekseerRenderer.TrackRendererBase.h"
 
 //----------------------------------------------------------------------------------
 //
