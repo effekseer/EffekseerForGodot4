@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://qxskltaciq4b"
+path="res://.godot/imported/mt_wind03_groundAura.efkmat-50990c6924601f34bb34764d8af78e3d.res"
+
+[deps]
+
+source_file="res://effects/effect-materials/Materials/mt_wind03_groundAura.efkmat"
+dest_files=["res://.godot/imported/mt_wind03_groundAura.efkmat-50990c6924601f34bb34764d8af78e3d.res"]
+
+[params]
+
+compress=true

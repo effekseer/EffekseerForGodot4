@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://jm0vpyq47gy3"
+path="res://.godot/imported/mt_wind03_tornado01.efkmat-6c7a86d9d9a7cf93fe01db5204589182.res"
+
+[deps]
+
+source_file="res://effects/effect-materials/Materials/mt_wind03_tornado01.efkmat"
+dest_files=["res://.godot/imported/mt_wind03_tornado01.efkmat-6c7a86d9d9a7cf93fe01db5204589182.res"]
+
+[params]
+
+compress=true

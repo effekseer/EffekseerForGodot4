@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://r3oqc6hcd6u0"
+path="res://.godot/imported/mt_slash01.efkmat-6cf744f06f9bac0fe54a909abeb0955f.res"
+
+[deps]
+
+source_file="res://effects/effect-materials/Materials/mt_slash01.efkmat"
+dest_files=["res://.godot/imported/mt_slash01.efkmat-6cf744f06f9bac0fe54a909abeb0955f.res"]
+
+[params]
+
+compress=true

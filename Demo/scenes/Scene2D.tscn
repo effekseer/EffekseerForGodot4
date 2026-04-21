@@ -1,73 +1,79 @@
-[gd_scene load_steps=8 format=3 uid="uid://30enxyxxrg2i"]
+[gd_scene format=3 uid="uid://30enxyxxrg2i"]
 
-[ext_resource type="Texture2D" uid="uid://7qnlb6vc3vxh" path="res://icon.png" id="2"]
+[ext_resource type="Script" uid="uid://cfu03oif0dn81" path="res://scripts/Scene3D.gd" id="1_85quf"]
+[ext_resource type="Script" uid="uid://bphhnrhstahj2" path="res://scripts/CameraController3D.gd" id="3_oxd3h"]
 [ext_resource type="PackedScene" uid="uid://3yy8se2knnd6" path="res://shared/gui.tscn" id="4"]
-[ext_resource type="EffekseerEffect" uid="uid://dfsyswa63i5xn" path="res://effects/samples/Laser01.efkefc" id="4_pf7tm"]
-[ext_resource type="Texture2D" uid="uid://dod84ervtfcm1" path="res://effects/tests/Textures/Particle02.png" id="5"]
+[ext_resource type="EffekseerEffect" uid="uid://c2f1vo8x7apuv" path="res://effects/gpu-particles/GpuParticles_trails_simple.efkefc" id="4_85quf"]
 [ext_resource type="Texture2D" uid="uid://cq0rnvcuc6xwp" path="res://shared/grid.png" id="7"]
-[ext_resource type="Script" path="res://scripts/Scene2D.gd" id="8"]
 
-[sub_resource type="BoxMesh" id="BoxMesh_3vo4w"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_12xne"]
+albedo_texture = ExtResource("7")
 
-[node name="Scene2D" type="Node2D"]
-script = ExtResource("8")
+[sub_resource type="PlaneMesh" id="1"]
 
-[node name="Background" type="TextureRect" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_right = 1280.0
-offset_bottom = 720.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("7")
-stretch_mode = 1
-metadata/_edit_lock_ = true
+[sub_resource type="BoxMesh" id="BoxMesh_4buj6"]
 
-[node name="ColorRect" type="ColorRect" parent="."]
-modulate = Color(1, 1, 1, 0.384314)
+[sub_resource type="GDScript" id="GDScript_7xpxe"]
+script/source = "extends MeshInstance3D
 
-[node name="Sprite" type="Sprite2D" parent="."]
-position = Vector2(171.514, 105.967)
-texture = ExtResource("2")
+func _process(delta: float):
+	rotate_y(deg_to_rad(delta * 180.0))
+"
 
-[node name="Effect" type="EffekseerEmitter2D" parent="."]
-effect = ExtResource("4_pf7tm")
-orientation = Vector3(45, 0, 0)
-position = Vector2(229.379, 184.932)
-scale = Vector2(30, 30)
+[sub_resource type="PrismMesh" id="PrismMesh_53s0x"]
 
-[node name="MeshInstance2D" type="MeshInstance2D" parent="Effect"]
-modulate = Color(0.796078, 0.6, 0.431373, 1)
-mesh = SubResource("BoxMesh_3vo4w")
+[sub_resource type="Environment" id="3"]
+ambient_light_color = Color(0.25098, 0.25098, 0.25098, 1)
+glow_enabled = true
 
-[node name="Sprite2" type="Sprite2D" parent="."]
-position = Vector2(275.172, 107.026)
-texture = ExtResource("2")
+[node name="Scene3D" type="Node3D" unique_id=1236197689]
+script = ExtResource("1_85quf")
 
-[node name="Light2D" type="PointLight2D" parent="."]
-position = Vector2(577, 296)
-scale = Vector2(3.10167, 3.1723)
-texture = ExtResource("5")
+[node name="Ground" type="MeshInstance3D" parent="." unique_id=2071827541]
+transform = Transform3D(10, 0, 0, 0, 1, 0, 0, 0, 10, 0.00415611, -0.00846815, 0.0139425)
+material_override = SubResource("StandardMaterial3D_12xne")
+mesh = SubResource("1")
 
-[node name="Camera2D" type="Camera2D" parent="."]
-offset = Vector2(640, 360)
+[node name="Camera" type="Camera3D" parent="." unique_id=897484454]
+transform = Transform3D(0.707107, -0.241845, 0.664463, 0, 0.939693, 0.34202, -0.707107, -0.241845, 0.664463, 8.09255, 9.01818, 8.09256)
+fov = 45.0
+script = ExtResource("3_oxd3h")
 
-[node name="Header" type="HBoxContainer" parent="."]
+[node name="DirectionalLight" type="DirectionalLight3D" parent="." unique_id=1151908431]
+transform = Transform3D(1, 0, 0, 0, 0.200531, 0.979687, 0, -0.979687, 0.200531, 0, 6.95046, -4.86754e-07)
+shadow_enabled = true
 
-[node name="Title" type="Label" parent="Header"]
+[node name="Cube" type="MeshInstance3D" parent="." unique_id=1923244683]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.93182, 0)
+mesh = SubResource("BoxMesh_4buj6")
+script = SubResource("GDScript_7xpxe")
+
+[node name="Player" type="CharacterBody3D" parent="." unique_id=656399549]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Player" unique_id=387928603]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -0.2, 0, 1, -8.74228e-09, 0, 0, 0)
+mesh = SubResource("PrismMesh_53s0x")
+skeleton = NodePath("../..")
+
+[node name="Effect" type="EffekseerEmitter3D" parent="Player" unique_id=1673219132]
+effect = ExtResource("4_85quf")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1989851967]
+environment = SubResource("3")
+
+[node name="Header" type="HBoxContainer" parent="." unique_id=8040039]
+
+[node name="Title" type="Label" parent="Header" unique_id=312221989]
 layout_mode = 2
-text = "Effekseer 2D Effect Example"
+text = "Effekseer 3D Effect Example"
 
-[node name="Description" type="Label" parent="Header"]
+[node name="Description" type="Label" parent="Header" unique_id=809397829]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "W/A/S/D: Move the Emitter.  Q/E: Rotate the Emitter."
+text = "W/A/S/D: Move the Emitter.  Q/E: Rotate the Emitter.
+MouseRightDrag: Rotate the Camera, MouseMiddleDrag: Move the Camera"
 
-[node name="GUI" parent="." instance=ExtResource("4")]
-offset_right = 1280.0
-offset_bottom = 720.0
-metadata/_edit_lock_ = true
+[node name="GUI" parent="." unique_id=284385577 instance=ExtResource("4")]
 
-[node name="DirectionalLight2D" type="DirectionalLight2D" parent="."]
-visible = false
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1051503464]

@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://8jglcg6asc43"
+path="res://.godot/imported/mt_wind02.efkmat-106cd2078096f52b1f2f544f6558b5c5.res"
+
+[deps]
+
+source_file="res://effects/effect-materials/Materials/mt_wind02.efkmat"
+dest_files=["res://.godot/imported/mt_wind02.efkmat-106cd2078096f52b1f2f544f6558b5c5.res"]
+
+[params]
+
+compress=true

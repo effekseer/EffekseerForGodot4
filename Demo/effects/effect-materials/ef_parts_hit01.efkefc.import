@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://c47ar55hgs1l7"
+path="res://.godot/imported/ef_parts_hit01.efkefc-8b510d43f99e55f16a9f5b23a8ce58c1.res"
+
+[deps]
+
+source_file="res://effects/effect-materials/ef_parts_hit01.efkefc"
+dest_files=["res://.godot/imported/ef_parts_hit01.efkefc-8b510d43f99e55f16a9f5b23a8ce58c1.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true

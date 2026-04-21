@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://dxkjatacutnv3"
+path="res://.godot/imported/ms_lightning03_01.efkmodel-96160b27e127cf24c60b5905f6b12c83.res"
+
+[deps]
+
+source_file="res://effects/effect-materials/Meshes/ms_lightning03_01.efkmodel"
+dest_files=["res://.godot/imported/ms_lightning03_01.efkmodel-96160b27e127cf24c60b5905f6b12c83.res"]
+
+[params]
+
+compress=true

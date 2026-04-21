@@ -1,0 +1,15 @@
+[remap]
+
+importer="effekseer.resource"
+type="Resource"
+uid="uid://nw21ahig8xlt"
+path="res://.godot/imported/ms_tornado01.efkmodel-374495c9f9406ca1f5689bbad9311d61.res"
+
+[deps]
+
+source_file="res://effects/effect-materials/Meshes/ms_tornado01.efkmodel"
+dest_files=["res://.godot/imported/ms_tornado01.efkmodel-374495c9f9406ca1f5689bbad9311d61.res"]
+
+[params]
+
+compress=true
