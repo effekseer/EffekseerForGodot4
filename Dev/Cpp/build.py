@@ -5,6 +5,7 @@ import subprocess
 import multiprocessing
 
 script_path = os.path.abspath(__file__)
+sys.path.append(os.path.join(os.path.dirname(script_path), "godot-cpp"))
 
 def replace_word(file_name, target_str, replace_str):
     text = ""
@@ -18,10 +19,15 @@ def replace_word(file_name, target_str, replace_str):
 
 def import_generate_bindings(arch: str):
     bits = "32" if "32" in arch else "64"
-    binding_generator = __import__("godot-cpp.binding_generator").binding_generator
     cwd = os.getcwd()
     os.chdir(os.path.join(os.path.dirname(script_path), "godot-cpp"))
-    binding_generator.generate_bindings("gdextension/extension_api.json", False, bits=bits)
+    binding_generator = __import__("binding_generator")
+    binding_generator.generate_bindings(
+        api_filepath="gdextension/extension_api.json",
+        interface_filepath="gdextension/gdextension_interface.json",
+        use_template_get_node=False,
+        bits=bits,
+    )
     os.chdir(cwd)
 
 os.chdir(os.path.dirname(script_path))
@@ -41,7 +47,7 @@ options.append(f"target={target}")
 if "platform=windows" in sys.argv:
     os.makedirs(f"{output_dir}/windows", exist_ok = True)
 
-    for arch in ["x86_32", "x86_64"]:
+    for arch in ["x86_64", "x86_32"]:
         import_generate_bindings(arch)
         subprocess.run(["scons", "platform=windows", f"arch={arch}"] + options, check=True)
 
