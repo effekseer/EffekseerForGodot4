@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://cd0wqqr5gjx05"
+path="res://.godot/imported/sprite_billboard.efkefc-00c8c5a4a475473910bbfceed9446d44.res"
+
+[deps]
+
+source_file="res://effects/tests/sprite_billboard.efkefc"
+dest_files=["res://.godot/imported/sprite_billboard.efkefc-00c8c5a4a475473910bbfceed9446d44.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true
