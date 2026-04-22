@@ -60,7 +60,7 @@ sources = []
 ## Effekseer
 sources += Glob("../Effekseer/Dev/Cpp/Effekseer/Effekseer/*.cpp")
 sources += Glob("../Effekseer/Dev/Cpp/Effekseer/Effekseer/**/*.cpp")
-sources += Glob("../Effekseer/Dev/Cpp/EffekseerRendererCommon/*.cpp")
+sources += Glob("../Effekseer/Dev/Cpp/EffekseerRendererCommon/EffekseerRendererCommon/*.cpp")
 
 ## EffekseerGodot4
 sources += Glob("src/*.cpp")
