@@ -1,7 +1,32 @@
 ﻿# Release notes
 
+## 1.80.2
+- godot-cpp updated to 4.6 (it no longer works earlier than Godot 4.6)
+- Effekseer updated to 1.80.2
+- Support GPU Particles
+
+## 1.70e.10
+- godot-cpp updated to 4.4 (it no longer works earlier than Godot 4.4)
+- Fix a material shader error using CustomData2
+
+## 1.70e.9
+- Changed the parent class of EffekseerEmitter3D from Node3D to VisualInstance3D
+- EffekseerEmitter3D now respects the Layer Mask
+- EffekseerEmitter2D now respects the Visibility Layer
+- Fixed sound script not working with default settings
+
+## 1.70e.8
+- Redesign the inspector effect previewer
+- Change a setting that sound script type
+- Fix the shader resource leak (crash on exit fixed)
+
+## 1.70e.7
+- [macOS] Change library format from .dylib to .framework for notarization support
+- Fix rendering errors when using certain parameters
+- Fix broken 2D/3D switching in inspector plugin
+
 ## 1.70e.6
-- godot-cpp updated to 4.3 (it no longer works under Godot 4.3)
+- godot-cpp updated to 4.3 (it no longer works earlier than Godot 4.3)
 - Change base class of EffekseerSystem to Object.
 - Advanced render material is now available in 2D.
 - Model instancing rendering is now enabled in 2D.
@@ -18,10 +43,10 @@
 - Fix a bug 3d reverse rotation
 
 ## 1.70e.3
-- godot-cpp updated to 4.2 (it no longer works under Godot 4.2)
+- godot-cpp updated to 4.2 (it no longer works earlier than Godot 4.2)
 
 ## 1.70e.2
-- godot-cpp updated to 4.1 (it no longer works under Godot 4.1)
+- godot-cpp updated to 4.1 (it no longer works earlier than Godot 4.1)
 
 ## 1.70e.1
 - Change default values for project settings
@@ -31,7 +56,7 @@
 - Improved effects loading process
 - Migration to new shader generation process
 - Added preview rendering in the editor viewport
-- Fixed a loading failure when placing resources directly under "res://".
+- Fixed a loading failure when placing resources directly earlier than "res://".
 - Fixed a bug that the texture repeats even if a clamp is specified for the wrap mode of the texture
 - Updated Effekseer to 1.70e
 - godot-cpp updated to 4.0.3
