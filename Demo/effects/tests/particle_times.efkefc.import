@@ -1,0 +1,17 @@
+[remap]
+
+importer="effekseer.effect"
+type="Resource"
+uid="uid://bur2ne02vfgsr"
+path="res://.godot/imported/particle_times.efkefc-1eae2c9a4d20e5e3df34d766ac7502ac.res"
+
+[deps]
+
+source_file="res://effects/tests/particle_times.efkefc"
+dest_files=["res://.godot/imported/particle_times.efkefc-1eae2c9a4d20e5e3df34d766ac7502ac.res"]
+
+[params]
+
+scale=1.0
+data_type=0
+compress=true
