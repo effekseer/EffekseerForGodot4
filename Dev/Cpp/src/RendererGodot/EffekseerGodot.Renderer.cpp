@@ -693,6 +693,7 @@ void Renderer::TransferVertexToMesh(godot::RID mesh, const uint8_t* vertexData, 
 	const uint8_t* srcBufferTangent = nullptr;
 	const uint8_t* srcBufferAdvance = nullptr;
 	const uint8_t* srcBufferCustom = nullptr;
+	const uint8_t* srcBufferTimes = nullptr;
 
 	uint32_t dstVertexPosSize = 0;
 	uint32_t dstVertexNrmTanSize = 0;
@@ -702,6 +703,7 @@ void Renderer::TransferVertexToMesh(godot::RID mesh, const uint8_t* vertexData, 
 	uint8_t* dstBufferNrmTan = nullptr;
 	uint8_t* dstBufferAdv = nullptr;
 	uint8_t* dstBufferCustom = nullptr;
+	uint8_t* dstBufferTimes = nullptr;
 
 	uint64_t format = RenderingServer::ARRAY_FLAG_FORMAT_VERSION_2 |
 		RenderingServer::ARRAY_FORMAT_VERTEX |
@@ -843,17 +845,19 @@ void Renderer::TransferVertexToMesh(godot::RID mesh, const uint8_t* vertexData, 
 		srcBufferUV = vertexData + offsetof(DynamicVertex, UV);
 		srcBufferNormal = vertexData + offsetof(DynamicVertex, Normal);
 		srcBufferTangent = vertexData + offsetof(DynamicVertex, Tangent);
+		srcBufferTimes = vertexData + offsetof(DynamicVertex, ParticleTimes);
 
 		if (is3d)
 		{
 			format |= RenderingServer::ARRAY_FORMAT_NORMAL | RenderingServer::ARRAY_FORMAT_TANGENT;
+			format |= RenderingServer::ARRAY_FORMAT_CUSTOM0 | ((RenderingServer::ARRAY_CUSTOM_R_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM0_SHIFT);
 			dstVertexNrmTanSize = sizeof(GdVertexNrmTan);
-			dstAttributeSize = sizeof(GdAttributeColUV);
+			dstAttributeSize = sizeof(GdAttributeColUV) + sizeof(GdAttributeParticleTime);
 		}
 		else
 		{
-			format |= RenderingServer::ARRAY_FORMAT_CUSTOM0 | ((RenderingServer::ARRAY_CUSTOM_RG_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM0_SHIFT);
-			dstAttributeSize = sizeof(GdAttributeColUV) + sizeof(GdAttributeNrmTan);
+			format |= RenderingServer::ARRAY_FORMAT_CUSTOM0 | ((RenderingServer::ARRAY_CUSTOM_RGB_FLOAT) << RenderingServer::ARRAY_FORMAT_CUSTOM0_SHIFT);
+			dstAttributeSize = sizeof(GdAttributeColUV) + sizeof(GdAttributeNrmTan) + sizeof(GdAttributeParticleTime);
 		}
 
 		if (customData1Count > 0 || customData2Count > 0)
@@ -872,12 +876,14 @@ void Renderer::TransferVertexToMesh(godot::RID mesh, const uint8_t* vertexData, 
 		if (is3d)
 		{
 			dstBufferNrmTan = dstBufferPos + vertexCount * dstVertexPosSize;
-			dstBufferCustom = dstBufferColUV + sizeof(GdAttributeColUV);
+			dstBufferTimes = dstBufferColUV + sizeof(GdAttributeColUV);
+			dstBufferCustom = dstBufferTimes + sizeof(GdAttributeParticleTime);
 		}
 		else
 		{
 			dstBufferNrmTan = dstBufferColUV + sizeof(GdAttributeColUV);
-			dstBufferCustom = dstBufferColUV + sizeof(GdAttributeColUV) + sizeof(GdAttributeNrmTan);
+			dstBufferTimes = dstBufferNrmTan + sizeof(GdAttributeNrmTan);
+			dstBufferCustom = dstBufferTimes + sizeof(GdAttributeParticleTime);
 		}
 	}
 
@@ -947,6 +953,19 @@ void Renderer::TransferVertexToMesh(godot::RID mesh, const uint8_t* vertexData, 
 			for (uint32_t j = 0; j < 12; j++)
 			{
 				dst.advance[j] = ToHalfFloat(adv[j]);
+			}
+		}
+	}
+
+	if (srcBufferTimes)
+	{
+		for (int32_t i = 0; i < vertexCount; i++)
+		{
+			auto times = (const float*)(srcBufferTimes + i * srcVertexSize);
+			auto& dst = *(GdAttributeParticleTime*)(dstBufferTimes + i * dstAttributeSize);
+			for (uint32_t j = 0; j < 2; j++)
+			{
+				dst.times[j] = ToHalfFloat(times[j]);
 			}
 		}
 	}

@@ -387,6 +387,10 @@ struct GdAttributeNrmTan {
 	uint32_t tangent;
 };
 
+struct GdAttributeParticleTime {
+	std::array<uint16_t, 2> times;
+};
+
 struct GdAttributeAdvance {
 	std::array<uint16_t, 12> advance;
 };

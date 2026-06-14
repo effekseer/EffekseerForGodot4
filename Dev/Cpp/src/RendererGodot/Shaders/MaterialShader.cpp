@@ -15,6 +15,13 @@ float atan2(float y, float x) {
 }
 )";
 
+static const char* src_common_sprite_times = R"(
+vec2 UnpackTimes(float fBits) {
+	uint uBits = floatBitsToUint(fBits);
+	return unpackHalf2x16(uBits);
+}
+)";
+
 static const char* src_common_sprite_custom = R"(
 vec4 UnpackCustom(vec2 fBits) {
 	uvec2 uBits = floatBitsToUint(fBits);
@@ -419,6 +426,7 @@ void GenerateShaderCode(std::string& code, const Effekseer::MaterialFile& materi
 	// Output builtin varyings
 	code += varying_common;
 
+	code += "varying vec2 v_ParticleTime;\n";
 	if (customData1Count > 0) AppendFormat(code, "varying %s v_CustomData1;\n", customData1Type);
 	if (customData2Count > 0) AppendFormat(code, "varying %s v_CustomData2;\n", customData2Type);
 
@@ -427,6 +435,7 @@ void GenerateShaderCode(std::string& code, const Effekseer::MaterialFile& materi
 		code += uniforms_common;
 		
 		if (geometryType == GeometryType::Model) {
+			AppendFormat(code, "uniform vec2 ParticleTime[%d];\n", ModelRenderer::InstanceCount);
 			if (customData1Count > 0) AppendFormat(code, "uniform vec4 CustomData1[%d];\n", ModelRenderer::InstanceCount);
 			if (customData2Count > 0) AppendFormat(code, "uniform vec4 CustomData2[%d];\n", ModelRenderer::InstanceCount);
 		}
@@ -469,6 +478,7 @@ void GenerateShaderCode(std::string& code, const Effekseer::MaterialFile& materi
 	}
 
 	if (geometryType == GeometryType::Sprite) {
+		AppendFormat(code, src_common_sprite_times);
 		if (customData1Count > 0 || customData2Count > 0) {
 			AppendFormat(code, src_common_sprite_custom);
 		}
@@ -506,6 +516,8 @@ void GenerateShaderCode(std::string& code, const Effekseer::MaterialFile& materi
 	Replace(baseCode, "$TIME$", "PredefinedData.x");
 	Replace(baseCode, "$EFFECTSCALE$", "PredefinedData.y");
 	Replace(baseCode, "$LOCALTIME$", "PredefinedData.w");
+	Replace(baseCode, "$PARTICLE_TIME_NORMALIZED$", "particleTime.x");
+	Replace(baseCode, "$PARTICLE_TIME_SECONDS$", "particleTime.y");
 	Replace(baseCode, "$UV$", "uv");
 	Replace(baseCode, "MOD", "mod");
 	Replace(baseCode, "FRAC", "fract");
@@ -567,10 +579,17 @@ void GenerateShaderCode(std::string& code, const Effekseer::MaterialFile& materi
 
 	// Vertex shader (Common)
 	if (geometryType == GeometryType::Sprite) {
+		if (nodeType == NodeType::Node2D) {
+			code += "\tvec2 particleTime = UnpackTimes(CUSTOM0.z);\n";
+		}
+		else {
+			code += "\tvec2 particleTime = UnpackTimes(CUSTOM0.x);\n";
+		}
 		if (customData1Count > 0) AppendFormat(code, "\t%s customData1 = UnpackCustom(CUSTOM1.xy).%s;\n", customData1Type, customData1Element);
 		if (customData2Count > 0) AppendFormat(code, "\t%s customData2 = UnpackCustom(CUSTOM1.zw).%s;\n", customData2Type, customData2Element);
 	}
 	else {
+		code += "\tvec2 particleTime = ParticleTime[INSTANCE_ID];\n";
 		if (customData1Count > 0) AppendFormat(code, "\t%s customData1 = CustomData1[INSTANCE_ID].%s;\n", customData1Type, customData1Element);
 		if (customData2Count > 0) AppendFormat(code, "\t%s customData2 = CustomData2[INSTANCE_ID].%s;\n", customData2Type, customData2Element);
 	}
@@ -581,6 +600,7 @@ void GenerateShaderCode(std::string& code, const Effekseer::MaterialFile& materi
 
 	code += vertCode;
 
+	code += "\tv_ParticleTime = particleTime;\n";
 	if (customData1Count > 0) code += "\tv_CustomData1 = customData1;\n";
 	if (customData2Count > 0) code += "\tv_CustomData2 = customData2;\n";
 
@@ -603,7 +623,7 @@ void GenerateShaderCode(std::string& code, const Effekseer::MaterialFile& materi
 		}
 	}
 
-
+	code += "\tvec2 particleTime = v_ParticleTime;\n";
 	if (customData1Count > 0) AppendFormat(code, "\t%s customData1 = v_CustomData1;\n", customData1Type);
 	if (customData2Count > 0) AppendFormat(code, "\t%s customData2 = v_CustomData2;\n", customData2Type);
 
@@ -705,6 +725,7 @@ std::tuple<int32_t, int32_t> GenerateParamDecls(std::vector<ParamDecl>& paramDec
 			appendDecls("ModelMatrix", ParamType::Matrix44, 0, parameterGenerator.VertexModelMatrixOffset, instanceCount);
 		}
 
+		appendDecls("ParticleTime", ParamType::Vector2, 0, parameterGenerator.VertexModelParticleTimeOffset, instanceCount);
 		appendCustomDataDecls(materialFile, parameterGenerator, instanceCount);
 		appendUserUniformDecls(materialFile, parameterGenerator);
 		appendTextureDecls(materialFile);
