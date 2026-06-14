@@ -44,10 +44,14 @@ if "debug=yes" in sys.argv:
 
 options.append(f"target={target}")
 
+if "gen_bindings_only" in sys.argv:
+    for arch in ["x86_64"]:
+        import_generate_bindings(arch)
+
 if "platform=windows" in sys.argv:
     os.makedirs(f"{output_dir}/windows", exist_ok = True)
 
-    for arch in ["x86_64", "x86_32"]:
+    for arch in ["x86_32", "x86_64"]:
         import_generate_bindings(arch)
         subprocess.run(["scons", "platform=windows", f"arch={arch}"] + options, check=True)
 
