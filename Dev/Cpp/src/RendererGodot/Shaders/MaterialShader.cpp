@@ -72,12 +72,6 @@ static const char* src_common_calcdepthfade_caller =
 static const char* src_common_calcdepthfade_replaced =
 "CalcDepthFade(texture(DepthTexture, screenUV).x, meshZ, temp_0)";
 
-static const char* src_common_srgb_to_linear = R"(
-vec3 SRGBToLinear(vec3 c) {
-	return c * (c * (c * 0.305306011 + 0.682171111) + 0.012522878);
-}
-)";
-
 static const char* src_common_gradient = R"(
 struct Gradient {
 	int colorCount;
@@ -301,8 +295,8 @@ void fragment() {
 )";
 
 static const char src_fragment_lit_tail_3d[] = R"(
-	ALBEDO = SRGBToLinear(baseColor);
-	EMISSION = SRGBToLinear(emissive);
+	ALBEDO = ToLinear(baseColor);
+	EMISSION = ToLinear(emissive);
 	METALLIC = metallic;
 	ROUGHNESS = roughness;
 	AO = ambientOcclusion;
@@ -314,7 +308,7 @@ static const char src_fragment_lit_tail_3d[] = R"(
 )";
 
 static const char src_fragment_unlit_tail_3d[] = R"(
-	ALBEDO = SRGBToLinear(emissive);
+	ALBEDO = ToLinear(emissive);
 	ALPHA = clamp(opacity, 0.0, 1.0);
 	
 	if (opacityMask <= 0.0) discard;
@@ -348,7 +342,7 @@ if (CullingType == 0) {
 )";
 
 static const char src_fragment_lit_tail_2d[] = R"(
-	COLOR = vec4(SRGBToLinear(baseColor + emissive), clamp(opacity, 0.0, 1.0));
+	COLOR = vec4(ToLinear(baseColor + emissive), clamp(opacity, 0.0, 1.0));
 
 	if (opacityMask <= 0.0) discard;
 }
@@ -471,7 +465,7 @@ void GenerateShaderCode(std::string& code, const Effekseer::MaterialFile& materi
 	}
 
 	// Output builtin functions
-	code += src_common_srgb_to_linear;
+	code += src_common_to_linear;
 
 	if (nodeType == NodeType::Node2D) {
 		code += src_common_normal_2d;

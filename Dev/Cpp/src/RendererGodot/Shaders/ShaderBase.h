@@ -134,4 +134,12 @@ void AppendFormat(std::string& str, const char* fmt, Args ... args)
 	str.resize(offset + len);
 }
 
+static inline const char* src_common_to_linear = R"(
+uniform bool LinearColorMode = false;
+vec3 ToLinear(vec3 c) {
+	return LinearColorMode ? c : (c * (c * (c * 0.305306011 + 0.682171111) + 0.012522878));
+}
+)";
+
+
 } // namespace EffekseerGodot

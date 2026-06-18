@@ -112,9 +112,10 @@ private:
 	godot::PackedByteArray m_indexData;
 
 	bool m_verticalFlipped = false;
+	bool m_linearColorMode = false;
 
 public:
-	static RendererRef Create(int32_t squareMaxCount, int32_t drawMaxCount);
+	static RendererRef Create(int32_t squareMaxCount, int32_t drawMaxCount, bool linearColorMode);
 
 	Renderer(int32_t squareMaxCount);
 
@@ -124,7 +125,7 @@ public:
 
 	void OnResetDevice() override {}
 
-	bool Initialize(int32_t drawMaxCount);
+	bool Initialize(int32_t drawMaxCount, bool linearColorMode);
 
 	void Destroy();
 

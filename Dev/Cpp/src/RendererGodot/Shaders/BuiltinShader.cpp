@@ -495,6 +495,8 @@ void GeneratePredefined(std::string& code, BuiltinShader::Settings settings)
 		code += func_DistortionMap;
 	}
 
+	code += src_common_to_linear;
+
 	if (settings.IsUsingAdvanced()) {
 		AppendFormat(code, uniform_Advanced,
 			GdTextureFilter[static_cast<int>(settings.GetTextureFilter(BuiltinTextures::Alpha))],
@@ -655,11 +657,11 @@ void GenerateFragmentCode(std::string& code, BuiltinShader::Settings settings)
 	}
 
 	if (settings.IsNode3D()) {
-		code += "\tALBEDO = color.rgb;\n";
+		code += "\tALBEDO = ToLinear(color.rgb);\n";
 		code += "\tALPHA = color.a;\n";
 	}
 	else {
-		code += "\tCOLOR = color;\n";
+		code += "\tCOLOR = vec4(ToLinear(color.rgb), color.a);\n";
 	}
 
 	code += "}\n";

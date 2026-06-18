@@ -180,10 +180,10 @@ void RenderCommand2D::SetupModels(godot::Node2D* parent, godot::RID mesh, int32_
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-RendererRef Renderer::Create(int32_t squareMaxCount, int32_t drawMaxCount)
+RendererRef Renderer::Create(int32_t squareMaxCount, int32_t drawMaxCount, bool linearColorMode)
 {
 	auto renderer = Effekseer::MakeRefPtr<Renderer>(squareMaxCount);
-	if (renderer->Initialize(drawMaxCount))
+	if (renderer->Initialize(drawMaxCount, linearColorMode))
 	{
 		return renderer;
 	}
@@ -214,7 +214,7 @@ Renderer::~Renderer()
 //----------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------
-bool Renderer::Initialize(int32_t drawMaxCount)
+bool Renderer::Initialize(int32_t drawMaxCount, bool linearColorMode)
 {
 	using namespace EffekseerRenderer;
 
@@ -241,6 +241,8 @@ bool Renderer::Initialize(int32_t drawMaxCount)
 
 	impl->SetBackground(m_background);
 	impl->SetDepth(m_depth, EffekseerRenderer::DepthReconstructionParameter());
+
+	m_linearColorMode = linearColorMode;
 
 	return true;
 }
@@ -446,6 +448,8 @@ void Renderer::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 		// Setup material
 		ApplyParametersToMaterial(command.GetMaterial(), renderingHandle->GetShader3D(), m_currentShader->GetParamDecls3D());
 
+		rs->material_set_param(command.GetMaterial(), "LinearColorMode", m_linearColorMode);
+
 		m_renderCount3D++;
 		impl->drawcallCount++;
 		impl->drawvertexCount += spriteCount * 4;
@@ -466,6 +470,7 @@ void Renderer::DrawSprites(int32_t spriteCount, int32_t vertexOffset)
 
 		auto srt = EffekseerGodot::ToSRT(emitter->get_global_transform());
 		rs->material_set_param(command.GetMaterial(), "BaseScale", srt.scale.abs());
+		rs->material_set_param(command.GetMaterial(), "LinearColorMode", m_linearColorMode);
 
 		m_renderCount2D++;
 		impl->drawcallCount++;
@@ -532,6 +537,8 @@ void Renderer::DrawPolygonInstanced(int32_t vertexCount, int32_t indexCount, int
 		// Setup material
 		ApplyParametersToMaterial(command.GetMaterial(), renderingHandle->GetShader3D(), m_currentShader->GetParamDecls3D());
 
+		rs->material_set_param(command.GetMaterial(), "LinearColorMode", m_linearColorMode);
+
 		m_renderCount3D++;
 		impl->drawcallCount++;
 		impl->drawvertexCount += vertexCount * instanceCount;
@@ -568,6 +575,7 @@ void Renderer::DrawPolygonInstanced(int32_t vertexCount, int32_t indexCount, int
 		auto srt = EffekseerGodot::ToSRT(emitter->get_global_transform());
 		rs->material_set_param(command.GetMaterial(), "BaseScale", srt.scale.abs());
 		rs->material_set_param(command.GetMaterial(), "CullingType", (int)renderState.CullingType);
+		rs->material_set_param(command.GetMaterial(), "LinearColorMode", m_linearColorMode);
 
 		m_renderCount2D++;
 		impl->drawcallCount++;

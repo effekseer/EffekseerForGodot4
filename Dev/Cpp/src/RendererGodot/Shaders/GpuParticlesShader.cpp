@@ -424,13 +424,13 @@ const char src_render_transform_fixed_2d[] = R"(
 
 const char src_render_fragment_3d[] = R"(
 	vec4 color = texture(colorTexture, UV) * COLOR;
-	ALBEDO = color.rgb;
+	ALBEDO = ToLinear(color.rgb);
 	ALPHA = color.a;
 )";
 
 const char src_render_fragment_2d[] = R"(
 	vec4 color = texture(colorTexture, UV) * COLOR;
-	COLOR = color;
+	COLOR = vec4(ToLinear(color.rgb), color.a);
 )";
 
 }
@@ -577,6 +577,7 @@ godot::RID GpuParticlesShader::GenerateRenderShader(NodeType nodeType, const Eff
 	}
 
 	code += src_render_uniforms;
+	code += src_common_to_linear;
 
 	if (paramSet.RenderShape.Type == RenderShapeT::Sprite || paramSet.RenderShape.Type == RenderShapeT::Trail) {
 		code += src_common_unpack_normalized_float3;
