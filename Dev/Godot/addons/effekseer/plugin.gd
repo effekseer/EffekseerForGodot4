@@ -11,8 +11,8 @@ var emitter3d_gizmo_plugin
 var editor_menu: Node
 
 func _enter_tree():
-	add_project_setting("effekseer/instance_max_count", 4000, TYPE_INT, PROPERTY_HINT_RANGE, "40,8000")
-	add_project_setting("effekseer/square_max_count", 16000, TYPE_INT, PROPERTY_HINT_RANGE, "80,32000")
+	add_project_setting("effekseer/instance_max_count", 4000, TYPE_INT, PROPERTY_HINT_RANGE, "100,100000")
+	add_project_setting("effekseer/square_max_count", 16000, TYPE_INT, PROPERTY_HINT_RANGE, "400,400000")
 	add_project_setting("effekseer/draw_max_count", 256, TYPE_INT, PROPERTY_HINT_RANGE, "16,1024")
 	add_project_setting("effekseer/sound_script", plugin_source_path + "/EffekseerSound.gd", TYPE_STRING, PROPERTY_HINT_FILE, "*.gd,*.cs")
 	add_project_setting("effekseer/color_space", 0, TYPE_INT, PROPERTY_HINT_ENUM, "Gamma,Linear")
