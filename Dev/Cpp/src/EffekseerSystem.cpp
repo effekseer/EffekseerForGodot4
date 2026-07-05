@@ -87,7 +87,7 @@ void EffekseerSystem::_init_modules()
 	int32_t instanceMaxCount = 4000;
 	int32_t squareMaxCount = 16000;
 	int32_t drawMaxCount = 256;
-	int32_t editorColorSpace = 0;
+	int32_t colorSpaceMode = 0;
 	String soundScriptPath = "res://addons/effekseer/src/EffekseerSound.gd";
 	Ref<Script> soundScript;
 
@@ -105,8 +105,8 @@ void EffekseerSystem::_init_modules()
 	if (settings->has_setting("effekseer/sound_script")) {
 		soundScriptPath = (String)settings->get_setting("effekseer/sound_script");
 	}
-	if (settings->has_setting("effekseer/editor_color_space")) {
-		editorColorSpace = (int32_t)settings->get_setting("effekseer/editor_color_space");
+	if (settings->has_setting("effekseer/color_space")) {
+		colorSpaceMode = (int32_t)settings->get_setting("effekseer/color_space");
 	}
 
 	Ref<RefCounted> sound;
@@ -135,7 +135,7 @@ void EffekseerSystem::_init_modules()
 
 	m_manager->SetSetting(effekseerSettings);
 
-	m_renderer = EffekseerGodot::Renderer::Create(squareMaxCount, drawMaxCount, editorColorSpace != 0);
+	m_renderer = EffekseerGodot::Renderer::Create(squareMaxCount, drawMaxCount, colorSpaceMode != 0);
 	m_renderer->SetProjectionMatrix(Effekseer::Matrix44().Indentity());
 
 	m_manager->SetSpriteRenderer(m_renderer->CreateSpriteRenderer());
