@@ -49,7 +49,7 @@ func _import(source_file: String, save_path: String, options: Dictionary, platfo
 	#print(source_file)
 	if source_file.ends_with(".efkefc"):
 		printerr("Failed to import: " + source_file)
-		return null
+		return FAILED
 	
 	var resource = EffekseerResource.new()
 	
