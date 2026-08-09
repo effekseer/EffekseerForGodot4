@@ -231,15 +231,15 @@ inline Effekseer::Matrix43 ToEfkMatrix43(const godot::Transform3D& transform)
 }
 
 inline Effekseer::Matrix43 ToEfkMatrix43(const godot::Transform2D& transform, 
-	const godot::Vector3& orientation, bool flipH, bool flipV)
+	const godot::Vector3& orientation)
 {
 	using namespace Effekseer::SIMD;
 
 	auto srt = ToSRT(transform);
 
-	// Invert XY by flip or negative scale
-	float scaleX = (flipH ^ (srt.scale.x < 0.0f)) ? -1.0f : 1.0f;
-	float scaleY = (flipV ^ (srt.scale.y < 0.0f)) ? -1.0f : 1.0f;
+	// Invert XY by negative scale
+	float scaleX = (srt.scale.x < 0.0f) ? -1.0f : 1.0f;
+	float scaleY = (srt.scale.y < 0.0f) ? -1.0f : 1.0f;
 	
 	// Invalidate scale (Apply scale at rendering)
 	float translationX = srt.translation.x / abs(srt.scale.x);

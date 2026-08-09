@@ -89,7 +89,7 @@ void EffekseerEmitter2D::_update_transform()
 	if (manager == nullptr) return;
 
 	auto matrix = EffekseerGodot::ToEfkMatrix43(get_global_transform(), 
-		m_orientation * (3.141592f / 180.0f), m_flip_h, m_flip_v);
+		m_orientation * (3.141592f / 180.0f));
 	for (int i = 0; i < m_handles.size(); i++) {
 		manager->SetMatrix(m_handles[i], matrix);
 	}
@@ -139,9 +139,10 @@ void EffekseerEmitter2D::play()
 
 		Effekseer::Handle handle = manager->Play(m_effect->get_native(), Effekseer::Vector3D(0, 0, 0));
 		if (handle >= 0) {
+			manager->SetEffectFlip(handle, Effekseer::EffectFlipParameter{m_flip_h, m_flip_v, false});
 			manager->SetLayer(handle, m_editor_mode ? EffekseerSystem::LAYER_EDITOR_2D : m_layer);
 			manager->SetMatrix(handle, EffekseerGodot::ToEfkMatrix43(get_global_transform(), 
-				m_orientation * (3.141592f / 180.0f), m_flip_h, m_flip_v));
+				m_orientation * (3.141592f / 180.0f)));
 			manager->SetUserData(handle, this);
 			manager->SetRemovingCallback(handle, [](Effekseer::Manager* manager, Effekseer::Handle handle, bool isRemovingManager){
 				if (!isRemovingManager) {
